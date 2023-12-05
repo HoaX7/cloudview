@@ -1,0 +1,1 @@
+module.exports = { COOKIE_NAME: "cv-token" };

@@ -1,0 +1,21 @@
+{
+  "dependencies": {
+    "config": "^3.3.9",
+    "dotenv": "^16.3.1",
+    "node-pg-migrate": "^6.2.2",
+    "pg": "^8.11.3"
+  },
+  "name": "migrations",
+  "description": "- This service is responsible for managing PostgreSQL DB migrations. - We are using pg-migrate to run `up` and `down` migrations.",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "migrate:create": "node-pg-migrate create --migration-file-language sql",
+    "migrate:up": "node-pg-migrate up --migration-file-language sql",
+    "migrate:down": "node-pg-migrate down --migration-file-language sql"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

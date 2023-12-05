@@ -1,0 +1,33 @@
+-- Up Migration
+ALTER TABLE users
+    ALTER COLUMN created_at 
+    TYPE TIMESTAMP WITH TIME ZONE
+        USING created_at AT TIME ZONE 'UTC';
+ALTER TABLE users
+    ALTER COLUMN updated_at 
+    TYPE TIMESTAMP WITH TIME ZONE
+        USING updated_at AT TIME ZONE 'UTC';
+ALTER TABLE users
+    ALTER COLUMN last_login_at 
+    TYPE TIMESTAMP WITH TIME ZONE
+        USING last_login_at AT TIME ZONE 'UTC';
+ALTER TABLE users
+    ALTER COLUMN subscribed_since 
+    TYPE TIMESTAMP WITH TIME ZONE
+        USING subscribed_since AT TIME ZONE 'UTC';
+ALTER TABLE users ADD CONSTRAINT email UNIQUE(email);
+
+-- Down Migration
+ALTER TABLE users
+    ALTER COLUMN created_at 
+    TYPE TIMESTAMP WITHOUT TIME ZONE;
+ALTER TABLE users
+    ALTER COLUMN updated_at 
+    TYPE TIMESTAMP WITHOUT TIME ZONE;
+ALTER TABLE users
+    ALTER COLUMN last_login_at 
+    TYPE TIMESTAMP WITHOUT TIME ZONE;
+ALTER TABLE users
+    ALTER COLUMN subscribed_since 
+    TYPE TIMESTAMP WITHOUT TIME ZONE;
+ALTER TABLE users DROP CONSTRAINT email;
