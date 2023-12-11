@@ -3,6 +3,8 @@ import type { DatastoreProps } from "$src/customTypes/Store";
 import { NODE_POSITIONS } from "../constants";
 import type { PathPoint, Points } from "$src/customTypes/Konva";
 import { calculateCurveControlPoints, calculateEdgePoints, getEdgePosition } from "./edgePaths";
+import { get } from "svelte/store";
+import KonvaStore from "$src/store/konva";
 
 // This function is used to fetch line points to
 // draw arrow between services
@@ -158,22 +160,25 @@ export const getConnectorMappings = (
 export const getProportions = (
 	offset: number,
 	itemIndex: number,
-	group: "external" | "internal"
+	group: "external" | "internal",
+	defaultX = 120,
+	defaultY = 120
 ) => {
-	let x = 120;
-	let y = 120;
+	const konvastore = get(KonvaStore.getStore());
+	let x = group === "internal" ? konvastore.internalBoundingRect.x : konvastore.externalBoundingRect.x;
+	let y = group === "external" ? konvastore.externalBoundingRect.y : defaultY;
 	const imageWidth = 100; // This includes text above image. (+20)
 	const imageHeight = 100;
 	const xPadding = 10;
-	const yPadding = 60;
+	const yPadding = 80;
 	if (group === "internal") {
-		x = 400 + (imageWidth + xPadding) * itemIndex;
+		x = x + (imageWidth + xPadding) * itemIndex;
 		y = y + (imageHeight + yPadding) * offset;
 	} else if (group === "external") {
 		y =
       y +
       (imageHeight + xPadding) * itemIndex +
-      (imageHeight + xPadding) * offset;
+      (imageHeight + yPadding) * offset;
 	}
 
 	return {

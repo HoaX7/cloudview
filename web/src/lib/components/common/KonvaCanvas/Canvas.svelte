@@ -1,19 +1,16 @@
 <script lang="ts">
   import Stage from "./Stage.svelte";
   import Layer from "./Layer.svelte";
-  // import Rect from "./Rect.svelte";
-  // import { onMount } from "svelte";
   import clsx from "clsx";
   import { NAVBAR_HEIGHT } from "$src/helpers/constants";
-  //   import { getConnectorPoints } from "$src/helpers/konva";
-  import type Konva from "konva";
+  import Konva from "konva";
   import Datastore from "$src/store/data";
   import {
   	drawSVGPath,
   	getArrowHeadPoints,
   	getConnectorPointsByPosition,
   } from "$src/helpers/konva/index";
-  import { createEventDispatcher, onDestroy } from "svelte";
+  import { afterUpdate, createEventDispatcher, onDestroy, onMount } from "svelte";
   import type {
   	ConnectableNodeProps,
   	HighLightProps,
@@ -23,15 +20,14 @@
   import Icon from "../Image/index.svelte";
   import Legend from "../../services/views/legend.svelte";
   import type { PathConfig } from "konva/lib/shapes/Path";
-  import Path from "./Path.svelte";
-  import Circle from "./Circle.svelte";
   import type { CircleConfig } from "konva/lib/shapes/Circle";
   import { COLOR_SCHEME } from "$src/colorConfig";
   import type { ArrowConfig } from "konva/lib/shapes/Arrow";
-  import Arrow from "./Arrow.svelte";
-  import { clone, isMobile } from "$src/helpers";
-  import Minimap from "./Minimap.svelte";
-  import type { StageConfig } from "konva/lib/Stage";
+  import { clone, delay, isMobile } from "$src/helpers";
+  import Minimap from "./minimap/Minimap.svelte";
+  import GridLayer from "./GridLayer.svelte";
+  import SettingStore from "$src/store/settings";
+  import Settings from "./Settings.svelte";
   // import { onMount } from "svelte";
 
   // To draw connecting arrows between nodes
@@ -45,6 +41,7 @@
    * `auth` store is used by profile only.
    */
   const datastore = Datastore.getDatastore();
+  const settingStore = SettingStore.getStore();
 
   export let legend: LegendProps[] = [];
   export let highlights: HighLightProps;
@@ -60,12 +57,40 @@
   let stage: Konva.Stage;
   let layer: Konva.Layer;
 
-  // onMount(() => {
-  // state.centerX = (window.innerWidth - rectangleConfig.width) / 2;
-  // state.centerY = (window.innerHeight - rectangleConfig.height) / 2;
-  // rectangleConfig.x = state.centerX;
-  // rectangleConfig.y = state.centerY;
-  // });
+  /**
+   * Caching static shapes for better performance.
+   */
+  let svgPath = new Konva.Path({
+  	listening: false,
+  	perfectDrawEnabled: false,
+  	stroke: COLOR_SCHEME.CONNECTOR,
+  	strokeWidth: 3,
+  	draggable: false,
+  	data: "M0 0 L10 10",
+  	zIndex: 0,
+  });
+  let circle = new Konva.Circle({
+  	listening: false,
+  	draggable: false,
+  	radius: 6,
+  	stroke: COLOR_SCHEME.CONNECTOR,
+  	fill: "white",
+  	zIndex: 999,
+  	strokeWidth: 2,
+  	perfectDrawEnabled: false,
+  });
+  let arrow = new Konva.Arrow({
+  	draggable: false,
+  	listening: false,
+  	perfectDrawEnabled: false,
+  	points: [],
+  	stroke: COLOR_SCHEME.CONNECTOR,
+  	strokeWidth: 2,
+  	fill: COLOR_SCHEME.CONNECTOR,
+  });
+  arrow.cache();
+  circle.cache();
+  svgPath.cache();
 
   /**
    * Need to calculate centerX and centerY
@@ -109,8 +134,54 @@
   let linesToDraw: L[] = [];
   let linesArray: L[] = [];
   let minimapRef: any = null;
+  let gridLayerRef: any = null;
 
   const isDesktop = !isMobile();
+
+  const clearLines = (lines: L[]) => {
+  	const idsToDelete = lines.map((ln) => ln.line.id);
+  	const children = layer
+  		?.getChildren()
+  		.filter((child) => idsToDelete.includes(child.attrs.id));
+  	children?.forEach((child) => child.destroy());
+  };
+
+  const updateConnectorShapes = (
+  	lines: L[],
+  	highlight = false,
+  	animate = true
+  ) => {
+  	clearLines(lines);
+  	lines.forEach((item) => {
+  		const pathClone = svgPath.clone(item.line);
+  		const circleClone = circle.clone(item.circle);
+  		const arrowClone = arrow.clone(item.arrow);
+  		if (animate && $settingStore.animate) {
+  			arrowClone.visible(false);
+  			const pathLen = pathClone.getLength();
+  			pathClone.dash([ pathLen ]);
+  			pathClone.dashOffset(pathLen);
+  			const anim = new Konva.Animation(function (frame) {
+  				const dashLen = pathLen - (frame?.time || 0) / 5;
+  				pathClone.dashOffset(dashLen);
+  				if (dashLen < 0) {
+  					anim.stop();
+  					arrowClone.visible(true);
+  				}
+  			}, layer);
+  			anim.start();
+  		}
+  		layer?.add(pathClone);
+  		if (highlight) {
+  			pathClone.moveToTop();
+  		} else {
+  			pathClone.moveToBottom();
+  		}
+  		layer?.add(circleClone);
+  		layer?.add(arrowClone);
+  	});
+  	layer?.batchDraw();
+  };
 
   const drawConnectorLines = (
   	target: ConnectableNodeProps,
@@ -142,27 +213,25 @@
   		linesArray.push({
   			circle: {
   				id,
-  				radius: 6,
-  				stroke: COLOR_SCHEME.CONNECTOR,
-  				fill: "white",
   				zIndex: 999,
-  				strokeWidth: 2,
+  				x: from.x,
+  				y: from.y,
+  				...(node.lineStyle ? { stroke: node.lineStyle.stroke } : {}),
   			},
   			line: {
-  				draggable: false,
-  				// fill: "black",
-  				stroke: COLOR_SCHEME.CONNECTOR,
-  				id,
   				data: path,
-  				// points,
-  				strokeWidth: 3,
+  				id,
+  				...(node.lineStyle || {}),
   			},
   			arrow: {
-  				points: arrowHeadPoints,
-  				stroke: COLOR_SCHEME.CONNECTOR,
-  				strokeWidth: 2,
   				id,
-  				fill: COLOR_SCHEME.CONNECTOR,
+  				points: arrowHeadPoints,
+  				...(node.lineStyle
+  					? {
+  						stroke: node.lineStyle.stroke,
+  						fill: node.lineStyle.stroke,
+  					}
+  					: {}),
   			},
   		});
   	}
@@ -229,12 +298,16 @@
   	});
 
   	linesToDraw = linesArray;
+  	updateConnectorShapes(linesArray);
   	console.log("lines to draw:", linesArray.length);
   };
 
   // Update lines
   const listener = datastore.subscribe((newVal) => {
-  	if (newVal.fetchData) linesArray = [];
+  	if (newVal.fetchData) {
+  		linesArray = [];
+  		clearLines(linesToDraw);
+  	}
   	updateConnector(
   		newVal.konvaTargetFromNodes,
   		newVal.konvaConnectableNodes,
@@ -270,6 +343,7 @@
   			return ln;
   		});
   		linesToDraw = res;
+  		updateConnectorShapes(res, true, false);
   	}
   };
   export const resetLineHighlights = () => {
@@ -279,24 +353,15 @@
   		ln.circle.opacity = 1;
   		ln.arrow.opacity = 1;
   		ln.circle.zIndex = 999;
-  		ln.line.zIndex = 1;
+  		ln.line.zIndex = 0;
   		ln.arrow.zIndex = 1;
   		return ln;
   	});
   	linesToDraw = res;
+  	updateConnectorShapes(res, false, false);
   };
-
-
-  const tm = setTimeout(() => {
-  	clearTimeout(tm);
-  	const proportions = stage?.getClientRect();
-  	if (proportions && minimapRef) {
-  		minimapRef.drawMap(proportions);
-  	}
-  }, 200);
-
+  let stageConfig = { draggable: true };
 </script>
-
 
 <Stage
   class={clsx("focus:cursor-grabbing relative")}
@@ -304,47 +369,60 @@
   	stage = handle;
   	dispatch("init", handle);
   }}
+  bind:config={stageConfig}
 >
-	{#if layer && isDesktop}
-		<Minimap {layer} bind:this={minimapRef} on:dragmove={(e) => {
-			/**
-			 * This logic allows us to create an interactive minimap.
-			 * Users can change position of the canvas based on what they want to look at
-			 * by dragging the viewbox rectangle.
-			 */
-			const config = e.detail;
-			const scale = stage.scaleX();
-			// The reason we are using 'negative' values is the rect
-			// inverts the rect position when dragged.
-			const newXPos = -config.x * scale;
-			const newYPos = -config.y * scale;
-			stage.position({
-				x: newXPos,
-				y: newYPos 
-			});
-			stage.batchDraw();
-		}} />
-	{/if}
-  {#if legend.length > 0}
-    <div class="absolute md:bottom-3 right-5 bottom-20 mb-3 md:mb-0 z-20">
-      <Legend
-        {legend}
-		on:reset-highlight={() => {
-			resetLineHighlights();
-			dispatch("highlight-nodes", []);
-		}}
-		on:highlight={(e) => {
-			dispatch("highlight-nodes", e.detail);
-		}}
-      />
-    </div>
+  {#if isDesktop}
+    <Minimap
+      bind:this={minimapRef}
+      on:dragmove={(e) => {
+      	/**
+         * This logic allows us to create an interactive minimap.
+         * Users can change position of the canvas based on what they want to look at
+         * by dragging the viewbox rectangle.
+         */
+      	const config = e.detail;
+      	const scale = stage.scaleX();
+      	// The reason we are using 'negative' values is the rect
+      	// inverts the rect position when dragged.
+      	const newXPos = -config.x * scale;
+      	const newYPos = -config.y * scale;
+      	gridLayerRef?.updateGrid();
+      	stage.position({
+      		x: newXPos,
+      		y: newYPos,
+      	});
+      	stage.batchDraw();
+      }}
+    />
   {/if}
   <div
-    class="absolute bottom-0 w-full gap-4 flex-col md:flex-row flex justify-between mb-3 px-5"
+    class="md:items-center absolute bottom-0 w-full gap-4 flex-col-reverse md:flex-row flex justify-between mb-3 px-5"
   >
-    <div>
+
+  {#if legend.length > 0}
+    <div
+      class="absolute right-5 md:left-2 bottom-[65px] md:relative md:bottom-0"
+    >
+      <Legend
+        {legend}
+        on:reset-highlight={() => {
+        	resetLineHighlights();
+        	dispatch("highlight-nodes", []);
+        }}
+        on:highlight={(e) => {
+        	dispatch("highlight-nodes", e.detail);
+        }}
+      />
+    </div>
+	{:else}
+	<div />
+  {/if}
+    <div class="bg-gray-100 shadow rounded px-2">
+      New changes may take up to 15 minutes to reflect
+    </div>
+    <div class="flex items-center">
       <button
-        class="help-text"
+        class="help-text mr-2"
         on:click={() => {
         	// const node = ($datastore?.konvaConnectableNodes || [])[0];
         	// if (node) {
@@ -360,37 +438,13 @@
       >
         <Icon src="/assets/images/focus-center.svg" alt="center" width="20" />
       </button>
+	  <Settings />
     </div>
-    <div class="bg-gray-100 shadow rounded px-2">
-      New changes may take up to 15 minutes to reflect
-    </div>
-    <div />
   </div>
+  <GridLayer bind:this={gridLayerRef} />
   <Layer
-    getHandler={(handle) => {
-    	layer = handle;
-    }}
+    bind:handle={layer}
   >
-    {#each linesToDraw as line, index (index)}
-      <!-- Drawing a circle & arrow head connector at start/end point -->
-      <Circle bind:config={line.circle} />
-      <Arrow bind:config={line.arrow} />
-      <Path bind:config={line.line} />
-    {/each}
     <slot />
-    <!-- Example -->
-    <!-- <Rect
-			bind:config={rectangleConfig}
-			on:click={(e) => {
-				console.log("Clicked");
-				e.stopPropagation();
-				const newX = -(rectangleConfig.x - state.centerX);
-				const newY = -(rectangleConfig.y - state.centerY);
-				handleRepositionStage(newX, newY);
-			}}
-            getHandler={(handle) => {
-            	rect = handle;
-            }}
-		/> -->
   </Layer>
 </Stage>

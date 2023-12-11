@@ -62,10 +62,10 @@ Under the hood it creates a div element where the html canvas is attached to.
 		// stageComponent.style.backgroundSize = "40px 40px";
 		// stageComponent.style.backgroundPosition = "-19px -19px";
 
+		registerEvents(dispatcher, handle);
+
 		inner.set(handle);
 		isReady = true;
-
-		registerEvents(dispatcher, handle);
 	});
 
 	onDestroy(() => {

@@ -20,7 +20,6 @@ The Rect component needs to be placed either inside a konva Layer or Group compo
 	export let config: Konva.RectConfig;
 	if (config) {
 		config.perfectDrawEnabled = false;
-		// config.listening = false;
 	}
 	export let handle = new Konva.Rect(config);
     export let getHandler: (rect: Konva.Rect) => void = () => null;

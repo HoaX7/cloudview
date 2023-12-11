@@ -10,11 +10,17 @@
 	import auth from "$src/store/auth";
 	import Datastore from "$src/store/data";
   import SelectProviderAndRegion from "$src/lib/components/layout/SelectProviderAndRegion.svelte";
+  import KonvaStore from "$src/store/konva";
+  import SettingStore from "$src/store/settings";
+  import Brandlogo from "$src/lib/components/layout/Brandlogo.svelte";
+  import { page } from "$app/stores";
 
 	export let data;
 	// Initialize auth store
 	let user = auth.initializeStore();
 	Datastore.init();
+	KonvaStore.init();
+	SettingStore.init();
 	let isLoggedIn = false;
 	//
 	// Added a Loading state to avoid unnecessary layout shifts/component changes.
@@ -70,12 +76,12 @@
 {#if isLoading}
 	<FullPageLoader />
 {:else if isLoggedIn && $user}
-	<nav class="p-3 bg-gray-100 relative z-20">
+	<nav class="p-3 bg-gray-100 relative z-20 shadow">
 		<div class="container mx-auto flex items-center justify-between">
-			<Typography variant="div" font={24} weight="medium">
-				<a href="/">Cloudview</a>
-			</Typography>
-			<SelectProviderAndRegion />
+			<a href="/"><Brandlogo /></a>
+			{#if $page.url.pathname === "/cloud/aws"}
+				<SelectProviderAndRegion />
+			{/if}
 			<Profile profile={$user} />
 		</div>
 	</nav>

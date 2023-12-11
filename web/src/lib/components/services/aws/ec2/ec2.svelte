@@ -8,13 +8,15 @@
   import Ec2Data from "./ec2Data.svelte";
   import type { Ec2Props } from "$src/customTypes/Services";
   import { getProportions } from "$src/helpers/konva/index";
-  import Rect from "$src/lib/components/common/KonvaCanvas/Rect.svelte";
-  import type Konva from "konva";
-  import { LEGEND_NAMES } from "$src/helpers/constants";
+  import { LEGEND_NAMES, STATUS_COLORS } from "$src/helpers/constants";
   import type { HighLightProps, LegendProps } from "$src/customTypes/Konva";
   import { COLOR_SCHEME } from "$src/colorConfig";
   import type { GroupConfig } from "konva/lib/Group";
-  import { includes } from "lodash";
+  import { getImageRect } from "../shapeCache";
+  import ServiceGroupWithLabel from "../ServiceGroupWithLabel.svelte";
+  import PreviewData from "../../views/previewData.svelte";
+  import Circle from "$src/lib/components/common/KonvaCanvas/Circle.svelte";
+  import StatusIcon from "../../views/statusIcon.svelte";
 
   export let data: Ec2Props;
   export let projectId: string;
@@ -70,7 +72,8 @@
   				if (node) {
   					(x = node.x), (y = node.y);
   				}
-  			} else {
+  			}
+  			if (x === 0 || y === 0) {
   				const proportions = getProportions(idx, i, "internal");
   				x = proportions.x;
   				y = proportions.y;
@@ -94,9 +97,11 @@
 
   $: {
   	imageData = imageData.map((it) => {
-  		const node = (highlights?.nodes || []).find((nd) => nd.includes(it.config?.id || "") || nd === it.config?.id);
+  		const node = (highlights?.nodes || []).find(
+  			(nd) => nd?.includes(it.config?.id || "") || nd === it.config?.id
+  		);
   		if (highlights.nodes && highlights.nodes.length > 0 && !node) {
-  			it.config.opacity = .3;
+  			it.config.opacity = 0.3;
   			return it;
   		}
   		it.config.opacity = 1;
@@ -107,19 +112,6 @@
   if (legend.length > 0) {
   	setLegend(legend);
   }
-
-  let group: Konva.Group | null = null;
-  let borderConfig = {
-  	draggable: false,
-  	zIndex: 0,
-  	fill: COLOR_SCHEME.VM,
-  	opacity: 0.3,
-  	x: 0,
-  	y: 0,
-  	width: 0,
-  	height: 0,
-  	cornerRadius: 5,
-  };
 
   const dispatch = createEventDispatcher();
 
@@ -146,26 +138,19 @@
   	dispatch("initialPosition", nodeConfigs);
   });
 
-  const tm = setTimeout(() => {
-  	clearTimeout(tm);
-  	if (group) {
-  		const proportions = group.getClientRect();
-  		borderConfig.x = proportions.x - 10;
-  		borderConfig.y = proportions.y - 10;
-  		borderConfig.width =
-        proportions.width + (imageWidth - (imageEl?.width || 0));
-  		borderConfig.height =
-        proportions.height + 10 + (imageHeight - (imageEl?.height || 0)) / 2;
-  	}
-  }, 100);
-
   const state: any = {
   	instance: null,
   	showModal: false,
   	volume: null,
+  	showPreview: false,
+  	previewProportions: {
+  		x: 0,
+  		y: 0,
+  	},
+  	previewData: null,
   };
 
-  // TODO - Elements are currently not draggable. If you wish to make them draggable,
+  // ##NOTICE - Elements are currently not draggable. If you wish to make them draggable,
   // make sure to also update the position of the image background rectangle.
 </script>
 
@@ -184,36 +169,70 @@
   showModal={state.showModal}
   volume={state.volume}
 />
-
-<Rect bind:config={borderConfig} />
-<Group
-  getHandler={(handle) => {
-  	group = handle;
+{#if state.showPreview}
+  <PreviewData
+    color={COLOR_SCHEME.VM}
+    proportions={state.previewProportions}
+    data={state.previewData}
+  />
+{/if}
+<ServiceGroupWithLabel
+  label={{
+  	text: "Ec2 Instances",
+  	fill: COLOR_SCHEME.VM,
   }}
+  borderColor={COLOR_SCHEME.VM}
+  {idx}
 >
-  <!-- Uncommenting this will create weird glitches with the `x` & `y` positioning of the group -->
-  <!-- <Text config={{
-	text: "Ec2 Instances",
-	draggable: false,
-	listening: false,
-	fill: "#FF9900",
-}} /> -->
   {#each imageData as item, index (index)}
     <Group
       bind:config={item.config}
       on:mouseenter={(e) => {
-      	const targets = $datastore.konvaTargetFromNodes.filter((tg) => tg.to.includes(item.config?.id || ""));
+      	const targets = $datastore.konvaTargetFromNodes.filter((tg) =>
+      		tg.to.includes(item.config?.id || "")
+      	);
       	dispatch("mouseenter", {
       		id: item.config.id,
       		highlights: targets,
-      		extras: targets.map((tg) => tg.id)
+      		extras: targets.map((tg) => tg.id),
       	});
+      	state.previewData = [
+      		{
+      			name: "Public Ip",
+      			value: item.instance.PublicIpAddress,
+      		},
+      		{
+      			name: "vCpu",
+      			value: item.instance.CpuOptions.CoreCount,
+      		},
+      		{
+      			name: "RAM",
+      			value: item.instance.InstanceType,
+      		},
+      		{
+      			name: "State",
+      			value: item.instance.State.Name || "",
+      		},
+      	];
+      	state.previewProportions = {
+      		x: (item.config.x || 0) - imageWidth / 2,
+      		y: (item.config.y || 0) - (imageHeight + 40),
+      	};
+      	state.showPreview = true;
       }}
       on:mouseleave={(e) => {
       	dispatch("mouseleave", e);
       }}
       on:dragend={() => {
       	dispatch("dragend", item.config);
+      }}
+      on:mouseout={() => {
+      	state.showPreview = false;
+      	state.previewProportions = {
+      		x: 0,
+      		y: 0,
+      	};
+      	state.previewData = null;
       }}
       on:click={() => {
       	dispatch("click", {
@@ -222,7 +241,6 @@
       		height: imageHeight + 20,
       	});
       	state.instance = item.instance;
-
       	const volume = (data?.Volumes || []).find(
       		(vol) =>
       			vol.VolumeId === item.instance.BlockDeviceMappings[0].Ebs?.VolumeId
@@ -234,23 +252,25 @@
       on:dragmove={() => {
       	dispatch("dragmove", item.config);
       }}
+      getHandler={(handle) => {
+      	const rect = getImageRect({ fill: COLOR_SCHEME.VM });
+      	handle.add(rect);
+      }}
     >
-      <Rect
-        config={{
-        	width: imageWidth,
-        	height: imageHeight,
-        	cornerRadius: 5,
-        	fill: COLOR_SCHEME.VM,
-        	x: 0,
-        	y: 0,
-        }}
+      <StatusIcon
+        status={item.instance.State.Name === "running"
+        	? "RUNNING"
+        	: item.instance.State.Name === "stopped"
+        		? "STOPPED"
+        		: "UNKNOWN"}
       />
       <Image
         config={{ image: imageEl }}
         position={{
         	draggable: false,
         	x: 12,
-        	y: 12
+        	y: 12,
+        	listening: false,
         }}
       />
       <Text
@@ -266,4 +286,4 @@
       />
     </Group>
   {/each}
-</Group>
+</ServiceGroupWithLabel>

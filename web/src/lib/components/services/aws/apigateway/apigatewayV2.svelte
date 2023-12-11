@@ -12,8 +12,11 @@
   import Rect from "$src/lib/components/common/KonvaCanvas/Rect.svelte";
   import { COLOR_SCHEME } from "$src/colorConfig";
   import type Konva from "konva";
+  import { getImageRect } from "../shapeCache";
+  import ServiceGroupWithLabel from "../ServiceGroupWithLabel.svelte";
 
   export let data: ApiGatewayWithIntegrationProps[];
+  export let idx: number;
   const datastore = Datastore.getDatastore();
 
   /**
@@ -50,7 +53,8 @@
   		if (node) {
   			(x = node.x), (y = node.y);
   		}
-  	} else {
+  	}
+  	if (x === 0 || y === 0) {
   		const proportions = getProportions(offset, i, "external");
   		x = proportions.x;
   		y = proportions.y;
@@ -72,7 +76,7 @@
   });
   $: {
   	apiGateways = apiGateways.map((it) => {
-  		const node = (highlights?.nodes || []).find((nd) => nd.includes(it.config?.id || "") || nd === it.config?.id);
+  		const node = (highlights?.nodes || []).find((nd) => nd?.includes(it.config?.id || "") || nd === it.config?.id);
   		if (highlights.nodes && highlights.nodes.length > 0 && !node) {
   			it.config.opacity = .3;
   			return it;
@@ -116,29 +120,6 @@
 
   const imageWidth = 80;
   const imageHeight = 80;
-  let group: Konva.Group | null = null;
-  let borderConfig = {
-  	draggable: false,
-  	zIndex: 0,
-  	opacity: 0,
-  	x: 0,
-  	y: 0,
-  	width: 0,
-  	height: 0,
-  	cornerRadius: 5,
-  };
-  const tm = setTimeout(() => {
-  	clearTimeout(tm);
-  	if (group) {
-  		const proportions = group.getClientRect();
-  		borderConfig.x = proportions.x - 10;
-  		borderConfig.y = proportions.y - 10;
-  		borderConfig.width =
-        proportions.width + (imageWidth - (imageEl?.width || 0));
-  		borderConfig.height =
-        proportions.height + 10 + (imageHeight - (imageEl?.height || 0)) / 2;
-  	}
-  }, 100);
 </script>
 
 <ApigatewayData
@@ -150,11 +131,14 @@
   	state.data = null;
   }}
 />
-<Rect bind:config={borderConfig} />
-<Group
-  getHandler={(handle) => {
-  	group = handle;
+<ServiceGroupWithLabel
+  label={{
+  	text: "Api Gateways",
+  	fill: COLOR_SCHEME.GATEWAY
   }}
+  borderColor={COLOR_SCHEME.GATEWAY}
+  externalService
+  {idx}
 >
   {#each apiGateways as item (item.ApiId)}
     <Group
@@ -183,17 +167,11 @@
       on:dragmove={() => {
       	dispatch("dragmove", item.config);
       }}
+	  getHandler={(handle) => {
+	  	const rect = getImageRect({ fill: COLOR_SCHEME.GATEWAY });
+	  	handle.add(rect);
+	  }}
     >
-      <Rect
-        config={{
-        	width: imageWidth,
-        	height: imageHeight,
-        	cornerRadius: 5,
-        	fill: COLOR_SCHEME.GATEWAY,
-        	x: 0,
-        	y: 0,
-        }}
-      />
       <Image
         config={{ image: imageEl }}
         position={{
@@ -215,4 +193,4 @@
       />
     </Group>
   {/each}
-</Group>
+</ServiceGroupWithLabel>

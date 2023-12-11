@@ -7,3 +7,21 @@ export type DatastoreProps = {
     fetchData: boolean;
     dragNodeId: string | null;
 }
+
+type Proportion = {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+}
+export type KonvaStoreProps = {
+    externalBoundingRect: Proportion;
+    internalBoundingRect: Proportion;
+    rowCount: {
+        internal: number,
+        external: number
+    }
+}
+export type SettingStoreProps = {
+    animate: boolean;
+}

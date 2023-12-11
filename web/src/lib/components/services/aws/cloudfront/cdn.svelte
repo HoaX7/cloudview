@@ -8,26 +8,34 @@
   import Image from "$src/lib/components/common/KonvaCanvas/Image.svelte";
   import Text from "$src/lib/components/common/KonvaCanvas/Text.svelte";
   import Datastore from "$src/store/data";
-  import { createEventDispatcher, onMount } from "svelte";
+  import { createEventDispatcher, onMount, tick } from "svelte";
   import CdnData from "./cdnData.svelte";
   import { delay } from "$src/helpers";
-  import type { MetricDataReturnType } from "$src/customTypes/Services";
+  import type { ApiGatewayV2IntegrationProps, MetricDataReturnType } from "$src/customTypes/Services";
   import { AWS_SERVICES } from "$src/helpers/constants";
   import { getProportions } from "$src/helpers/konva/index";
   import Rect from "$src/lib/components/common/KonvaCanvas/Rect.svelte";
   import { COLOR_SCHEME } from "$src/colorConfig";
   import type Konva from "konva";
+  import { getImageRect } from "../shapeCache";
+  import ServiceGroupWithLabel from "../ServiceGroupWithLabel.svelte";
+  import PreviewData from "../../views/previewData.svelte";
+  import StatusIcon from "../../views/statusIcon.svelte";
 
   export let data: CloudFrontProps;
   export let setLineTargets: (data: TargetFromNodeProps[]) => void;
   export let externalGroup: MetricDataReturnType;
   export let highlights: HighLightProps;
+  export let idx: number;
 
   const datastore = Datastore.getDatastore();
 
   const apigateways = externalGroup.find(
   	(et) => et.name === AWS_SERVICES.APIGATEWAYV2
-  );
+  ) as {
+	name: string;
+	result: ApiGatewayV2IntegrationProps[];
+  } | undefined;
 
   let offset = 0;
   if (apigateways) {
@@ -44,7 +52,8 @@
   		if (node) {
   			(x = node.x), (y = node.y);
   		}
-  	} else {
+  	}
+  	if (x === 0 || y === 0) {
   		const proportions = getProportions(offset, i, "external");
   		x = proportions.x;
   		y = proportions.y;
@@ -73,7 +82,7 @@
   $: {
   	imageData = imageData.map((it) => {
   		const node = (highlights?.nodes || []).find(
-  			(nd) => nd.includes(it.config?.id || "") || nd === it.config?.id
+  			(nd) => nd?.includes(it.config?.id || "") || nd === it.config?.id
   		);
   		if (highlights.nodes && highlights.nodes.length > 0 && !node) {
   			it.config.opacity = 0.3;
@@ -101,6 +110,7 @@
 
   const dispatch = createEventDispatcher();
 
+
   let imageEl: any = null;
   const nodeConfigs = imageData.map((it) => it.config);
 
@@ -117,32 +127,15 @@
   const state: any = {
   	data: null,
   	showModal: false,
+  	previewData: null,
+  	showPreview: false,
+  	previewProportions: {
+  		x: 0,
+  		y: 0
+  	}
   };
   const imageWidth = 80;
   const imageHeight = 80;
-  let group: Konva.Group | null = null;
-  let borderConfig = {
-  	draggable: false,
-  	zIndex: 0,
-  	opacity: 0,
-  	x: 0,
-  	y: 0,
-  	width: 0,
-  	height: 0,
-  	cornerRadius: 5,
-  };
-  const tm = setTimeout(() => {
-  	clearTimeout(tm);
-  	if (group) {
-  		const proportions = group.getClientRect();
-  		borderConfig.x = proportions.x - 10;
-  		borderConfig.y = proportions.y - 10;
-  		borderConfig.width =
-        proportions.width + (imageWidth - (imageEl?.width || 0));
-  		borderConfig.height =
-        proportions.height + 10 + (imageHeight - (imageEl?.height || 0)) / 2;
-  	}
-  }, 100);
 </script>
 
 <CdnData
@@ -154,11 +147,17 @@
   	state.data = null;
   }}
 />
-<Rect bind:config={borderConfig} />
-<Group
-  getHandler={(handle) => {
-  	group = handle;
+{#if state.showPreview && state.previewData}
+<PreviewData proportions={state.previewProportions} data={state.previewData} color={COLOR_SCHEME.CDN} />
+{/if}
+<ServiceGroupWithLabel
+  label={{
+  	text: "Cloudfront CDN",
+  	fill: COLOR_SCHEME.CDN,
   }}
+  borderColor={COLOR_SCHEME.CDN}
+  externalService
+  {idx}
 >
   {#each imageData as item (item.Id)}
     <Group
@@ -172,6 +171,14 @@
       	state.data = item.data;
       	state.showModal = true;
       }}
+		on:mouseout={() => {
+			state.showPreview = false;
+			state.previewProportions = {
+				x: 0,
+				y: 0
+			};
+			state.previewData = null;
+		}}
       on:dragmove={() => {
       	dispatch("dragmove", item.config);
       }}
@@ -180,6 +187,21 @@
       		id: item.Id,
       		highlights: item.lineTargets,
       	});
+      	state.previewData = [ {
+      		name: "Http Version",
+      		value: item.data.HttpVersion
+      	}, {
+      		name: "Status",
+      		value: item.data.Status || "Unknown"
+      	}, {
+      		name: "Enabled",
+      		value: item.data.Enabled ? "Yes" : "No"
+      	} ];
+      	state.previewProportions = {
+      		x: item.config.x - 220,
+      		y: item.config.y
+      	};
+      	state.showPreview = true;
       }}
       on:mouseleave={(e) => {
       	dispatch("mouseleave", e);
@@ -187,17 +209,12 @@
       on:dragend={() => {
       	dispatch("dragend", item.config);
       }}
+      getHandler={(handle) => {
+      	const rect = getImageRect({ fill: COLOR_SCHEME.CDN });
+      	handle.add(rect);
+      }}
     >
-      <Rect
-        config={{
-        	width: imageWidth,
-        	height: imageHeight,
-        	cornerRadius: 5,
-        	fill: COLOR_SCHEME.CDN,
-        	x: 0,
-        	y: 0,
-        }}
-      />
+	  <StatusIcon status={item.data.Enabled ? "RUNNING" : "STOPPED"} />
       <Image
         config={{ image: imageEl }}
         position={{
@@ -216,7 +233,10 @@
         	fill: COLOR_SCHEME.CDN,
         	fontStyle: "bold",
         }}
+		on:ready={(e) => {
+			console.log("text", e.detail.width());
+		}}
       />
     </Group>
   {/each}
-</Group>
+</ServiceGroupWithLabel>

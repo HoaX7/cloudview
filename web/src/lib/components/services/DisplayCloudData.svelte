@@ -12,7 +12,8 @@
   } from "$src/customTypes/Konva";
   import AwsIndex from "./aws/awsIndex.svelte";
   import type Konva from "konva";
-  import { includes } from "lodash";
+  import UserConnection from "./views/userConnection.svelte";
+  import PageNavButtons from "../common/Navigation/PageNavButtons.svelte";
 
   // Contains ec2, dynamodb etc objects.
   export let result: MetricDataReturnType;
@@ -34,8 +35,10 @@
   	// handleInitPosition(data);
   	// setTargetFromNodes(targets);
   	setInitPositionAndTargetNodes(data, targets);
-  	awsRef?.updateBorder();
+  	// awsRef?.updateBorder();
   }, 200)(initialPositions, lineTargets);
+
+//   $: awsRef?.updateBorder();
 
   const setInitPositionAndTargetNodes = (data: ConnectableNodeProps[], targets: TargetFromNodeProps[]) => {
   	if ($datastore) {
@@ -208,6 +211,10 @@
   	highlightNodes(e.detail);
   }}
 >
+<div class="absolute top-5 left-5">
+	<PageNavButtons back={true} />
+</div>
+<UserConnection />
 <AwsIndex
   	bind:this={awsRef}
     {projectId}

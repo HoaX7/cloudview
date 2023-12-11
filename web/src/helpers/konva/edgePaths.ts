@@ -206,52 +206,53 @@ const drawLeftCurve = (params: CurveProps) => {
 };
 // cp1 & cp2 values (control points)
 const edgeCurvePaths = {
+	// values for smoother curve - 10 for dx, dy and 20 for differences.
 	bottomToRight: () => ({
-		dx: "0 -10",
-		dy: "10 -10",
+		dx: "0 -8",
+		dy: "8 -8",
 		x: [ 0, 0 ],
-		y: [ 20, 0 ],
+		y: [ 16, 0 ],
 	}),
 	bottomToLeft: () => ({
-		dx: "0 -10",
-		dy: "-10 -10",
+		dx: "0 -8",
+		dy: "-8 -8",
 		x: [ 0, 0 ],
-		y: [ 20, 0 ],
+		y: [ 16, 0 ],
 	}),
 	topToRight: () => ({
-		dx: "0 10",
-		dy: "10 10",
+		dx: "0 8",
+		dy: "8 8",
 		x: [ 0, 0 ],
-		y: [ -20, 0 ],
+		y: [ -16, 0 ],
 	}),
 	topToLeft: () => ({
-		dx: "0 10",
-		dy: "-10 10",
+		dx: "0 8",
+		dy: "-8 8",
 		x: [ 0, 0 ],
-		y: [ -20, 0 ]
+		y: [ -16, 0 ]
 	}),
 	leftToBottom: () => ({
-		dx: "10 0",
-		dy: "10 10",
-		x: [ -20, 0 ],
+		dx: "8 0",
+		dy: "8 8",
+		x: [ -16, 0 ],
 		y: [ 0, 0 ],
 	}),
 	leftToTop: () => ({
-		dx: "10 0",
-		dy: "10 -10",
-		x: [ -20, 0 ],
+		dx: "8 0",
+		dy: "8 -8",
+		x: [ -16, 0 ],
 		y: [ 0, 0 ],
 	}),
 	rightToTop: () => ({
-		dx: "-10 0",
-		dy: "-10 -10",
-		x: [ 20, 0 ],
+		dx: "-8 0",
+		dy: "-8 -8",
+		x: [ 16, 0 ],
 		y: [ 0, 0 ],
 	}),
 	rightToBottom: () => ({
-		dx: "-10 0",
-		dy: "-10 10",
-		x: [ 20, 0 ],
+		dx: "-8 0",
+		dy: "-8 8",
+		x: [ 16, 0 ],
 		y: [ 0, 0 ]
 	})
 };

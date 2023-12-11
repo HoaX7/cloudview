@@ -13,6 +13,11 @@
   import { COLOR_SCHEME } from "$src/colorConfig";
   import type { GroupConfig } from "konva/lib/Group";
   import type { HighLightProps } from "$src/customTypes/Konva";
+  import { getImageRect } from "../shapeCache";
+  import ServiceGroupWithLabel from "../ServiceGroupWithLabel.svelte";
+  import PreviewData from "../../views/previewData.svelte";
+  import Circle from "$src/lib/components/common/KonvaCanvas/Circle.svelte";
+  import StatusIcon from "../../views/statusIcon.svelte";
 
   export let data: LambdaFunctionProps;
   export let idx: number = 0;
@@ -25,18 +30,20 @@
   let imageData = data.Functions.map((fn, i) => {
   	let x = 0,
   		y = 0;
-  	// if ($datastore.konvaConnectableNodes) {
-  	// 	const node = $datastore.konvaConnectableNodes.find(
-  	// 		(nd) => nd.id === fn.FunctionArn
-  	// 	);
-  	// 	if (node) {
-  	// 		(x = node.x), (y = node.y);
-  	// 	}
-  	// }
-  	const proportions = getProportions(idx, i, "internal");
-  	if (x <= 0) x = proportions.x;
-  	// Navbar height is 64px and should not be included while placing icons on the canvas
-  	if (y <= 0) y = proportions.y;
+  	if ($datastore.konvaConnectableNodes) {
+  		const node = $datastore.konvaConnectableNodes.find(
+  			(nd) => nd.id === fn.FunctionArn
+  		);
+  		if (node) {
+  			(x = node.x), (y = node.y);
+  		}
+  	}
+  	if (x === 0 || y === 0) {
+  		const proportions = getProportions(idx, i, "internal");
+  		x = proportions.x;
+  		// Navbar height is 64px and should not be included while placing icons on the canvas
+  		y = proportions.y;
+  	}
   	return {
   		text: fn.FunctionName,
   		data: fn,
@@ -50,9 +57,11 @@
   });
   $: {
   	imageData = imageData.map((it) => {
-  		const node = (highlights?.nodes || []).find((nd) => nd.includes(it.config?.id || "") || nd === it.config?.id);
+  		const node = (highlights?.nodes || []).find(
+  			(nd) => nd?.includes(it.config?.id || "") || nd === it.config?.id
+  		);
   		if (highlights.nodes && highlights.nodes.length > 0 && !node) {
-  			it.config.opacity = .3;
+  			it.config.opacity = 0.3;
   			return it;
   		}
   		it.config.opacity = 1;
@@ -85,34 +94,15 @@
   const state: any = {
   	showModal: false,
   	data: null,
+  	previewData: null,
+  	showPreview: false,
+  	previewProportions: {
+  		x: 0,
+  		y: 0
+  	}
   };
-  let group: Konva.Group | null = null;
   const imageWidth = 80;
   const imageHeight = 80;
-  let borderConfig = {
-  	draggable: false,
-  	zIndex: 0,
-  	fill: COLOR_SCHEME.SERVERLESS,
-  	opacity: 0.3,
-  	x: 0,
-  	y: 0,
-  	width: 0,
-  	height: 0,
-  	cornerRadius: 5,
-  };
-
-  const tm = setTimeout(() => {
-  	clearTimeout(tm);
-  	if (group) {
-  		const proportions = group.getClientRect();
-  		borderConfig.x = proportions.x - 10;
-  		borderConfig.y = proportions.y - 10;
-  		borderConfig.width =
-        proportions.width + (imageWidth - (imageEl?.width || 0));
-  		borderConfig.height =
-        proportions.height + 10 + (imageHeight - (imageEl?.height || 0)) / 2;
-  	}
-  }, 100);
 </script>
 
 <LambdaData
@@ -124,13 +114,13 @@
   }}
   data={state.data}
 />
-
-<Rect bind:config={borderConfig} />
-<Group
-  getHandler={(handle) => {
-  	group = handle;
-  }}
->
+{#if state.showPreview && state.previewData}
+<PreviewData data={state.previewData} proportions={state.previewProportions} color={COLOR_SCHEME.SERVERLESS} />
+{/if}
+<ServiceGroupWithLabel borderColor={COLOR_SCHEME.SERVERLESS} label={{
+	text: "Lambda Functions",
+	fill: COLOR_SCHEME.SERVERLESS
+}} {idx}>
   {#each imageData as item, index (index)}
     <Group
       bind:config={item.config}
@@ -147,30 +137,53 @@
       	dispatch("dragmove", item.config);
       }}
       on:mouseenter={(e) => {
-      	const targets = $datastore.konvaTargetFromNodes.filter((tg) => tg.to.includes(item.config?.id || ""));
+      	const targets = $datastore.konvaTargetFromNodes.filter((tg) =>
+      		tg.to.includes(item.config?.id || "")
+      	);
       	dispatch("mouseenter", {
       		id: item.config.id,
       		highlights: targets,
-      		extras: targets.map((tg) => tg.id)
+      		extras: targets.map((tg) => tg.id),
       	});
+      	state.previewData = [ {
+      		name: "Run Time",
+      		value: item.data.Runtime
+      	}, {
+      		name: "Storage",
+      		value: item.data.EphemeralStorage.Size + " MB"
+      	}, {
+      		name: "Memory",
+      		value: item.data.MemorySize + " MB"
+      	}, {
+      		name: "State",
+      		value: item.data.State || "Unknown"
+      	} ];
+      	state.previewProportions = {
+      		x: (item.config.x || 0) - (imageWidth / 2),
+      		y: (item.config.y || 0) - (imageHeight + 40)
+      	};
+      	state.showPreview = true;
       }}
+	  on:mouseout={() => {
+	  	state.showPreview = false;
+	  	state.previewProportions = {
+	  		x: 0,
+	  		y: 0
+	  	};
+	  	state.previewData = null;
+	  }}
       on:mouseleave={(e) => {
       	dispatch("mouseleave", e);
       }}
       on:dragend={() => {
       	dispatch("dragend", item.config);
       }}
+	  getHandler={(handle) => {
+	  	const rect = getImageRect({ fill: COLOR_SCHEME.SERVERLESS });
+	  	handle.add(rect);
+	  }}
     >
-      <Rect
-        config={{
-        	width: imageWidth,
-        	height: imageHeight,
-        	cornerRadius: 5,
-        	fill: COLOR_SCHEME.SERVERLESS,
-        	x: 0,
-        	y: 0,
-        }}
-      />
+	<StatusIcon status={"UNKNOWN"} />
       <Image
         config={{ image: imageEl }}
         position={{
@@ -192,4 +205,4 @@
       />
     </Group>
   {/each}
-</Group>
+</ServiceGroupWithLabel>

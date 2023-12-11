@@ -1,5 +1,6 @@
 <script lang="ts">
   import type {
+  	ApiGatewayV2IntegrationProps,
   	ELBV2Props,
   	MetricDataReturnType,
   } from "$src/customTypes/Services";
@@ -17,19 +18,31 @@
   import Rect from "$src/lib/components/common/KonvaCanvas/Rect.svelte";
   import type Konva from "konva";
   import type { GroupConfig } from "konva/lib/Group";
+  import { getImageRect } from "../shapeCache";
+  import ServiceGroupWithLabel from "../ServiceGroupWithLabel.svelte";
+  import type { CloudFrontProps } from "$src/customTypes/aws/cloudfront";
+  import PreviewData from "../../views/previewData.svelte";
+  import StatusIcon from "../../views/statusIcon.svelte";
 
   export let data: ELBV2Props;
   export let externalGroup: MetricDataReturnType;
   export let setLegend: (legend: LegendProps[]) => void;
   export let highlights: HighLightProps;
+  export let idx: number;
   const datastore = Datastore.getDatastore();
 
   let legend: LegendProps[] = [];
 
   const apigateways = externalGroup.find(
   	(et) => et.name === AWS_SERVICES.APIGATEWAYV2
-  );
-  const cdns = externalGroup.find((et) => et.name === AWS_SERVICES.CLOUDFRONT);
+  ) as {
+	name: string;
+	result: ApiGatewayV2IntegrationProps[];
+  } | undefined;
+  const cdns = externalGroup.find((et) => et.name === AWS_SERVICES.CLOUDFRONT) as {
+	name: string;
+	result: CloudFrontProps;
+  } | undefined;
   let offset = 0;
   if (apigateways) {
   	offset = apigateways.result.length;
@@ -64,7 +77,8 @@
   		if (node) {
   			(x = node.x), (y = node.y);
   		}
-  	} else {
+  	}
+  	if (x === 0 || y === 0) {
   		const proportions = getProportions(offset, i, "external");
   		x = proportions.x;
   		y = proportions.y;
@@ -84,7 +98,7 @@
   });
   $: {
   	imageData = imageData.map((it) => {
-  		const node = (highlights?.nodes || []).find((nd) => nd.includes(it.config?.id || "") || nd === it.config?.id);
+  		const node = (highlights?.nodes || []).find((nd) => nd?.includes(it.config?.id || "") || nd === it.config?.id);
   		if (highlights.nodes && highlights.nodes.length > 0 && !node) {
   			it.config.opacity = .3;
   			return it;
@@ -114,32 +128,15 @@
   const state: any = {
   	showModal: false,
   	data: null,
+  	showPreview: false,
+  	previewData: null,
+  	previewProportions: {
+  		x: 0,
+  		y: 0
+  	}
   };
   const imageWidth = 80;
   const imageHeight = 80;
-  let group: Konva.Group | null = null;
-  let borderConfig = {
-  	draggable: false,
-  	zIndex: 0,
-  	opacity: 0,
-  	x: 0,
-  	y: 0,
-  	width: 0,
-  	height: 0,
-  	cornerRadius: 5,
-  };
-  const tm = setTimeout(() => {
-  	clearTimeout(tm);
-  	if (group) {
-  		const proportions = group.getClientRect();
-  		borderConfig.x = proportions.x - 10;
-  		borderConfig.y = proportions.y - 10;
-  		borderConfig.width =
-        proportions.width + (imageWidth - (imageEl?.width || 0));
-  		borderConfig.height =
-        proportions.height + 10 + (imageHeight - (imageEl?.height || 0)) / 2;
-  	}
-  }, 100);
 </script>
 
 <ElbV2Data
@@ -151,11 +148,19 @@
   }}
   data={state.data}
 />
-<Rect bind:config={borderConfig} />
-<Group
-  getHandler={(handle) => {
-  	group = handle;
+
+{#if state.showPreview && state.previewData}
+<PreviewData proportions={state.previewProportions} data={state.previewData} color={COLOR_SCHEME.LOADBALANCER} />
+{/if}
+
+<ServiceGroupWithLabel
+  label={{
+  	text: "Loadbalancers",
+  	fill: COLOR_SCHEME.LOADBALANCER,
   }}
+  borderColor={COLOR_SCHEME.LOADBALANCER}
+  externalService
+  {idx}
 >
   {#each imageData as item (item.id)}
     <Group
@@ -182,21 +187,37 @@
       		highlights: targets,
       		extras: targets.map((tg) => tg.id)
       	});
+
+      	state.previewData = [ {
+      		name: "Scheme",
+      		value: item.data.Scheme
+      	}, {
+      		name: "State",
+      		value: item.data.State?.Code || "Unknown"
+      	} ];
+      	state.previewProportions = {
+      		x: (item.config.x || 0) - 220,
+      		y: item.config.y
+      	};
+      	state.showPreview = true;
       }}
+	  on:mouseout={() => {
+	  	state.showPreview = false;
+	  	state.previewData = null;
+	  	state.previewProportions = {
+	  		x: 0,
+	  		y: 0
+	  	};
+	  }}
       on:mouseleave={(e) => {
       	dispatch("mouseleave", e);
       }}
+	  getHandler={(handle) => {
+	  	const rect = getImageRect({ fill: COLOR_SCHEME.LOADBALANCER });
+	  	handle.add(rect);
+	  }}
     >
-      <Rect
-        config={{
-        	width: imageWidth,
-        	height: imageHeight,
-        	cornerRadius: 5,
-        	fill: COLOR_SCHEME.LOADBALANCER,
-        	x: 0,
-        	y: 0,
-        }}
-      />
+	<StatusIcon status={item.data.State?.Code === "active" ? "RUNNING" : "STOPPED"} />
       <Image config={{ image: imageEl }} position={{
       	draggable: false,
       	x: 12,
@@ -215,4 +236,4 @@
       />
     </Group>
   {/each}
-</Group>
+</ServiceGroupWithLabel>

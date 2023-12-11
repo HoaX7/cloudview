@@ -10,14 +10,17 @@
   export let reverseDD = false;
 </script>
 
-<div id="accordion-collapse" data-accordion="collapse" class={clsx(containerClass, "relative")}>
-  <div id="accordion-collapse-heading-1">
+<div id="accordion-collapse" data-accordion="collapse" class={clsx(containerClass, "relative w-auto")}>
+  <div id="accordion-collapse-heading-1" class="">
     {#if reverseDD}
       <div
         id="accordion-collapse-body-1"
-        class={showDD ? "absolute bottom-10 right-0 w-[250px]" : "hidden"}
+        class={showDD ? "absolute bottom-10 right-0 md:left-0 w-[250px]" : "hidden"}
         aria-labelledby="accordion-collapse-heading-1"
       >
+      <button class="absolute top-3 right-5" on:click={() => showDD = false}>
+        &times;
+      </button>
         <slot />
       </div>
     {/if}

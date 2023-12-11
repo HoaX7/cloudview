@@ -23,7 +23,6 @@ The Group component automatically groups all components that are placed inside i
 
 	export let config: Konva.GroupConfig = {};
 	config.perfectDrawEnabled = false;
-	// config.listening = false;
 	export let handle: Konva.Group = new Konva.Group(config);
 	export let staticConfig = false;
 	export let getHandler: (handler: Konva.Group) => void = () => {

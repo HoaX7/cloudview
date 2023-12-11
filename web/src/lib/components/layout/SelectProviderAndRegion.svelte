@@ -3,6 +3,7 @@
   import clsx from "clsx";
   import Button from "../common/Button/Button.svelte";
   import { clone } from "$src/helpers";
+  import KonvaStore from "$src/store/konva";
 
     const datastore = Datastore.getDatastore();
 
@@ -96,6 +97,7 @@
                 	res.konvaTargetFromNodes = [];
                 	res.fetchData = true;
                 	$datastore = res;
+                	KonvaStore.clear();
                 	showDD = false;
                 }}>
                     {item.name} {item.key}

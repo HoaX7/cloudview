@@ -15,6 +15,11 @@ export type TargetFromNodeProps = {
     x: number;
     y: number;
     label: string;
+    lineStyle?: {
+        dash?: number[];
+        dashOffset?: number;
+        stroke?: string;
+    }
 } & ConnectorTargetProps;
 
 export type ConnectableNodeProps = Vector2d & { id: string; label: string; };

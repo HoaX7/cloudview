@@ -11,11 +11,16 @@ The accessibility grids show services that can be access publicily (external ser
   import Group from "../../common/KonvaCanvas/Group.svelte";
   import Rect from "../../common/KonvaCanvas/Rect.svelte";
   import Text from "../../common/KonvaCanvas/Text.svelte";
+  import KonvaStore from "$src/store/konva";
 
   export let groupedData: GroupedData;
-  export let setInternalServiceBoundingArea: (proportions: any) => void = () => {
+  export let setInternalServiceBoundingArea: (
+    proportions: any
+  ) => void = () => {
   	return;
   };
+
+  const konvastore = KonvaStore.getStore();
 
   const getGroupArray = (groupedData: GroupedData, key: string) =>
   	groupedData[key as keyof GroupedData];
@@ -56,7 +61,8 @@ The accessibility grids show services that can be access publicily (external ser
   		dashOffset: 2,
   		dash: [ 5, 5 ],
   		zIndex: 0,
-  		cornerRadius: 5
+  		cornerRadius: 5,
+  		// opacity: .1
   	},
   	internalGroup: {
   		draggable: false,
@@ -73,7 +79,8 @@ The accessibility grids show services that can be access publicily (external ser
   		dash: [ 5, 5 ],
   		zIndex: 0,
   		cornerRadius: 5,
-  	}
+  		// opacity: .1
+  	},
   };
   let groupingTextConfigs: any = {
   	externalGroup: {
@@ -82,7 +89,7 @@ The accessibility grids show services that can be access publicily (external ser
   		text: "External Services",
   		visible: false,
   		fontStyle: "bold",
-  		fontSize: 16
+  		fontSize: 16,
   	},
   	internalGroup: {
   		x: 0,
@@ -90,35 +97,40 @@ The accessibility grids show services that can be access publicily (external ser
   		text: "Internal Services",
   		visible: false,
   		fontStyle: "bold",
-  		fontSize: 16
-  	}
+  		fontSize: 16,
+  	},
   };
 
-  export const updateBorder = () => {
-  	const ex_proportions = groups.externalGroup?.getClientRect();
-  	const in_proportions = groups.internalGroup?.getClientRect();
+  type Proportions = {
+	x: number;
+	y: number;
+	width: number;
+	height: number;
+  }
+  export const updateBorder = async (ex_proportions: Proportions, in_proportions: Proportions) => {
   	if (ex_proportions) {
-  		borderConfigs.externalGroup.x = ex_proportions.x;
-  		borderConfigs.externalGroup.y = ex_proportions.y;
-  		borderConfigs.externalGroup.width = ex_proportions.width;
+  		borderConfigs.externalGroup.x = ex_proportions.x - 25;
+  		borderConfigs.externalGroup.y = ex_proportions.y - 70;
+  		borderConfigs.externalGroup.width = ex_proportions.width + 30;
   		borderConfigs.externalGroup.height = ex_proportions.height;
-  		borderConfigs.externalGroup.zIndex = groups.externalGroup?.zIndex() || 0;
-  		groupingTextConfigs.externalGroup.x = ex_proportions.x;
-  		groupingTextConfigs.externalGroup.y = ex_proportions.y - 30;
+  		borderConfigs.externalGroup.zIndex = 0;
+  		groupingTextConfigs.externalGroup.x = ex_proportions.x - 20;
+  		groupingTextConfigs.externalGroup.y = ex_proportions.y - 90;
   		groupingTextConfigs.externalGroup.visible = true;
   	}
   	if (in_proportions) {
-  		groupingTextConfigs.internalGroup.x = in_proportions.x;
-  		groupingTextConfigs.internalGroup.y = in_proportions.y - 30;
+  		groupingTextConfigs.internalGroup.x = in_proportions.x - 20;
+  		groupingTextConfigs.internalGroup.y = in_proportions.y - 90;
   		groupingTextConfigs.internalGroup.visible = true;
-  		borderConfigs.internalGroup.x = in_proportions.x - 10;
-  		borderConfigs.internalGroup.y = in_proportions.y - 10;
-  		borderConfigs.internalGroup.width = in_proportions.width + 20;
-  		borderConfigs.internalGroup.height = in_proportions.height + 20;
-  		borderConfigs.internalGroup.zIndex = groups.internalGroup?.zIndex() || 0;
-    	setInternalServiceBoundingArea(in_proportions);
+  		borderConfigs.internalGroup.x = in_proportions.x - 25;
+  		borderConfigs.internalGroup.y = in_proportions.y - 70;
+  		borderConfigs.internalGroup.width = in_proportions.width + 30;
+  		borderConfigs.internalGroup.height = in_proportions.height;
+  		borderConfigs.internalGroup.zIndex = 0;
+  		setInternalServiceBoundingArea(in_proportions);
   	}
   };
+  $: updateBorder($konvastore.externalBoundingRect, $konvastore.internalBoundingRect);
 </script>
 
 {#each Object.keys(groupedData) as key, index (index)}
@@ -130,7 +142,12 @@ The accessibility grids show services that can be access publicily (external ser
     }}
   >
     {#each getGroupArray(groupedData, key) as item, idx (idx + item.name)}
-      <slot {item} {index} {idx} externalGroup={groupedData.externalGroup} />
+      <slot
+        {item}
+        {index}
+        {idx}
+        externalGroup={groupedData.externalGroup}
+      />
     {/each}
   </Group>
 {/each}

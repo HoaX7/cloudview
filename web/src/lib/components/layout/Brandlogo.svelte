@@ -1,0 +1,15 @@
+<script lang="ts">
+  import type { FontSize } from "$src/customTypes/Typography";
+    import Icon from "../common/Image/index.svelte";
+  import Typography from "../common/Typography/Typography.svelte";
+
+  export let width: number = 32;
+  export let font: FontSize = 24;
+</script>
+
+<div class="flex items-center">
+    <Icon src="/assets/images/cloudview-logo.svg" alt="cloudview-logo-ic" {width} /> 
+    <Typography variant="div" {font} weight="medium" classname="ml-2">
+        Cloudview
+    </Typography>
+</div>

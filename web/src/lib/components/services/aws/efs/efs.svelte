@@ -8,11 +8,11 @@
   import EfsData from "./efsData.svelte";
   import { delay } from "$src/helpers";
   import { getProportions } from "$src/helpers/konva/index";
-  import type Konva from "konva";
-  import Rect from "$src/lib/components/common/KonvaCanvas/Rect.svelte";
   import { COLOR_SCHEME } from "$src/colorConfig";
   import type { GroupConfig } from "konva/lib/Group";
   import type { HighLightProps } from "$src/customTypes/Konva";
+  import { getImageRect } from "../shapeCache";
+  import ServiceGroupWithLabel from "../ServiceGroupWithLabel.svelte";
 
   export let data: EFSProps;
   export let idx: number = 0;
@@ -29,7 +29,8 @@
   		if (node) {
   			(x = node.x), (y = node.y);
   		}
-  	} else {
+  	}
+  	if (x === 0 || y === 0) {
   		const proportions = getProportions(idx, i, "internal");
   		x = proportions.x;
   		y = proportions.y;
@@ -50,7 +51,7 @@
   });
   $: {
   	imageData = imageData.map((it) => {
-  		const node = (highlights?.nodes || []).find((nd) => nd.includes(it.config?.id || "") || nd === it.config?.id);
+  		const node = (highlights?.nodes || []).find((nd) => nd?.includes(it.config?.id || "") || nd === it.config?.id);
   		if (highlights.nodes && highlights.nodes.length > 0 && !node) {
   			it.config.opacity = .3;
   			return it;
@@ -89,31 +90,6 @@
   };
   const imageWidth = 80;
   const imageHeight = 80;
-  let group: Konva.Group | null = null;
-  let borderConfig = {
-  	draggable: false,
-  	zIndex: 0,
-  	fill: COLOR_SCHEME.FILE_SYSTEMS,
-  	opacity: 0.3,
-  	x: 0,
-  	y: 0,
-  	width: 0,
-  	height: 0,
-  	cornerRadius: 5,
-  };
-
-  const tm = setTimeout(() => {
-  	clearTimeout(tm);
-  	if (group) {
-  		const proportions = group.getClientRect();
-  		borderConfig.x = proportions.x - 10;
-  		borderConfig.y = proportions.y - 10;
-  		borderConfig.width =
-        proportions.width + (imageWidth - (imageEl?.width || 0)) + 10;
-  		borderConfig.height =
-        proportions.height + 10 + (imageHeight - (imageEl?.height || 0)) / 2;
-  	}
-  }, 100);
 </script>
 
 <EfsData
@@ -126,12 +102,10 @@
   }}
 />
 
-<Rect bind:config={borderConfig} />
-<Group
-  getHandler={(handle) => {
-  	group = handle;
-  }}
->
+<ServiceGroupWithLabel label={{
+	text: "Elastic File Systems",
+	fill: COLOR_SCHEME.FILE_SYSTEMS
+}} borderColor={COLOR_SCHEME.FILE_SYSTEMS} {idx}>
   {#each imageData as item (item.id)}
     <Group
       bind:config={item.config}
@@ -161,17 +135,11 @@
       	state.data = item.data;
       	state.showModal = true;
       }}
+	  getHandler={(handle) => {
+	  	const rect = getImageRect({ fill: COLOR_SCHEME.FILE_SYSTEMS });
+	  	handle.add(rect);
+	  }}
     >
-      <Rect
-        config={{
-        	width: imageWidth,
-        	height: imageHeight,
-        	cornerRadius: 5,
-        	fill: COLOR_SCHEME.FILE_SYSTEMS,
-        	x: 0,
-        	y: 0,
-        }}
-      />
       <Image
         config={{ image: imageEl }}
         position={{
@@ -193,4 +161,4 @@
       />
     </Group>
   {/each}
-</Group>
+</ServiceGroupWithLabel>

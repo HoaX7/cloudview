@@ -11,7 +11,6 @@
   import RenderConnectionsTable from "../../RenderConnectionsTable.svelte";
   import { getEc2UsageData } from "$src/api/aws";
   import Spinner from "$src/lib/components/common/Loaders/Spinner.svelte";
-  import Icon from "$lib/components/common/Image/index.svelte";
   import Table from "$src/lib/components/common/Table/Table.svelte";
   import { COLOR_SCHEME } from "$src/colorConfig";
 

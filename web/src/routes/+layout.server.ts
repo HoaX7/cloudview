@@ -18,5 +18,6 @@ export const load = (({ cookies, url, params }) => {
 		code,
 		params,
 		cookie,
+		path: url.pathname
 	};
 }) satisfies LayoutServerLoad;

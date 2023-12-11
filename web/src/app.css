@@ -66,7 +66,7 @@ html, body {
 .help-text:hover::before {
   content: "move to center";
   position: absolute;
-  left: 0;
+  right: 0;
   bottom: 20px;
   background-color: #333;
   color: #fff;
@@ -75,4 +75,10 @@ html, body {
   display: inline-block;
   font-size: 12px;
   width: 100px;
+}
+
+@media only screen and (max-width: 768px) {
+  .help-text:hover::before {
+    left: 0;
+  }
 }

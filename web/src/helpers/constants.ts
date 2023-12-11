@@ -28,7 +28,7 @@ export const AWS_SERVICES = {
 	RDS: "rds",
 	CLOUDFRONT: "cloudfront",
 	DYNAMODB: "dynamodb"
-};
+} as const;
 
 export const TEXT_COLORS = {
 	ec2: {
@@ -65,4 +65,26 @@ export const NODE_POSITIONS = {
 	BOTTOM: "bottom",
 	TOP: "top",
 	OVERLAP: "overlap",
+};
+
+export const AWS_INTERNAL_SERVICES = [
+	AWS_SERVICES.EC2,
+	AWS_SERVICES.LAMBDA,
+	AWS_SERVICES.S3,
+	AWS_SERVICES.EFS,
+	AWS_SERVICES.DYNAMODB,
+	AWS_SERVICES.RDS,
+	AWS_SERVICES.EKS,
+];
+export const AWS_EXTERNAL_SERVICES = [
+	AWS_SERVICES.APIGATEWAYV2,
+	AWS_SERVICES.CLOUDFRONT,
+	AWS_SERVICES.ELBV2,
+	AWS_SERVICES.ROUTE53,
+];
+
+export const STATUS_COLORS = {
+	RUNNING: "#66ff66",
+	STOPPED: "#ff0000",
+	UNKNOWN: "#808080"
 };

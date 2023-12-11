@@ -36,7 +36,7 @@ export const load = (async ({ url, cookies, params }) => {
 		res = result.data;
 		const idex = res.findIndex((r) => r.name === AWS_SERVICES.APIGATEWAYV2);
 		if (idex >= 0) {
-			const apigateway = res[idex];
+			const apigateway = res[idex] as any;
 			// Fetch integrations and attach it to apigateway data
 			// This also makes it easier and faster to build arrow connectors
 			// to show on canvas
@@ -83,5 +83,6 @@ export const load = (async ({ url, cookies, params }) => {
 		metricData: res,
 		error,
 		cloudProvider: params.provider,
+		showRegionDD: true,
 	};
 }) satisfies PageServerLoad;

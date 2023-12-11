@@ -1,4 +1,6 @@
+import type { AWS_SERVICES } from "$src/helpers/constants";
 import type { ConnectorTargetProps } from "./Konva";
+import type { CloudFrontProps } from "./aws/cloudfront";
 import type { RDSProps } from "./aws/rds";
 
 export type ServiceProps = {
@@ -10,23 +12,65 @@ export type ServiceProps = {
   accessKeyId?: string;
   description?: string;
 };
+export type MetricDataReturnType = ({
+  name: typeof AWS_SERVICES.EC2;
+  result: Ec2Props;
+} | {
+  name: typeof AWS_SERVICES.S3;
+  result: S3Props;
+} | {
+  name: typeof AWS_SERVICES.APIGATEWAYV2;
+  result: ApiGatewayWithIntegrationProps[];
+} | {
+  name: typeof AWS_SERVICES.CLOUDFRONT;
+  result: CloudFrontProps;
+} | {
+  name: typeof AWS_SERVICES.DYNAMODB;
+  result: DynamoDBProps;
+} | {
+  name: typeof AWS_SERVICES.EFS;
+  result: EFSProps;
+} | {
+  name: typeof AWS_SERVICES.EKS;
+  result: EKSProps;
+} | {
+  name: typeof AWS_SERVICES.ELBV2;
+  result: ELBV2Props;
+} | {
+  name: typeof AWS_SERVICES.LAMBDA;
+  result: LambdaFunctionProps;
+} | {
+  name: typeof AWS_SERVICES.RDS;
+  result: RDSProps;
+} | {
+  name: typeof AWS_SERVICES.ROUTE53;
+  result: Route53Props;
+})[];
 
-export type MetricDataReturnType = {
-  name: string;
-  result: AWSServices | any; // this prop contains values from ec2, lambda etc...
-}[];
-
-export type AWSServices =
-  | ApiGatewayV2Props
-  | Ec2Props
-  | LambdaFunctionProps
-  | S3Props
-  | Route53Props
-  | EKSProps
-  | EFSProps
-  | ELBV2Props
-  | RDSProps;
-
+export type DynamoDBProps = {
+  Table: {
+    TableId: string;
+    TableName: string;
+    TableSizeBytes: number;
+    Replicas: null;
+    TableArn: string;
+    TableClassSummary: {
+      TableClass: string;
+      LastUpdateDateTime: null;
+    };
+    ProvisionedThroughput: {
+      LastDecreaseDateTime: string;
+      WriteCapacityUnits: number;
+      ReadCapacityUnits: number;
+      NumberOfDecreasesToday: number;
+      LastIncreaseDateTime: null;
+    };
+    CreationDateTime: string;
+    ItemCount: number;
+    DeletionProtectionEnabled: boolean;
+    TableStatus: string;
+  };
+}[]
 // This type of properties is returned by aws sdk
 export type ApiGatewayV2Props = {
   Items: {

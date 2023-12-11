@@ -11,7 +11,7 @@
   	GroupedData,
   	MetricDataReturnType,
   } from "$src/customTypes/Services";
-  import { AWS_SERVICES } from "$src/helpers/constants";
+  import { AWS_EXTERNAL_SERVICES, AWS_INTERNAL_SERVICES, AWS_SERVICES } from "$src/helpers/constants";
   import { createEventDispatcher } from "svelte";
   import ApigatewayV2 from "./apigateway/apigatewayV2.svelte";
   import Cdn from "./cloudfront/cdn.svelte";
@@ -30,6 +30,7 @@
   import { getMetricData } from "$src/api/services";
   import { getApiGatewayIntegrations } from "$src/api/aws";
   import { stripIntegrationUriIp } from "$src/helpers/konva/index";
+  import { precomputeBorder } from "$src/helpers/aws";
 
   export let result: MetricDataReturnType;
   export let projectId: string;
@@ -65,7 +66,7 @@
   	AWS_SERVICES.CLOUDFRONT,
   	AWS_SERVICES.ROUTE53,
   	AWS_SERVICES.ELBV2,
-  ];
+  ] as string[];
 
   const groupResult = (result: MetricDataReturnType) => {
   	const data = result.reduce(
@@ -82,25 +83,17 @@
       	internalGroup: [],
       } as GroupedData
   	);
-  	data.externalGroup = reorderAwsServices(data.externalGroup, [
-  		AWS_SERVICES.APIGATEWAYV2,
-  		AWS_SERVICES.CLOUDFRONT,
-  		AWS_SERVICES.ELBV2,
-  		AWS_SERVICES.ROUTE53,
-  	]);
-  	data.internalGroup = reorderAwsServices(data.internalGroup, [
-  		AWS_SERVICES.EC2,
-  		AWS_SERVICES.LAMBDA,
-  		AWS_SERVICES.S3,
-  		AWS_SERVICES.EFS,
-  		AWS_SERVICES.DYNAMODB,
-  		AWS_SERVICES.RDS,
-  		AWS_SERVICES.EKS,
-  	]);
+  	data.externalGroup = reorderAwsServices(data.externalGroup, AWS_EXTERNAL_SERVICES);
+  	data.internalGroup = reorderAwsServices(data.internalGroup, AWS_INTERNAL_SERVICES);
   	return data;
   };
 
+  // Precomputing dimensions to draw border
+
+
   let groupedData = groupResult(result);
+
+  precomputeBorder(result);
 
   let groupView: any = null;
   export const updateBorder = () => groupView?.updateBorder();
@@ -115,8 +108,8 @@
   			region,
   		});
   		if (resp.error || !resp.data) throw resp;
-  		const res = resp.data;
-  		const idex = res.findIndex((r) => r.name === AWS_SERVICES.APIGATEWAYV2);
+  		const res = resp.data as any;
+  		const idex = res.findIndex((r: any) => r.name === AWS_SERVICES.APIGATEWAYV2);
   		if (idex >= 0) {
   			const apigateway = res[idex];
   			// Fetch integrations and attach it to apigateway data
@@ -152,6 +145,8 @@
           apiGatewayWithIntegrations as ApiGatewayWithIntegrationProps[];
   		}
   		groupedData = groupResult(res);
+  		precomputeBorder(res);
+  		dispatch("remount");
   	} catch (err) {
   		console.error("Unable to fetch data", err);
   	}
@@ -159,6 +154,7 @@
   	remount = true;
   };
 
+  const _result = (item: MetricDataReturnType[0]) => item.result as any;
 </script>
 
 {#if remount}
@@ -173,7 +169,7 @@
           {setLegend}
           {idx}
           {externalGroup}
-          data={item.result}
+          data={_result(item)}
           {projectId}
           {serviceId}
           {region}

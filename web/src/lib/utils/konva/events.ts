@@ -77,6 +77,7 @@ export interface KonvaEvents {
 	transformstart: KonvaDragTransformEvent;
 	transform: KonvaDragTransformEvent;
 	transformend: KonvaDragTransformEvent;
+	ready: CustomEvent<any>;
 }
 
 /**

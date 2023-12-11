@@ -48,6 +48,7 @@ The Text component needs to be placed either inside a Layer or Group component.
 		}
 
 		registerEvents(dispatcher, handle);
+		dispatcher("ready", handle);
 	});
 
 	onDestroy(() => {

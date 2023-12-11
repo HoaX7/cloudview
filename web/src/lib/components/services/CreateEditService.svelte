@@ -123,7 +123,7 @@
       }}
     />
   </div>
-  <Accordion title="Advanced" containerClass="mt-3" showDD={isCreate}>
+  <Accordion title="Advanced" containerClass="mt-3" buttonClass="px-3 !rounded" showDD={isCreate}>
     <div class="mt-3 text-start">
       <label for="accessKeyId"
         ><span class={clsx("text-red-600", isCreate ? "" : "hidden")}>*</span
