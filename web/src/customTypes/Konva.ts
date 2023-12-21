@@ -19,6 +19,7 @@ export type TargetFromNodeProps = {
         dash?: number[];
         dashOffset?: number;
         stroke?: string;
+        animateForever?: boolean;
     }
 } & ConnectorTargetProps;
 

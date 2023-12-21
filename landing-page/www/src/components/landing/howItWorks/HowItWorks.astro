@@ -1,0 +1,253 @@
+---
+import clsx from "clsx";
+import InfrastructureCanvas from "./InfrastructureCanvas.astro";
+import Steps from "./Steps.astro";
+const items = [
+	{
+		name: "Create & Choose your Cloud Provider",
+		description:
+            "Get started by creating a new project with your desired cloud provider.",
+	},
+	{
+		name: "Insert your Access Keys",
+		description:
+            "Create Access Keys on your cloud provider with desired IAM permissions. " +
+			"You will not be able to access these keys later on our dashboard for security purposes.",
+	},
+	{
+		name: "Manage & Monitor your Infrastructure",
+		description:
+            "Voila! Visualize and manage your cloud infrastructure in an instant!",
+	},
+];
+---
+
+<div class="relative w-full" data-carousel="static">
+	<div class="relative overflow-hidden h-[600px] md:h-96">
+		{
+			items.map((item, i) => {
+				return (
+					<div
+						class={clsx(
+							"duration-700 ease-in-out",
+							"transform transition-transform inset-0 hidden absolute",
+						)}
+						data-carousel-item
+					>
+						<div class={clsx("grid grid-cols-2 gap-4 h-full")}>
+							{(i === 0 || i === 1) && (
+								<div class="col-span-2 md:col-span-1 flex items-center justify-end">
+									<Steps index={i} />
+								</div>
+							)}
+							{i === 2 && (
+								<div class="md:hidden block col-span-2 md:col-span-1 h-full">
+									<InfrastructureCanvas />
+								</div>
+							)}
+							<div
+								class={clsx(
+									"px-5 col-span-2 md:col-span-1 flex md:justify-center flex-col",
+									i === 2 ? "md:items-end items-start" : "items-baseline",
+								)}
+							>
+								<div class="font-extrabold text-sky-400 text-3xl">
+                                    0{i + 1}
+								</div>
+								<h3 class="font-bold text-2xl mt-5">
+									{item.name}
+								</h3>
+								<p class="mt-5">{item.description}</p>
+							</div>
+							{i === 2 && (
+								<div class="hidden md:block col-span-2 md:col-span-1 h-full">
+									<InfrastructureCanvas />
+								</div>
+							)}
+						</div>
+					</div>
+				);
+			})
+		}
+	</div>
+	<button
+		type="button"
+		class={clsx(
+			"absolute top-[50%] start-0 z-30",
+			"px-4 cursor-pointer group focus:outline-none",
+		)}
+		id="previous"
+	>
+		<span
+			class={clsx(
+				"inline-flex items-center justify-center w-10 h-10",
+				"rounded-full bg-white/30 dark:bg-gray-200/30 group-hover:bg-white/50",
+				"dark:group-hover:bg-gray-200/60 group-focus:ring-4 group-focus:ring-white",
+				"dark:group-focus:ring-gray-200/70 group-focus:outline-none",
+			)}
+		>
+			<svg
+				class="w-4 h-4 text-white dark:text-gray-800 rtl:rotate-180"
+				aria-hidden="true"
+				xmlns="http://www.w3.org/2000/svg"
+				fill="none"
+				viewBox="0 0 6 10"
+			>
+				<path
+					stroke="currentColor"
+					stroke-line-cap="round"
+					stroke-line-join="round"
+					stroke-width="2"
+					d="M5 1 1 5l4 4"></path>
+			</svg>
+			<span class="sr-only">Previous</span>
+		</span>
+	</button>
+	<button
+		type="button"
+		class={clsx(
+			"absolute top-[50%] end-0 z-30 px-4 cursor-pointer group focus:outline-none",
+		)}
+		id="next"
+	>
+		<span
+			class={clsx(
+				"inline-flex items-center justify-center w-10 h-10",
+				"rounded-full bg-white/30 dark:bg-gray-200/30 group-hover:bg-white/50",
+				"dark:group-hover:bg-gray-200/60 group-focus:ring-4 group-focus:ring-white",
+				"dark:group-focus:ring-gray-200/70 group-focus:outline-none",
+			)}
+		>
+			<svg
+				class="w-4 h-4 text-white dark:text-gray-800 rtl:rotate-180"
+				aria-hidden="true"
+				xmlns="http://www.w3.org/2000/svg"
+				fill="none"
+				viewBox="0 0 6 10"
+			>
+				<path
+					stroke="currentColor"
+					stroke-line-cap="round"
+					stroke-line-join="round"
+					stroke-width="2"
+					d="m1 9 4-4-4-4"></path>
+			</svg>
+			<span class="sr-only">Next</span>
+		</span>
+	</button>
+</div>
+
+<script>
+    type CarouselItem = {
+        el: Element;
+        position: number;
+    };
+    type RotationItems = {
+        left: CarouselItem;
+        middle: CarouselItem;
+        right: CarouselItem;
+    };
+
+    let currentPosition = 0;
+    const slides = document.querySelectorAll("[data-carousel-item]");
+    const carouselItems: CarouselItem[] = [];
+    slides.forEach((el, i) => {
+    	carouselItems.push({
+    		position: i,
+    		el,
+    	});
+    });
+
+    const rotateSlides = (
+    	rotationItems: RotationItems,
+    	direction?: "left" | "right",
+    ) => {
+    	carouselItems.map((item) => {
+    		item.el.classList.add("hidden");
+    	});
+    	// left item (previously active)
+    	rotationItems.left.el.classList.remove(
+    		"-translate-x-full",
+    		"translate-x-full",
+    		"translate-x-0",
+    		"z-20",
+    	);
+    	if (!direction) {
+    		rotationItems.left.el.classList.remove("hidden");
+    		rotationItems.right.el.classList.remove("hidden");
+    	}
+    	if (direction === "right") {
+    		rotationItems.left.el.classList.remove("hidden");
+    	}
+    	rotationItems.left.el.classList.add("-translate-x-full", "z-10");
+
+    	// currently active item
+    	rotationItems.middle.el.classList.remove(
+    		"-translate-x-full",
+    		"translate-x-full",
+    		"translate-x-0",
+    		"hidden",
+    		"z-10",
+    	);
+    	rotationItems.middle.el.classList.add("translate-x-0", "z-20");
+
+    	rotationItems.middle.el.addEventListener("transitionend", () => {
+    		if (direction === "right") {
+    			rotationItems.right.el.classList.remove("hidden");
+    		} else if (direction === "left") {
+    			rotationItems.left.el.classList.remove("hidden");
+    		}
+    	});
+
+    	// right item (upcoming active)
+    	rotationItems.right.el.classList.remove(
+    		"-translate-x-full",
+    		"translate-x-full",
+    		"translate-x-0",
+    		"z-20",
+    	);
+    	if (direction === "left") {
+    		rotationItems.right.el.classList.remove("hidden");
+    	}
+    	rotationItems.right.el.classList.add("translate-x-full", "z-10");
+    };
+
+    const slideTo = (position: number, direction?: "left" | "right") => {
+    	const nextItem = carouselItems[position];
+    	const rotationItems: RotationItems = {
+    		left:
+                nextItem.position === 0
+                	? carouselItems[carouselItems.length - 1]
+                	: carouselItems[nextItem.position - 1],
+    		middle: nextItem,
+    		right:
+                nextItem.position === carouselItems.length - 1
+                	? carouselItems[0]
+                	: carouselItems[nextItem.position + 1],
+    	};
+    	rotateSlides(rotationItems, direction);
+    };
+
+    slideTo(currentPosition);
+
+    const prevBtn = document.getElementById("previous");
+    prevBtn?.addEventListener("click", () => {
+    	currentPosition = currentPosition - 1;
+    	if (currentPosition < 0) currentPosition = carouselItems.length - 1;
+    	slideTo(currentPosition, "left");
+    });
+
+    const next = () => {
+    	console.log("clicked...");
+    	currentPosition = currentPosition + 1;
+    	if (currentPosition === carouselItems.length) currentPosition = 0;
+    	slideTo(currentPosition, "right");
+    };
+    const nextBtn = document.getElementById("next");
+    nextBtn?.addEventListener("click", next);
+
+    [ 0, 1 ].map((idx) => {
+    	const stepsNextBtn = document.getElementById("submit-next-" + idx);
+    	stepsNextBtn?.addEventListener("click", next);
+    });
+</script>

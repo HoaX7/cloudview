@@ -28,7 +28,7 @@
 				type="button"
 				disabled={true}
 			>
-				<img alt="cloudview, login with google" width={24} 
+				<img alt="cloudfriendly, login with google" width={24} 
                 src="/assets/images/google-icon.svg" class="mr-2" /> Login with
 				Google
 			</Button>
@@ -43,7 +43,7 @@
                 	window.location.assign(OAUTH_URLS.GITHUB);
                 }}
 			>
-				<img alt="cloudview, login with github" width={24} 
+				<img alt="cloudfriendly, login with github" width={24} 
                 src="/assets/images/github-icon.svg" class="mr-2" /> Login with
 				Github
 			</Button>

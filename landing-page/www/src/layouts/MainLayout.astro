@@ -1,0 +1,62 @@
+---
+import Navbar from "../components/Navbar.astro";
+import "../styles/global.css";
+
+    interface Props {
+        image?: string;
+        description: string;
+        title: string;
+        ogType?: string;
+        keywords: string;
+        url: string;
+		hideNavbar?: boolean;
+    }
+
+const defaultOgImage = "https://getcloudfriendly.com/assets/images/og-image.jpg";
+const ogImage = Astro.props.image || defaultOgImage;
+---
+
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+		<link rel="icon" type="image/png" href="/favicon.png">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml">
+		<meta name="generator" content={Astro.generator} />
+		<meta name="description" content={Astro.props.description} />
+		<link rel="canonical" href={`https://getcloudfriendly.com${Astro.props.url}`} />
+		<meta property="og:url" content={`https://getcloudfriendly.com${Astro.props.url}`} />
+		<meta property="og:title" content={Astro.props.title} />
+		<meta property="og:description" content={Astro.props.description} />
+		<meta property="og:type" content={Astro.props.ogType || "website"} />
+		<meta property="twitter:title" content={Astro.props.title} />
+		<meta property="twitter:description" content={Astro.props.description} />
+		<meta property="twitter:card" content="summary" />
+		<meta property="twitter:creator" content="@hoaxy777" />
+		<meta property="og:locale" content="en_US" />
+		<meta property="keywords" content={Astro.props.keywords} />
+		<meta property="og:image" content={ogImage} />
+		<meta property="image" content={ogImage} />
+		<title>{Astro.props.title}</title>
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Plus Jakarta Sans:r,b">
+    <!-- Google tag (gtag.js) -->
+    <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-2XKMY8V0DX"></script> -->
+    <!-- <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-2XKMY8V0DX');
+    </script> -->
+	</head>
+
+	<body>
+		{!Astro.props.hideNavbar && <section id="nav" class="lg:mx-48 md:mx-20 p-4">
+			<Navbar />
+		</section>}
+		<slot />
+	</body>
+
+</html>

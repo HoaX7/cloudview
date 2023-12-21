@@ -1,0 +1,151 @@
+---
+import CalendlyScheduler from "../components/external/calendly/CalendlyScheduler.astro";
+import { SEO } from "../helpers/seo";
+import MainLayout from "../layouts/MainLayout.astro";
+import { requestDemoApi } from "../api/index";
+
+let showCalendly = false;
+let name: string = "";
+let email: string = "";
+let error = "";
+const errors: any = {
+	E_102: "You have already scheduled a call with this email. Please reply to the email for modifications.",
+	E_101: "The email you entered is not valid"
+};
+if (Astro.request.method === "POST") {
+	try {
+		const data = await Astro.request.formData();
+		const uname = data.get("name");
+		const uemail = data.get("email");
+		if (uname) name = uname.toString();
+		if (uemail) email = uemail.toString();
+		const resp = await requestDemoApi({
+			email,
+			name
+		});
+		if (!resp.success) throw resp.data;
+		showCalendly = true;
+	} catch (err: any) {
+		console.error("Error submitting form:", err);
+		if (errors[err.code]) {
+			error = errors[err.code];
+		} else {
+			error = "Unknown error occured, Please try again.";
+		}
+	}
+}
+
+---
+
+<MainLayout
+	title={SEO.requestDemo.title}
+	keywords={SEO.requestDemo.keywords}
+	description={SEO.requestDemo.description}
+	url="/request-demo"
+>
+	<section class="lg:mx-48 md:mx-20 p-4 mt-5" id="request-demo">
+		{!showCalendly && <div class="mt-5 flex justify-center" id="request-demo-popup">
+			<div class="shadow-lg rounded-md bg-cream">
+				<div
+					class="text-base font-semibold slate-gradient rounded-md p-3"
+				>
+                    Request a Demo
+				</div>
+				<div class="p-5 mt-5">
+					<p class="text-base">
+                        A member of our team will walk you through the platform
+                        and demonstrate how our solution can help!
+					</p>
+					<form id="request-demo-form" method="post">
+						<div class="mt-3">
+							<label for="name" class="text-base font-semibold"
+							><span class="text-red-600">*</span> Name:</label
+							>
+							<input
+								name="name"
+								class="w-full text-sm p-3 rounded-md mt-3"
+								placeholder="Start typing..."
+								id="name"
+								required
+							/>
+						</div>
+						<div class="mt-3">
+							<label for="email" class="text-base font-semibold"
+							><span class="text-red-600">*</span> Email:</label
+							>
+							<input
+								name="email"
+								class="w-full text-sm p-3 rounded-md mt-3"
+								placeholder="Start typing..."
+								id="email"
+								type="email"
+								required
+							/>
+						</div>
+						<div class="mt-5">
+							<button
+								id="submit-btn"
+								type="submit"
+								class="bg-site-gradient text-white font-semibold text-sm px-4 py-3 rounded-full"
+							>
+                                Schedule call
+							</button>
+						</div>
+						{error && <div class="text-red-600 text-sm mt-3">{error}</div>}
+					</form>
+				</div>
+			</div>
+		</div>}
+		{showCalendly && <CalendlyScheduler username={name} email={email} />}
+	</section>
+</MainLayout>
+<!-- 
+<script>
+  const errors: any = {
+    	E_102:
+            "You have already scheduled a call with this email. " +
+            "For any modifications, please reply to the email sent.",
+    	E_101: "The email you entered is not valid",
+  };
+
+  const submitBtn = document.getElementById(
+    	"submit-btn",
+  ) as HTMLButtonElement | null;
+  const form = document.getElementById("request-demo-form");
+
+  const onSubmit = (e: SubmitEvent) => {
+    	e.preventDefault();
+    	const emailEl = document.getElementById("email");
+    	const nameEl = document.getElementById("name");
+    	if (!emailEl || !nameEl) {
+    		console.error("Input fields not initialized");
+    		return;
+    	}
+    	if (!submitBtn) {
+    		console.error("Submit button not found");
+    		return;
+    	}
+    	try {
+    		submitBtn.innerText = "Saving...";
+    		submitBtn.disabled = true;
+				console.log(emailEl.innerText, nameEl.nodeValue);
+    	} catch (err: any) {
+    		console.error("Request failed", err);
+    		if (errors[err.code]) {
+    			alert(errors[err.code]);
+    		} else {
+    			alert("Unknown error occured, Please try again.");
+    		}
+    	}
+    	nameEl.innerText = "";
+    	emailEl.innerText = "";
+    	submitBtn.innerText = "Schedule call";
+    	submitBtn.disabled = false;
+  };
+
+  if (!form) {
+    	console.error("Unable to initialize form");
+  } else {
+    	form.onsubmit = onSubmit;
+  }
+</script> -->

@@ -159,13 +159,20 @@
   		if (animate && $settingStore.animate) {
   			arrowClone.visible(false);
   			const pathLen = pathClone.getLength();
-  			pathClone.dash([ pathLen ]);
-  			pathClone.dashOffset(pathLen);
+  			if (item.line.animateForever) {
+  				pathClone.dash([ 5, 5 ]);
+  				pathClone.dashOffset(10);
+  			} else {
+  				pathClone.dash([ pathLen ]);
+  				pathClone.dashOffset(pathLen);
+  			}
   			const anim = new Konva.Animation(function (frame) {
-  				const dashLen = pathLen - (frame?.time || 0) / 5;
+  				const dashLen = pathLen - (frame?.time || 0) / (item.line.animateForever ? 30 : 5);
   				pathClone.dashOffset(dashLen);
   				if (dashLen < 0) {
-  					anim.stop();
+  					if (!item.line.animateForever) {
+  						anim.stop();
+  					}
   					arrowClone.visible(true);
   				}
   			}, layer);

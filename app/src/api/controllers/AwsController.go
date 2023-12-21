@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"cloudview/app/src/api/encryption"
+	"cloudview/app/src/api/middleware/logger"
 	"cloudview/app/src/database"
 	models "cloudview/app/src/models/services"
 	"cloudview/app/src/providers/service/aws"
@@ -19,7 +21,12 @@ func GetAwsUsageData(db *database.DB) func(*http.Request, models.Services, strin
 			Region:    region,
 			ServiceId: serviceData.ID,
 		}
-		client.Init(serviceData.AccessKeyID, serviceData.AccessKeySecret, region)
+		accessKeySecret, err := encryption.Decrypt(serviceData.AccessKeySecret, serviceData.RotationSecretKey)
+		if err != nil {
+			logger.Logger.Error("Invalid provider access-key-secret", err)
+			return nil, errors.New("Invalid provider secret")
+		}
+		client.Init(serviceData.AccessKeyID, accessKeySecret, region)
 		caller := client.GetServiceCaller()
 		caller.CloudWatchInit()
 		switch instance {

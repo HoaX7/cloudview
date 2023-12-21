@@ -1,11 +1,19 @@
 <script lang="ts">
+  import { onDestroy, onMount } from "svelte";
     import Icon from "../Image/index.svelte";
+  import WindowEvents from "../Hooks/WindowEvents.svelte";
 
     export let showMenu = false;
 
     export let width = 32;
+
+    const closeModal = () => {
+    	showMenu = false;
+    };
+    
 </script>
 
+<WindowEvents callback={closeModal} />
 <div class="relative">
     <button class="hover:bg-gray-100 rounded-full"
     on:click={(e) => {

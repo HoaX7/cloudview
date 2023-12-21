@@ -207,14 +207,6 @@ export const drawSVGPath = (from: Points, to: Points) => {
 		const edge1 = calculateEdgePoints(from, to);
 		const edge2 = calculateEdgePoints(to, from);
 		const extraEdges: PathPoint[] = [];
-		// if (edge2.x === to.x) {
-		// 	edge2.x = edge1.x;
-		// 	extraEdges.push({
-		// 		command: "L",
-		// 		x: to.x,
-		// 		y: edge2.y
-		// 	});
-		// }
 		const edges: PathPoint[] = [ startPoint, edge1, edge2, ...extraEdges, endPoint ];
 		const edgesWithCurves: PathPoint[] = [];
 		edges.forEach((edge, index) => {
@@ -272,38 +264,6 @@ export const drawSVGPath = (from: Points, to: Points) => {
 					y: controlPoints.dy
 				});
 			}
-
-			// const curveCommand = {
-			// 	command: "t",
-			// 	x: `${controlPoints.cp1.x} ${controlPoints.cp1.y}`,
-			// 	y: `${controlPoints.cp2.x} ${controlPoints.cp2.y}`,
-			// };
-			// if (curveCommand.x !== "0 0" && curveCommand.y !== "0 0") {
-			// 	edgesWithCurves.push(curveCommand);
-			// }
-			// const position = getEdgePosition(edge, edges[nextIndex]);
-			// edges[index].position = position;
-			// const previousEdge = edges[index - 1];
-			// if (to.position === NODE_POSITIONS.RIGHT) {
-			// 	// Target is on the right, therefore the source
-			// 	// must be on the left. So, we draw the curve from
-			// 	// left to top/bottom right.
-			// 	if (position === NODE_POSITIONS.TOP) {
-			// 		edge.x = +edge.x - 10;
-			// 		const nextEdge = edges[nextIndex];
-			// 		nextEdge.x = +nextEdge.x + 10;
-			// 		edgesWithCurves.push(edge, {
-			// 			command: "t",
-			// 			x: "10 0",
-			// 			y: "10 -10"
-			// 		}, nextEdge);
-			// 	}
-			// 	// To add curve to second edge
-			// 	// this means the line is being drawn from bottom to right
-			// 	if (position === NODE_POSITIONS.RIGHT && previousEdge.position === NODE_POSITIONS.TOP) {
-
-			// 	}
-			// }
 		});
 		points.push(...edgesWithCurves);
 	}

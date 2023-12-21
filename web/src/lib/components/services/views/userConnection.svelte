@@ -7,6 +7,7 @@
   import Rect from "../../common/KonvaCanvas/Rect.svelte";
   import { clone } from "$src/helpers";
   import Text from "../../common/KonvaCanvas/Text.svelte";
+  import Konva from "konva";
 
   const konvastore = KonvaStore.getStore();
   const datastore = Datastore.getDatastore();
@@ -45,6 +46,7 @@
   				dash: [ 5, 5 ],
   				dashOffset: 5,
   				stroke: "gray",
+  				animateForever: true
   			},
   		});
   	}

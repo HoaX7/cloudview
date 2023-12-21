@@ -8,8 +8,8 @@
 </script>
 
 <div class="flex items-center">
-    <Icon src="/assets/images/cloudview-logo.svg" alt="cloudview-logo-ic" {width} /> 
+    <Icon src="/assets/images/cloudfriendly-logo.svg" alt="cloudfriendly-logo-ic" {width} /> 
     <Typography variant="div" {font} weight="medium" classname="ml-2">
-        Cloudview
+        Cloud Friendly
     </Typography>
 </div>

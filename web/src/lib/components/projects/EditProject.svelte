@@ -7,6 +7,7 @@
   import Textarea from "../common/Input/Textarea.svelte";
 	import AlertMessage from "../common/Alerts/AlertMessage.svelte";
 	import { updateProject } from "$src/api/projects";
+  import FormButtons from "../common/Modal/formButtons.svelte";
 
   export let project: ProjectProps;
   export let onClose: () => void;
@@ -106,24 +107,6 @@
     />
   </div>
   <svelte:fragment slot="buttons">
-    <Button
-      type="submit"
-      classname="px-3 py-2 !rounded text-blue-600 hover:bg-gray-100"
-      disabled={saving}
-    >
-      {#if saving}
-        <Spinner size="xxs" />
-      {:else}
-        Save
-      {/if}
-    </Button>
-    <Button
-      type="button"
-      on:click={() => onClose()}
-      classname="px-3 py-2 !rounded text-blue-600 hover:bg-gray-100"
-      disabled={saving}
-    >
-      Cancel
-    </Button>
+    <FormButtons {onClose} {saving} />
   </svelte:fragment>
 </Modal>

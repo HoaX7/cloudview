@@ -11,6 +11,7 @@ export type ServiceProps = {
   accessKeySecret?: string;
   accessKeyId?: string;
   description?: string;
+  isDeleted?: boolean;
 };
 export type MetricDataReturnType = ({
   name: typeof AWS_SERVICES.EC2;

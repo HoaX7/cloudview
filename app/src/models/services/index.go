@@ -7,6 +7,7 @@ import (
 	"cloudview/app/src/database"
 	"encoding/json"
 	"errors"
+	"reflect"
 	"time"
 
 	"github.com/go-jet/jet/v2/postgres"
@@ -24,7 +25,7 @@ type Services struct {
 	Provider          string           `json:"provider,omitempty"`
 	ProjectID         uuid.UUID        `json:"projectId,omitempty" jet:"nullable"`
 	Metadata          *json.RawMessage `json:"metadata,omitempty" jet:"type=jsonb,nullable"`
-	IsDeleted         bool             `json:"isDeleted,omitempty"`
+	IsDeleted         *bool            `json:"isDeleted,omitempty"`
 	CreatedAt         time.Time        `json:"createdAt,omitempty"`
 	UpdatedAt         time.Time        `json:"updatedAt,omitempty"`
 }
@@ -139,6 +140,9 @@ func Update(db *database.DB, id uuid.UUID, data Services) error {
 	}
 	if data.Provider != "" {
 		columnsList = append(columnsList, table.Services.Provider)
+	}
+	if data.IsDeleted != nil && reflect.ValueOf(*data.IsDeleted).Kind() == reflect.Bool {
+		columnsList = append(columnsList, table.Projects.IsDeleted)
 	}
 	if len(columnsList) <= 0 {
 		logger.Logger.Log("models.services.Update: nothing to update")

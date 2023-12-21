@@ -1,0 +1,37 @@
+---
+import clsx from "clsx";
+import RequestDemo from "./landing/RequestDemo.astro";
+import BrandLogo from "./BrandLogo.astro";
+const navItems = [ {
+	key: "how-it-works",
+	name: "how it works",
+	url: "/#how-it-works"
+}, {
+	key: "docs",
+	name: "docs",
+	url: "/docs",
+	class: "hidden md:block"
+}, 
+	// {
+	//     key: "faq",
+	//     name: "FAQs",
+	//     url: "/faq"
+	// }
+];
+---
+
+<nav class="flex items-center justify-between">
+	<BrandLogo />
+	<div class="flex items-center">
+		<ul class="flex items-center mr-3">
+			{navItems.map((item) => {
+				return <li class="font-semibold text-sm mx-2">
+					<a href={item.url} class={clsx("hover:underline", item.class)}>
+						{item.name}
+					</a>
+				</li>;
+			})}
+		</ul>
+		<RequestDemo />
+	</div>
+</nav>

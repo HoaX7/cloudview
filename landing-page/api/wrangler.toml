@@ -1,0 +1,15 @@
+name = "marketing_worker"
+main = "src/index.ts"
+compatibility_date = "2023-04-29"
+d1_databases = [
+	{ binding = "HVEC_MARKETING_DB", database_name = "cloudfriendly", database_id = "b457a38d-6212-4075-9d79-ee44ce25ad75", preview_database_id = "b457a38d-6212-4075-9d79-ee44ce25ad75" }
+]
+
+[dev]
+port = 6002
+
+
+[env.production]
+d1_databases = [
+	{ binding = "HVEC_MARKETING_DB", database_name = "cloudfriendly", database_id = "b457a38d-6212-4075-9d79-ee44ce25ad75" }
+]

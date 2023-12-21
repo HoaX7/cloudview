@@ -1,0 +1,56 @@
+---
+import clsx from "clsx";
+interface Props {
+    index: number;
+}
+
+const { index = 0 } = Astro.props;
+---
+
+<div class="shadow-lg rounded-md bg-cream">
+	<div class="text-base font-semibold slate-gradient rounded-md p-3">
+    Create Your Project
+	</div>
+	<div class="p-5">
+		{index === 0 ? <div class="">
+			<div class="mt-5">
+				<label class="font-semibold text-base">Name:</label>
+				<input value="US Client Project 1" readonly 
+					class="mt-3 w-full rounded-md p-3 bg-cream border-sky-400 border-2 text-sm font-medium" />
+			</div>
+			<div class="mt-5">
+				<label for="" class="font-semibold text-base">Cloud Provider:</label>
+				<select class={clsx("bg-cream w-full mt-3 p-3 border-sky-400 border-2 rounded-md",
+					"text-sm font-medium")}>
+					<option aria-selected="true">
+                AWS
+					</option>
+					<option>
+                Google Cloud Platform
+					</option>
+					<option>
+                Azure
+					</option>
+				</select>
+			</div>
+		</div> : <div class="">
+			<p class="font-bold text-sm mt-3">We DO NOT expose your credentials.</p>
+			<div class="mt-3">
+				<label class="font-semibold text-base">Access ID:</label>
+				<input value="iAtF1FTS3smEhI95sN2DCWxhHVv9s5CG" readonly 
+					class="mt-3 w-full rounded-md p-3 bg-cream border-sky-400 border-2 text-sm font-medium" />
+			</div>
+			<div class="mt-5">
+				<label class="font-semibold text-base">Access Secret:</label>
+				<input value="6iTvLi57Hl" readonly type="password"
+					class="mt-3 w-full rounded-md p-3 bg-cream border-sky-400 border-2 text-sm font-medium" />
+			</div>
+		</div>}
+		<div class="mt-5">
+			<button id={"submit-next-" + index} 
+				class="bg-site-gradient text-white font-semibold text-sm px-4 py-3 rounded-full">
+				Next
+			</button>
+		</div>
+	</div>
+</div>

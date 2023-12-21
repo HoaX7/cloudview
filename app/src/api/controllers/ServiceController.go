@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"cloudview/app/src/api/authentication"
+	"cloudview/app/src/api/encryption"
 	custom_errors "cloudview/app/src/api/errors"
 	"cloudview/app/src/api/middleware"
 	"cloudview/app/src/api/middleware/logger"
@@ -86,10 +87,22 @@ func (c *ServiceController) StoreAccessKey(db *database.DB) http.HandlerFunc {
 		}
 
 		/*
-			Must generate secret key to encrypt access_keys.
-			TODO - Implement key rotation to encrypt/decrypt access_keys.
+			Generate 16 byte random key to encrypt `accessKeySecret`
 		*/
-		request.RotationSecretKey = "some_rotation_key"
+		key, err := encryption.GenerateRandomSecretKey(16)
+		if err != nil {
+			logger.Logger.Error("ServiceController.StoreAccessKey: ERROR unable to generate secret key", err)
+			rw.Error("Something went wrong, Please try again later", http.StatusInternalServerError)
+			return
+		}
+		cipherText, err := encryption.Encrypt(request.AccessKeySecret, key)
+		if err != nil {
+			logger.Logger.Error("ServiceController.StoreAccessKey: ERROR unable to encrypt access key", err)
+			rw.Error("Something went wrong, Please try again later", http.StatusInternalServerError)
+			return
+		}
+		request.AccessKeySecret = cipherText
+		request.RotationSecretKey = key
 		result, err := models.Create(db, request)
 		if err != nil {
 			logger.Logger.Error("ServiceController.StoreAccessKey: ERROR unable to create data", err)
@@ -213,10 +226,15 @@ func (c *ServiceController) GetServiceData(db *database.DB) http.HandlerFunc {
 		// Add switch case to switch services like 'aws', 'gcp'
 		// Caching data for 15 minutes
 		result, err := cache.Fetch(cacheKey, 0, func() (interface{}, error) {
+			accessKeySecret, err := encryption.Decrypt(serviceData.AccessKeySecret, serviceData.RotationSecretKey)
+			if err != nil {
+				logger.Logger.Error("Invalid provider access-key-secret", err)
+				return nil, errors.New("Invalid provider secret")
+			}
 			return service.GetData(&aws.AWS{
 				Region:    region,
 				ServiceId: serviceUid,
-			}, serviceData.AccessKeyID, serviceData.AccessKeySecret, region)
+			}, serviceData.AccessKeyID, accessKeySecret, region)
 		})
 		if err != nil {
 			logger.Logger.Error("ServiceController.GetServiceData: ERROR fetching metrics", err)

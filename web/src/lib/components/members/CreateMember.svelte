@@ -5,6 +5,7 @@
   import Button from "../common/Button/Button.svelte";
   import Input from "../common/Input/Input.svelte";
   import Spinner from "../common/Loaders/Spinner.svelte";
+  import FormButtons from "../common/Modal/formButtons.svelte";
   import Modal from "../common/Modal/index.svelte";
 
   export let projectId: string;
@@ -59,24 +60,6 @@
     />
   </div>
   <svelte:fragment slot="buttons">
-    <Button
-      type="submit"
-      classname="px-3 py-2 !rounded text-blue-600 hover:bg-gray-100"
-      disabled={saving}
-    >
-      {#if saving}
-        <Spinner size="xxs" />
-      {:else}
-        Save
-      {/if}
-    </Button>
-    <Button
-      type="button"
-      on:click={() => onClose()}
-      classname="px-3 py-2 !rounded text-blue-600 hover:bg-gray-100"
-      disabled={saving}
-    >
-      Cancel
-    </Button>
+    <FormButtons {saving} {onClose} />
   </svelte:fragment>
 </Modal>

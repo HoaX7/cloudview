@@ -16,6 +16,8 @@
   import CreateMember from "../members/CreateMember.svelte";
   import DeleteProject from "./DeleteProject.svelte";
   import { clone } from "$src/helpers";
+  import AlertMessage from "../common/Alerts/AlertMessage.svelte";
+  import { editService } from "$src/api/services";
 
   export let project: ProjectProps;
   export let services: ServiceProps[];
@@ -34,6 +36,8 @@
   	showMemberModal: false,
   	showDeleteProjectModal: false,
   };
+  let alertRef: any;
+  let deleting = false;
 
   const columns = [
   	{
@@ -54,8 +58,31 @@
   		isDate: true,
   	},
   ];
+
+  const handleDeleteService = async (id: string) => {
+  	try {
+  		deleting = true;
+  		const res = clone(services);
+  		const idx = res.findIndex((r) => r.id === id);
+  		if (idx >= 0) {
+  			const resp = await editService(id, {
+  				isDeleted: true,
+  				projectId: project.id 
+  			});
+  			if (resp.error) throw resp;
+  			res.splice(idx, 1);
+  			services = res;
+  		}
+  		alertRef?.alert("Successfully deleted service", true);
+  	} catch (err: any) {
+  		console.log("Unable to save", err);
+  		alertRef?.alert(err?.message || "Unable to save", false);
+  	}
+  	deleting = false;
+  };
 </script>
 
+<AlertMessage bind:this={alertRef} />
 <div class="mt-10 container mx-auto mb-8">
   {#if project}
     <div class="flex items-center justify-between w-full">
@@ -196,6 +223,28 @@
             >
               <Icon src="/assets/images/view.svg" width="18" alt="view" />
             </a>
+            {#if $user?.id === project.ownerId}
+              <div class="ml-2 mt-2">
+                <SettingsComponent width={22}>
+                  <Button
+                    classname={clsx(
+                    	"!p-3 !rounded-b-md text-red-500 hover:bg-red-500",
+                    	"hover:text-white w-full text-start",
+                    	"!rounded-t-none !font-medium disabled:opacity-25"
+                    )}
+                    disabled={deleting}
+                    on:click={(e) => {
+                    	e.stopPropagation();
+                    	const ask = window.confirm(`Are you sure you want to delete "${item.name}" service?`);
+                    	if (!ask) return;
+                    	handleDeleteService(item.id);
+                    }}
+                  >
+                    Delete Service
+                  </Button>
+                </SettingsComponent>
+              </div>
+            {/if}
           </td>
         </svelte:fragment>
         <svelte:fragment slot="footer">

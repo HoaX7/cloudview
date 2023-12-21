@@ -2,6 +2,7 @@ package models
 
 import (
 	"cloudview/app/dbschema/cloudview/public/table"
+	"cloudview/app/src/api/encryption"
 	custom_errors "cloudview/app/src/api/errors"
 	"cloudview/app/src/api/middleware/logger"
 	"cloudview/app/src/database"
@@ -212,15 +213,22 @@ func CreateWithService(db *database.DB, data CreateWithServiceProps) (CreateWith
 		return result, errors.New("Unable to insert data")
 	}
 
-	/*
-		TODO - Implement rotation logic to has `accessKeySecret`
-	*/
+	key, err := encryption.GenerateRandomSecretKey(16)
+	if err != nil {
+		logger.Logger.Error("models.projects.CreateWithService: ERROR unable to generate secret key", err)
+		return result, errors.New("Unable to insert data")
+	}
+	cipherText, err := encryption.Encrypt(data.AccessKeySecret, key)
+	if err != nil {
+		logger.Logger.Error("models.projects.CreateWithService: ERROR unable to encrypt access key", err)
+		return result, errors.New("Unable to insert data")
+	}
 	serviceData := service_model.Services{
-		AccessKeySecret:   data.AccessKeySecret,
+		AccessKeySecret:   cipherText,
 		AccessKeyID:       data.AccessKeyID,
 		Provider:          data.Provider,
 		ProjectID:         projectResult.ID,
-		RotationSecretKey: "rotate-key",
+		RotationSecretKey: key,
 		Name:              data.Provider,
 	}
 	serviceStmt := table.Services.INSERT(table.Services.Name, table.Services.AccessKeyID,

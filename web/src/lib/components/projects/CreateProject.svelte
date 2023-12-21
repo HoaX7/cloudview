@@ -7,6 +7,7 @@
   import Textarea from "../common/Input/Textarea.svelte";
   import FullPageLoader from "../common/Loaders/FullPageLoader.svelte";
   import Spinner from "../common/Loaders/Spinner.svelte";
+  import FormButtons from "../common/Modal/formButtons.svelte";
   import Modal from "../common/Modal/index.svelte";
   import Select from "../common/Select/Select.svelte";
 
@@ -116,26 +117,6 @@
     />
   </div>
   <svelte:fragment slot="buttons">
-    <Button
-      type="submit"
-      classname="px-3 py-2 !rounded text-blue-600 hover:bg-gray-100"
-      disabled={saving}
-    >
-      {#if saving}
-        <Spinner size="xxs" />
-      {:else}
-        Save
-      {/if}
-    </Button>
-    {#if allowClose}
-      <Button
-        type="button"
-        on:click={() => onClose()}
-        classname="px-3 py-2 !rounded text-blue-600 hover:bg-gray-100"
-        disabled={saving}
-      >
-        Cancel
-      </Button>
-    {/if}
+    <FormButtons {saving} {onClose} {allowClose} />
   </svelte:fragment>
 </Modal>

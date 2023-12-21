@@ -1,0 +1,30 @@
+export const INVALID_EMAIL_ERROR = {
+	error: "Invalid Email",
+	code: "E_101",
+};
+
+export const INVALID_USERNAME_ERROR = {
+	error: "Invalid Username",
+	code: "E_104",
+};
+
+
+export const INVALID_BLOG_CONTENT_ERROR = {
+	error: "Invalid blog title or content",
+	code: "E_103"
+}
+
+export const NOT_FOUND_ERROR = {
+	error: "Not Found",
+	code: "E_404",
+};
+
+export const INTERNAL_SERVER_ERROR = {
+	error: "Internal Server Error",
+	code: "E_500",
+};
+
+export const ALREADY_EXISTS_ERROR = {
+	error: "Already Exists Error",
+	code: "E_102",
+};

@@ -1,0 +1,78 @@
+---
+import clsx from "clsx";
+const footerItems = [
+	{
+		header: "Resources",
+		items: [
+			{
+				name: "Documentation",
+				href: "/docs",
+			},
+			{
+				name: "Blogs",
+				href: "/blogs",
+			},
+		],
+	},
+	{
+		header: "Pricing",
+		items: [
+			{
+				name: "See Plans",
+				href: "/pricing-plans",
+			},
+		],
+	},
+	{
+		header: "Policies",
+		items: [
+			{
+				name: "Privacy Policy",
+				href: "privacy-policy",
+			},
+			{
+				name: "Terms of Service",
+				href: "terms-of-service",
+			},
+		],
+	},
+];
+---
+
+<section
+	id="footer"
+	class={clsx("lg:mx-48 md:mx-20 p-4 mt-5 border-t border-t-gray-100",
+		"")}
+>
+	<div class="my-10 md:grid md:grid-cols-3 gap-4">
+        <!-- <span class="w-full">Made with ❤️ <div>From India</div></span> -->
+        <div class="md:col-span-1">
+            © Cloud Friendly, 2023. All rights reserved.
+        </div>
+        <div class="md:col-span-2 grid grid-cols-6 gap-4 mt-10 md:mt-0">
+        	{
+        		footerItems.map((it) => {
+        			return (
+        				<div class="col-span-3 md:col-span-2">
+        					<h3 class="font-semibold text-base text-gradient">
+        						{it.header}
+        					</h3>
+        					{it.items.map((item) => {
+        						return (
+        							<div>
+        								<a
+        									class="text-base font-medium hover:underline"
+        									href={item.href}
+        								>
+        									{item.name}
+        								</a>
+        							</div>
+        						);
+        					})}
+        				</div>
+        			);
+        		})
+        	}
+        </div>
+	</div>
+</section>

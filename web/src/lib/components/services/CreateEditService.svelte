@@ -11,6 +11,7 @@
   import Spinner from "../common/Loaders/Spinner.svelte";
   import AlertMessage from "../common/Alerts/AlertMessage.svelte";
   import clsx from "clsx";
+  import FormButtons from "../common/Modal/formButtons.svelte";
 
   export let selectedService: ServiceProps | null;
   export let isCreate = false;
@@ -162,24 +163,6 @@
     </div>
   </Accordion>
   <svelte:fragment slot="buttons">
-    <Button
-      type="submit"
-      classname="px-3 py-2 !rounded text-blue-600 hover:bg-gray-100"
-      disabled={state.saving}
-    >
-      {#if state.saving}
-        <Spinner size="xxs" />
-      {:else}
-        Save
-      {/if}
-    </Button>
-    <Button
-      type="button"
-      on:click={() => onClose()}
-      classname="px-3 py-2 !rounded text-blue-600 hover:bg-gray-100"
-      disabled={state.saving}
-    >
-      Cancel
-    </Button>
+    <FormButtons saving={state.saving} {onClose} />
   </svelte:fragment>
 </Modal>

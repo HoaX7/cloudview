@@ -8,6 +8,10 @@ import (
 )
 
 func IsValidUUID(u string) bool {
+	// Invalid uuid, this uuid is set by default if no value is sent
+	if u == "00000000-0000-0000-0000-000000000000" {
+		return false
+	}
 	_, err := uuid.Parse(u)
 	return err == nil
 }

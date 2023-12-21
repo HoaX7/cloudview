@@ -1,0 +1,32 @@
+---
+import Features from "../components/landing/Features.astro";
+import HeroSection from "../components/landing/HeroSection.astro";
+import HowItWorks from "../components/landing/howItWorks/HowItWorks.astro";
+import { SEO } from "../helpers/seo";
+import Footer from "../layouts/Footer.astro";
+import Mainlayout from "../layouts/MainLayout.astro";
+---
+
+<Mainlayout
+	title={SEO.home.title}
+	keywords={SEO.home.keywords}
+	description={SEO.home.description}
+	url=""
+>
+	<div class="lg:mx-48 md:mx-20 p-4">
+		<section id="hero">
+			<HeroSection />
+		</section>
+	</div>
+	<section id="features" class="mt-10 pb-10 slate-gradient">
+		<h2 class="text-center text-3xl font-bold pt-10">Features</h2>
+		<Features />
+	</section>
+	<section id="how-it-works" class="mt-10 pb-10">
+		<h2 class="text-center text-3xl font-bold pt-10">How it works</h2>
+		<div class="lg:mx-48 md:mx-20 p-4 mt-5">
+			<HowItWorks />
+		</div>
+	</section>
+	<Footer />
+</Mainlayout>

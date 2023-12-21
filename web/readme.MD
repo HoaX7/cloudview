@@ -1,4 +1,4 @@
-## Cloudview web app
+## Cloud Friendly web app
 - This repo is the application interface that connects app backend repo to visualize AWS,GCP,Azure ...etc services in one place.
 
 # USEFUL FINDINGS
