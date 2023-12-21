@@ -1,6 +1,7 @@
 import { defineConfig } from "astro/config";
 import tailwind from "@astrojs/tailwind";
 import sitemap from "@astrojs/sitemap";
+import cloudflare from "@astrojs/cloudflare";
 
 // https://astro.build/config
 export default defineConfig({
@@ -13,5 +14,10 @@ export default defineConfig({
 	trailingSlash: "ignore",
 	// required for cloudflare to remove trailing slash ('/')
 	build: { format: "file" },
-	output: "server"
+	output: "hybrid",
+	adapter: cloudflare(),
+	image: {
+		domains: [ "astro.build" ],
+		service: { entrypoint: "astro/assets" },	
+	}
 });

@@ -99,53 +99,53 @@ if (Astro.request.method === "POST") {
 		{showCalendly && <CalendlyScheduler username={name} email={email} />}
 	</section>
 </MainLayout>
-<!-- 
-<script>
-  const errors: any = {
-    	E_102:
-            "You have already scheduled a call with this email. " +
-            "For any modifications, please reply to the email sent.",
-    	E_101: "The email you entered is not valid",
-  };
 
-  const submitBtn = document.getElementById(
-    	"submit-btn",
-  ) as HTMLButtonElement | null;
-  const form = document.getElementById("request-demo-form");
+// <script>
+//   const errors: any = {
+//     	E_102:
+//             "You have already scheduled a call with this email. " +
+//             "For any modifications, please reply to the email sent.",
+//     	E_101: "The email you entered is not valid",
+//   };
 
-  const onSubmit = (e: SubmitEvent) => {
-    	e.preventDefault();
-    	const emailEl = document.getElementById("email");
-    	const nameEl = document.getElementById("name");
-    	if (!emailEl || !nameEl) {
-    		console.error("Input fields not initialized");
-    		return;
-    	}
-    	if (!submitBtn) {
-    		console.error("Submit button not found");
-    		return;
-    	}
-    	try {
-    		submitBtn.innerText = "Saving...";
-    		submitBtn.disabled = true;
-				console.log(emailEl.innerText, nameEl.nodeValue);
-    	} catch (err: any) {
-    		console.error("Request failed", err);
-    		if (errors[err.code]) {
-    			alert(errors[err.code]);
-    		} else {
-    			alert("Unknown error occured, Please try again.");
-    		}
-    	}
-    	nameEl.innerText = "";
-    	emailEl.innerText = "";
-    	submitBtn.innerText = "Schedule call";
-    	submitBtn.disabled = false;
-  };
+//   const submitBtn = document.getElementById(
+//     	"submit-btn",
+//   ) as HTMLButtonElement | null;
+//   const form = document.getElementById("request-demo-form");
 
-  if (!form) {
-    	console.error("Unable to initialize form");
-  } else {
-    	form.onsubmit = onSubmit;
-  }
-</script> -->
+//   const onSubmit = (e: SubmitEvent) => {
+//     	e.preventDefault();
+//     	const emailEl = document.getElementById("email");
+//     	const nameEl = document.getElementById("name");
+//     	if (!emailEl || !nameEl) {
+//     		console.error("Input fields not initialized");
+//     		return;
+//     	}
+//     	if (!submitBtn) {
+//     		console.error("Submit button not found");
+//     		return;
+//     	}
+//     	try {
+//     		submitBtn.innerText = "Saving...";
+//     		submitBtn.disabled = true;
+// 				console.log(emailEl.innerText, nameEl.nodeValue);
+//     	} catch (err: any) {
+//     		console.error("Request failed", err);
+//     		if (errors[err.code]) {
+//     			alert(errors[err.code]);
+//     		} else {
+//     			alert("Unknown error occured, Please try again.");
+//     		}
+//     	}
+//     	nameEl.innerText = "";
+//     	emailEl.innerText = "";
+//     	submitBtn.innerText = "Schedule call";
+//     	submitBtn.disabled = false;
+//   };
+
+//   if (!form) {
+//     	console.error("Unable to initialize form");
+//   } else {
+//     	form.onsubmit = onSubmit;
+//   }
+// </script>
