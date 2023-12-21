@@ -1,4 +1,4 @@
-name = "marketing_worker"
+name = "api_service_worker"
 main = "src/index.ts"
 compatibility_date = "2023-04-29"
 d1_databases = [
