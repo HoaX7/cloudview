@@ -39,7 +39,8 @@ export const Registration = {
 		} catch (err) {
 			const error = err as Error & { cause: { message: string } };
 			console.error("Error while inserting registrations email", { msg: error.cause?.message || error.message });
-			if (error.message === "D1_ERROR" && error.cause?.message?.toLowerCase().includes("unique constraint failed")) {
+			console.error("error.message", error.message)
+			if (error.message?.includes("D1_ERROR") && error.cause?.message?.toLowerCase().includes("unique constraint failed")) {
 				return jsonError({ message: ALREADY_EXISTS_ERROR.error, code: ALREADY_EXISTS_ERROR.code }, { status: 422 });
 			}
 			return jsonError({ message: INTERNAL_SERVER_ERROR.error, code: INTERNAL_SERVER_ERROR.code }, { status: 500 });

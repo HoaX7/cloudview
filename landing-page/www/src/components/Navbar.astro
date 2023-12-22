@@ -5,12 +5,11 @@ import BrandLogo from "./BrandLogo.astro";
 const navItems = [ {
 	key: "how-it-works",
 	name: "how it works",
-	url: "/#how-it-works"
+	url: "/#how-it-works",
 }, {
 	key: "docs",
 	name: "docs",
 	url: "/docs",
-	class: "hidden md:block"
 }, 
 	// {
 	//     key: "faq",
@@ -23,10 +22,10 @@ const navItems = [ {
 <nav class="flex items-center justify-between">
 	<BrandLogo />
 	<div class="flex items-center">
-		<ul class="flex items-center mr-3">
+		<ul class="items-center mr-3 hidden md:flex">
 			{navItems.map((item) => {
-				return <li class="font-semibold text-sm mx-2">
-					<a href={item.url} class={clsx("hover:underline", item.class)}>
+				return <li class={clsx("font-semibold text-sm mx-2")}>
+					<a href={item.url} class={clsx("hover:underline")}>
 						{item.name}
 					</a>
 				</li>;
