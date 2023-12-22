@@ -11,7 +11,7 @@ import MainLayout from "../layouts/MainLayout.astro";
 >
 	<section class="lg:mx-48 md:mx-20 p-4 mt-5" id="request-demo">
 		<div class="mt-5 flex justify-center" id="request-demo-popup">
-			<div class="shadow-lg rounded-md bg-cream">
+			<div class="shadow-lg rounded-md bg-cream" id="form-container">
 				<div
 					class="text-base font-semibold slate-gradient rounded-md p-3"
 				>
@@ -75,6 +75,7 @@ import MainLayout from "../layouts/MainLayout.astro";
     	E_102: "You have already scheduled a call with this email. Please reply to the email for modifications.",
     	E_101: "The email you entered is not valid.",
     };
+    const formContainer = document.getElementById("form-container");
     const errorEl = document.getElementById("error") as HTMLDivElement;
     const submitBtn = document.getElementById(
     	"submit-btn",
@@ -104,6 +105,16 @@ import MainLayout from "../layouts/MainLayout.astro";
     			name,
     		});
     		if (!resp.success) throw resp.data;
+    		console.log("register success, loading calendar..");
+    		Calendly.initInlineWidget({
+    			url: "https://calendly.com/cloudfriendly/demo-call",
+    			parentElement: document.getElementById("calendly-embed"),
+    			prefill: {
+    				name,
+    				email,
+    			},
+    		});
+    		formContainer?.classList.add("hidden");
     	} catch (err: any) {
     		console.error("Unable to save:", err);
     		let errorMessage = "";

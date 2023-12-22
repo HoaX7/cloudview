@@ -24,5 +24,5 @@ export async function get({ request }) {
       ${blogUrls}
     </urlset>`;
   
-	return { body: xmlString };
+	return new Response(xmlString, { headers: { "Content-Type": "text/xml" } });
 }
