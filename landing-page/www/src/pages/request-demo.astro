@@ -1,4 +1,5 @@
 ---
+import Spinner from "../components/commons/Spinner.astro";
 import { SEO } from "../helpers/seo";
 import MainLayout from "../layouts/MainLayout.astro";
 ---
@@ -61,7 +62,11 @@ import MainLayout from "../layouts/MainLayout.astro";
 					</form>
 				</div>
 			</div>
-		</div><div id="calendly-embed" style="min-width:320px;height:700px;">
+		</div>
+		<div class="flex justify-center">
+			<div id="loading" class="flex items-center hidden">Loading calendar <Spinner /></div>
+		</div>
+		<div id="calendly-embed" style="min-width:320px;height:700px;">
 		</div>
 	</section>
 </MainLayout>
@@ -75,6 +80,7 @@ import MainLayout from "../layouts/MainLayout.astro";
     	E_102: "You have already scheduled a call with this email. Please reply to the email for modifications.",
     	E_101: "The email you entered is not valid.",
     };
+    const loadingEl = document.getElementById("loading");
     const formContainer = document.getElementById("form-container");
     const errorEl = document.getElementById("error") as HTMLDivElement;
     const submitBtn = document.getElementById(
@@ -106,7 +112,7 @@ import MainLayout from "../layouts/MainLayout.astro";
     		});
     		if (!resp.success) throw resp.data;
     		console.log("register success, loading calendar..");
-    		alert("success");
+    		if (loadingEl) loadingEl.classList.remove("hidden");
     		Calendly.initInlineWidget({
     			url: "https://calendly.com/cloudfriendly/demo-call",
     			parentElement: document.getElementById("calendly-embed"),
@@ -115,6 +121,12 @@ import MainLayout from "../layouts/MainLayout.astro";
     				email,
     			},
     		});
+    		if (loadingEl) {
+    			const timeout = setTimeout(() => {
+    				loadingEl.classList.add("hidden");
+    				clearTimeout(timeout);
+    			}, 1500);
+    		}
     		if (formContainer) formContainer.style.display = "none";
     	} catch (err: any) {
     		console.error("Unable to save:", err);
