@@ -106,6 +106,7 @@ import MainLayout from "../layouts/MainLayout.astro";
     		});
     		if (!resp.success) throw resp.data;
     		console.log("register success, loading calendar..");
+    		alert("success");
     		Calendly.initInlineWidget({
     			url: "https://calendly.com/cloudfriendly/demo-call",
     			parentElement: document.getElementById("calendly-embed"),
@@ -114,7 +115,7 @@ import MainLayout from "../layouts/MainLayout.astro";
     				email,
     			},
     		});
-    		formContainer?.classList.add("hidden");
+    		if (formContainer) formContainer.style.display = "none";
     	} catch (err: any) {
     		console.error("Unable to save:", err);
     		let errorMessage = "";
