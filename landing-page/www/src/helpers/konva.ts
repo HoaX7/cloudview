@@ -152,11 +152,14 @@ export const drawKonvaCanvas = (el: HTMLDivElement, proportions: { width: number
 		if (attrs.id === "Api Gateway") {
 			textContent.push("ANY https:///12.22.34.400:8000",
 				"POST arn:function:test-lambda");
-		} else if (attrs.id === "Ec2") {
+		} 
+		if (attrs.id === "Ec2") {
 			textContent.push("Public ip: 12.22.34.400", "State: running");
-		} else if (attrs.id === "Lambda") {
+		}
+		if (attrs.id === "Lambda") {
 			textContent.push("runtime: nodejsx18.0", "memory size: 512MB");
-		} else if (attrs.id === "CDN") {
+		} 
+		if (attrs.id === "CDN") {
 			textContent.push("Http version: HTTP2", "Status: Deployed");
 			popupGroup.x(-120);
 			rect.width(150);
@@ -255,10 +258,13 @@ export const drawKonvaCanvas = (el: HTMLDivElement, proportions: { width: number
 			const parentGroup = shape.getParent();
 			document.body.style.cursor = "pointer";
 			const attr = shape.getAttrs();
-			highlightLines(linesToDraw as LineConnection[], attr);
+			highlightLines(linesToDraw as LineConnection[], {
+				...attr,
+				id: item.name
+			});
 			highlightInstance(attr.id);
 			if (parentGroup) {
-				showPopup(parentGroup, shape.attrs);
+				showPopup(parentGroup, attr);
 			}
 		});
 		group.on("mouseout", function (evt) {
