@@ -12,6 +12,7 @@ export const requester = async ({
 	headers
 }: Props) => {
 	try {
+		// const base = "http://127.0.0.1:6002";
 		const base = "https://api.getcloudfriendly.com";
 		const options: RequestInit = {
 			method,

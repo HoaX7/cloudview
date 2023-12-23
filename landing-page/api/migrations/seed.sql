@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS registrations (
 	email_address TEXT NOT NULL UNIQUE,
 	is_demo_completed boolean default false,
 	is_onboarded boolean default false,
+	call_scheduled_at timestamptz,
 	created_at integer(4) not null default (strftime('%s','now')),
 	updated_at integer(4) NULL,
 	deleted_at integer(4) NULL

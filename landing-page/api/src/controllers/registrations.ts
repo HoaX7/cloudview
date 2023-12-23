@@ -10,6 +10,8 @@ export const Registration = {
 		try {
 			const email: string = content.email?.trim();
 			const name: string = content.name?.trim();
+			const callScheduledAt: Date = content.callScheduledAt?.trim();
+			console.log({ callScheduledAt })
 			if (!validateEmail(email)) {
 				return jsonError(
 					{
@@ -29,10 +31,18 @@ export const Registration = {
 				)
 			}
 
+			let cols = `email_address, name`
+			let vals = `?, ?`
+			const binds: any[] = [email, name]
+			if (callScheduledAt) {
+				cols += ', call_scheduled_at'
+				vals += ', ?'
+				binds.push(callScheduledAt)
+			}
 			const { results } = await env.HVEC_MARKETING_DB.prepare(
-				"INSERT INTO registrations (email_address, name) VALUES (?, ?) RETURNING *"
+				`INSERT INTO registrations (${cols}) VALUES (${vals}) on conflict (email_address) DO UPDATE SET call_scheduled_at = EXCLUDED.call_scheduled_at RETURNING *`
 			)
-				.bind(email, name)
+				.bind(...binds)
 				.all();
 			console.log(`Inserted result`, JSON.stringify(results));
 			return jsonSuccess({});
