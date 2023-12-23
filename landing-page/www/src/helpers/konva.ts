@@ -2,6 +2,8 @@ import { Vector2d } from "konva/lib/types";
 import { COLOR_SCHEME, NODE_POSITIONS } from "./constants";
 import Konva from "konva";
 import { clone } from ".";
+import { Container } from "konva/lib/Container";
+import { Node, NodeConfig } from "konva/lib/Node";
 
 type LineConnection = {
 	from: Point;
@@ -123,7 +125,7 @@ export const drawKonvaCanvas = (el: HTMLDivElement, proportions: { width: number
 		const shape4 = stage.findOne("#Api Gateway");
 		shape4?.opacity(1);
 	};
-    
+
 	const imageRect = new Konva.Rect({
 		width: 100,
 		height: 100,
@@ -131,6 +133,53 @@ export const drawKonvaCanvas = (el: HTMLDivElement, proportions: { width: number
 		fill: "black",
 		cornerRadius: 5,
 	});
+	const showPopup = (parent: Container<Node<NodeConfig>>, attrs: any) => {
+		const rect = imageRect.clone({
+			fill: attrs.fill,
+			cornerRadius: 5,
+			draggable: false,
+			listening: false,
+			width: 200,
+			height: 60,
+		});
+		const popupGroup = new Konva.Group({
+			listening: false,
+			x: 0,
+			y: -80,
+			id: "popup"
+		});
+		const textContent = [];
+		if (attrs.id === "Api Gateway") {
+			textContent.push("ANY https:///12.22.34.400:8000",
+				"POST arn:function:test-lambda");
+		} else if (attrs.id === "Ec2") {
+			textContent.push("Public ip: 12.22.34.400", "State: running");
+		} else if (attrs.id === "Lambda") {
+			textContent.push("runtime: nodejsx18.0", "memory size: 512MB");
+		} else if (attrs.id === "CDN") {
+			textContent.push("Http version: HTTP2", "Status: Deployed");
+			popupGroup.x(-120);
+			rect.width(150);
+		}
+		popupGroup.add(rect);
+		textContent.map((text, index) => {
+			const textEl = new Konva.Text({
+				fill: "white",
+				fontStyle: "bold",
+				listening: false,
+				text: text,
+				x: 10,
+				y: 15 + (index * 20)
+			});
+			popupGroup.add(textEl);
+		});
+		parent.add(popupGroup);
+	};
+	const resetPopup = (parent: Container<Node<NodeConfig>>) => {
+		const child = parent.findOne("#popup");
+		child?.destroy();
+	};
+    
 	const svgPath = new Konva.Path({
 		listening: false,
 		perfectDrawEnabled: false,
@@ -203,10 +252,14 @@ export const drawKonvaCanvas = (el: HTMLDivElement, proportions: { width: number
 		layer.add(group);
 		group.on("mouseover", function (evt) {
 			const shape = evt.target;
+			const parentGroup = shape.getParent();
 			document.body.style.cursor = "pointer";
 			const attr = shape.getAttrs();
 			highlightLines(linesToDraw as LineConnection[], attr);
 			highlightInstance(attr.id);
+			if (parentGroup) {
+				showPopup(parentGroup, shape.attrs);
+			}
 		});
 		group.on("mouseout", function (evt) {
 			const shape = evt.target;
@@ -215,6 +268,8 @@ export const drawKonvaCanvas = (el: HTMLDivElement, proportions: { width: number
 			clearLines(linesToDraw.map((l) => `${l?.from.x}-${l?.to.x}`));
 			drawLines(linesToDraw as LineConnection[], true);
 			resetInstance();
+			const parent = shape.getParent();
+			if (parent) resetPopup(parent);
 		});
 		return item.connections;
 	}).filter(Boolean).flat();
