@@ -7,12 +7,14 @@ import { SEO } from "../helpers/seo";
 import Footer from "../layouts/Footer.astro";
 import Mainlayout from "../layouts/MainLayout.astro";
 
+// Doesn't work on cloudflare
 // const email = Astro.url.searchParams.get("invitee_email");
 // const name = Astro.url.searchParams.get("invitee_full_name");
 // const callScheduledAt = Astro.url.searchParams.get("event_start_time");
 // let error = "";
 // if (name && email && callScheduledAt) {
 // 	try {
+// 		console.log("call scheduled.. updating database.");
 // 		await requestDemoApi({
 // 			email,
 // 			name,
@@ -58,6 +60,7 @@ import Mainlayout from "../layouts/MainLayout.astro";
 	if (scheduleCallAt && email && name) {
 		(async () => {
 			try {
+				console.log("call scheduled.. updating database");
 				await requestDemoApi({
 					name,
 					email,
