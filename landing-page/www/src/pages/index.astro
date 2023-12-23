@@ -7,27 +7,22 @@ import { SEO } from "../helpers/seo";
 import Footer from "../layouts/Footer.astro";
 import Mainlayout from "../layouts/MainLayout.astro";
 
-const email = Astro.url.searchParams.get("invitee_email");
-const name = Astro.url.searchParams.get("invitee_full_name");
-const callScheduledAt = Astro.url.searchParams.get("event_start_time");
-let error = "";
-if (name && email && callScheduledAt) {
-	try {
-		console.log({
-			name,
-			email,
-			callScheduledAt 
-		});
-		await requestDemoApi({
-			email,
-			name,
-			callScheduledAt: new Date(callScheduledAt) 
-		});
-	} catch (err) {
-		console.error("Unable to schedule call", err);
-		error = "Unable to schedule call, Please try again later";
-	}
-}
+// const email = Astro.url.searchParams.get("invitee_email");
+// const name = Astro.url.searchParams.get("invitee_full_name");
+// const callScheduledAt = Astro.url.searchParams.get("event_start_time");
+// let error = "";
+// if (name && email && callScheduledAt) {
+// 	try {
+// 		await requestDemoApi({
+// 			email,
+// 			name,
+// 			callScheduledAt: new Date(callScheduledAt) 
+// 		});
+// 	} catch (err) {
+// 		console.error("Unable to schedule call", err);
+// 		error = "Unable to schedule call, Please try again later";
+// 	}
+// }
 ---
 
 <Mainlayout
@@ -53,3 +48,25 @@ if (name && email && callScheduledAt) {
 	</section>
 	<Footer />
 </Mainlayout>
+<script>import { requestDemoApi } from "../api";
+
+	const urlSearchParams = new URLSearchParams(window.location.search);
+	const params = Object.fromEntries(urlSearchParams.entries());
+	const scheduleCallAt = params.event_start_time;
+	const email = params.invitee_email;
+	const name = params.invitee_full_name;
+	if (scheduleCallAt && email && name) {
+		(async () => {
+			try {
+				await requestDemoApi({
+					name,
+					email,
+					callScheduledAt: new Date(scheduleCallAt)
+				});
+			} catch (err) {
+				console.error("Unable to schedule call.", err);
+				alert("We were unable to schedule your call, please try again later.");
+			}
+		})();
+	}
+</script>
