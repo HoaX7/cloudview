@@ -1,46 +1,74 @@
 ---
 import clsx from "clsx";
 
-const features = [ {
-	name: "Visualize Infrastructure",
-	description: "Visualize your cloud infrastructure with inter connections made between your resources.",
-	icon: "/assets/images/cloud.svg"
-}, {
-	name: "Multi-Provider Platform",
-	description: "Are you using multiple hosting providers for your infrastructure? " +
-    "View them all in one place with a click of a button.",
-	icon: "/assets/images/dots.svg"
-}, {
-	name: "Real Time Alerts",
-	description: "Set up real alerts with custom rules to receive notifications for resource state changes.",
-	icon: "/assets/images/alert.svg"
-}, {
-	name: "Diagnose Problems",
-	description: "Monitor incoming / outgoing requests to identify resource failures.",
-	icon: "/assets/images/diagnose.svg"
-}, {
-	name: "Multiple Projects",
-	description: "Manage multiple projects from multiple providers in one Dashboard.",
-	icon: "/assets/images/projects-ic.svg"
-}, {
-	name: "Team Members",
-	description: "Onboard team members with RBAC to your project to manage your infrastructure.",
-	icon: "/assets/images/slack-ic.svg"
-} ];
-
+const features = [
+	{
+		name: "Visualize Infrastructure",
+		description:
+            "Visualize your cloud infrastructure with inter connections made between your resources.",
+		icon: "/assets/images/cloud.svg",
+	},
+	{
+		name: "Multi-Provider Platform",
+		description:
+            "Are you using multiple hosting providers for your infrastructure? " +
+            "View them all in one place with a click of a button.",
+		icon: "/assets/images/dots.svg",
+		comingSoon: true,
+	},
+	{
+		name: "Real Time Alerts",
+		description:
+            "Set up real alerts with custom rules to receive notifications for resource state changes.",
+		icon: "/assets/images/alert.svg",
+		comingSoon: true,
+	},
+	{
+		name: "Diagnose Problems",
+		description:
+            "Monitor incoming / outgoing requests to identify resource failures.",
+		icon: "/assets/images/diagnose.svg",
+		comingSoon: true,
+	},
+	{
+		name: "Multiple Projects",
+		description:
+            "Manage multiple projects from multiple providers in one Dashboard.",
+		icon: "/assets/images/projects-ic.svg",
+	},
+	{
+		name: "Team Members",
+		description:
+            "Onboard team members with RBAC to your project to manage your infrastructure.",
+		icon: "/assets/images/slack-ic.svg",
+	},
+];
 ---
 
 <div class="lg:mx-48 md:mx-20 p-4 mt-10">
 	<div class="grid grid-cols-6 gap-4">
-		{features.map((item) => {
-			return <div class={clsx("shadow-lg rounded-2xl p-10 bg-white col-span-2 text-base",
-				"md:col-span-3 lg:col-span-2 col-span-6")}>
-				<div class="bg-black rounded-md p-2 w-10 h-10">
-					<img src={item.icon} alt={item.name + "_icon"} />
-				</div>
-				<div class="mt-3 font-semibold">{item.name}</div>
-				<p class="mt-3">{item.description}</p>
-			</div>;
-		})}
+		{
+			features.map((item) => {
+				return (
+					<div
+						class={clsx(
+							"shadow-lg rounded-2xl p-10 bg-white col-span-2 text-base",
+							"md:col-span-3 lg:col-span-2 col-span-6 relative overflow-hidden",
+						)}
+					>
+						{item.comingSoon && (
+							<div class="text-sm font-semibold absolute bg-black text-white px-2 py-1 coming-soon">
+                                Coming Soon
+							</div>
+						)}
+						<div class="bg-black rounded-md p-2 w-10 h-10">
+							<img src={item.icon} alt={item.name + "_icon"} />
+						</div>
+						<div class="mt-3 font-semibold">{item.name}</div>
+						<p class="mt-3">{item.description}</p>
+					</div>
+				);
+			})
+		}
 	</div>
 </div>
