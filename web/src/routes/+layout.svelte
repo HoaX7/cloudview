@@ -14,6 +14,8 @@
   import SettingStore from "$src/store/settings";
   import Brandlogo from "$src/lib/components/layout/Brandlogo.svelte";
   import { page } from "$app/stores";
+  import MainLayout from "$src/lib/components/layout/MainLayout.svelte";
+  import { SEO } from "$src/helpers/seo";
 
 	export let data;
 	// Initialize auth store
@@ -73,6 +75,9 @@
 	});
 </script>
 
+<MainLayout title={SEO.home.title} description={SEO.home.description} keywords={SEO.home.keywords}
+	url={$page.url.pathname}
+>
 {#if isLoading}
 	<FullPageLoader />
 {:else if isLoggedIn && $user}
@@ -97,3 +102,4 @@
 {:else}
 	<Login />
 {/if}
+</MainLayout>

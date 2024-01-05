@@ -96,7 +96,7 @@
   isForm={true}
   showButtons={true}
   on:submit={handleSubmit}
-  description="Your Access keys will not be visible once they are added."
+  description="Your Access keys cannot be retrieved once they are saved."
 >
   <div class="mt-3 text-start">
     <label for="name"><span class="text-red-600">*</span>Name:</label>
@@ -146,6 +146,7 @@
         >Access Key Secret:</label
       >
       <Input
+        type="password"
         name="accessKeySecret"
         classname="mt-3"
         placeholder="Start Typing..."

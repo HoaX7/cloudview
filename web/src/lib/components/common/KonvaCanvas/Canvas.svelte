@@ -424,9 +424,9 @@
 	{:else}
 	<div />
   {/if}
-    <div class="bg-gray-100 shadow rounded px-2">
+    <!-- <div class="bg-gray-100 shadow rounded px-2">
       New changes may take up to 15 minutes to reflect
-    </div>
+    </div> -->
     <div class="flex items-center">
       <button
         class="help-text mr-2"

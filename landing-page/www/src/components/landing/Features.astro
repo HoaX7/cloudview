@@ -5,16 +5,35 @@ const features = [
 	{
 		name: "Visualize Infrastructure",
 		description:
-            "Visualize your cloud infrastructure with inter connections made between your resources.",
+            "Visualize and monitor your cloud infrastructure with inter " +
+			"connections made between your resources in real-time.",
 		icon: "/assets/images/cloud.svg",
+		image: "/assets/images/cloud-view.webp"
 	},
 	{
-		name: "Multi-Provider Platform",
+		name: "Multiple Projects and Services",
 		description:
-            "Are you using multiple hosting providers for your infrastructure? " +
-            "View them all in one place with a click of a button.",
+            "Manage and monitor multiple projects and services from different providers in one dashboard.",
 		icon: "/assets/images/dots.svg",
-		comingSoon: true,
+		image: "/assets/images/multiple-services.webp",
+		image2: "/assets/images/multiple-projects.webp"
+	},
+	{
+		name: "Save Time and Cost",
+		description:
+            "Cut down on unnecessary time spent deciphering system architecture and resource connections. " +
+			"Our simple to use UI makes it easier to navigate through your infrastructure, " +
+			"and onboard devops engineers with minimal KT. Discover and remove orphaned resources to " +
+			"avoid unncessary costs.",
+		icon: "/assets/images/clock.svg",
+		image: "/assets/images/diagnose.webp"
+	},
+	{
+		name: "Observability",
+		description: "View useful information from different resources being used in your infrastructure. " +
+		"This allows you to understand your ecosystem and system usage better.",
+		icon: "/assets/images/eye.svg",
+		image: "/assets/images/cloud-monitor.webp"
 	},
 	{
 		name: "Real Time Alerts",
@@ -30,30 +49,18 @@ const features = [
 		icon: "/assets/images/diagnose.svg",
 		comingSoon: true,
 	},
-	{
-		name: "Multiple Projects",
-		description:
-            "Manage multiple projects from multiple providers in one Dashboard.",
-		icon: "/assets/images/projects-ic.svg",
-	},
-	{
-		name: "Team Members",
-		description:
-            "Onboard team members with RBAC to your project to manage your infrastructure.",
-		icon: "/assets/images/slack-ic.svg",
-	},
 ];
 ---
 
 <div class="lg:mx-48 md:mx-20 p-4 mt-10">
-	<div class="grid grid-cols-6 gap-4">
+	<div class="grid grid-cols-2 gap-4">
 		{
 			features.map((item) => {
 				return (
 					<div
 						class={clsx(
 							"shadow-lg rounded-2xl p-10 bg-white col-span-2 text-base",
-							"md:col-span-3 lg:col-span-2 col-span-6 relative overflow-hidden",
+							"md:col-span-1 col-span-2 relative overflow-hidden",
 						)}
 					>
 						{item.comingSoon && (
@@ -66,6 +73,16 @@ const features = [
 						</div>
 						<div class="mt-3 font-semibold">{item.name}</div>
 						<p class="mt-3">{item.description}</p>
+						{item.image && (
+							<div class="w-full mt-5 border-gray-100 rounded-md shadow p-3 relative">
+								<img src={item.image} alt={item.name + " image"} />
+								{item.image2 && (
+									<img src={item.image2} alt="featured-image" 
+										class="absolute -top-3 rounded-md border-gray-100 shadow -right-5" 
+										width="250" />
+								)}
+							</div>
+						)}
 					</div>
 				);
 			})
