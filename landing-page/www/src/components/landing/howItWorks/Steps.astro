@@ -5,52 +5,99 @@ interface Props {
 }
 
 const { index = 0 } = Astro.props;
+
+
+// <div class="grid-col-1 text-sm">
+// 	<p class="mt-3">
+//     This cloudformation stack gives CloudFriendly secure{" "}
+// 		<span class="bg-gray-100 font-semibold">AssumeRole</span> access.
+// 	</p>
+// 	<p class="mt-3">
+//     It must be created in{" "}
+// 		<span class="bg-gray-100 font-semibold">
+//         us-east-1
+// 		</span>{" "}
+//     but projects can be in nay region.
+// 	</p>
+// 	<p class="mt-3">
+//     Delete the stack if you wish to revoke access.
+// 	</p>
+// </div>
 ---
 
-<div class="shadow-lg rounded-md bg-cream w-full">
-	<div class="text-base font-semibold slate-gradient rounded-md p-3">
-    Create Your Project
-	</div>
-	<div class="p-5">
-		{index === 0 ? <div class="">
-			<div class="mt-5">
-				<label class="font-semibold text-base">Name:</label>
-				<input value="US Client Project 1" readonly 
-					class="mt-3 w-full rounded-md p-3 bg-cream border-sky-400 border-2 text-sm font-medium" />
+{
+	index === 0 ? (
+		<div class="shadow-lg rounded-md border-gray-200 border-2 w-full">
+			<div class="font-semibold slate-gradient rounded-md p-3">
+                Create Your Project
 			</div>
-			<div class="mt-5">
-				<label for="" class="font-semibold text-base">Cloud Provider:</label>
-				<select class={clsx("bg-cream w-full mt-3 p-3 border-sky-400 border-2 rounded-md",
-					"text-sm font-medium")}>
-					<option aria-selected="true">
-                AWS
-					</option>
-					<option>
-                Google Cloud Platform
-					</option>
-					<option>
-                Azure
-					</option>
-				</select>
+			<div class="p-5">
+				<div class="">
+					<div class="mt-5">
+						<label class="font-semibold text-base">Name:</label>
+						<input
+							value="US Client Project 1"
+							readonly
+							class="mt-3 w-full rounded-md p-3 bg-ceam border-sky-400 border-2 text-sm font-medium"
+						/>
+					</div>
+					<div class="mt-5">
+						<label for="" class="font-semibold text-base">
+                            Cloud Provider:
+						</label>
+						<select
+							class={clsx(
+								"bg-ceam w-full mt-3 p-3 border-sky-400 border-2 rounded-md",
+								"text-sm font-medium",
+							)}
+						>
+							<option aria-selected="true">AWS</option>
+							<option>Google Cloud Platform</option>
+							<option>Azure</option>
+						</select>
+					</div>
+				</div>
+				<div class="mt-5">
+					<button
+						id={"submit-next-" + index}
+						class="bg-site-gradient text-white font-semibold text-sm px-4 py-3 rounded-full"
+					>
+                        Next
+					</button>
+				</div>
 			</div>
-		</div> : <div class="">
-			<p class="font-bold text-sm mt-3">We DO NOT expose your credentials.</p>
-			<div class="mt-3">
-				<label class="font-semibold text-base">Access ID:</label>
-				<input value="iAtF1FTS3smEhI95sN2DCWxhHVv9s5CG" readonly 
-					class="mt-3 w-full rounded-md p-3 bg-cream border-sky-400 border-2 text-sm font-medium" />
-			</div>
-			<div class="mt-5">
-				<label class="font-semibold text-base">Access Secret:</label>
-				<input value="6iTvLi57Hl" readonly type="password"
-					class="mt-3 w-full rounded-md p-3 bg-cream border-sky-400 border-2 text-sm font-medium" />
-			</div>
-		</div>}
-		<div class="mt-5">
-			<button id={"submit-next-" + index} 
-				class="bg-site-gradient text-white font-semibold text-sm px-4 py-3 rounded-full">
-				Next
-			</button>
 		</div>
-	</div>
-</div>
+	) : (
+		<div class="shadow-lg rounded-md border-gray-100 border-2">
+			<div class="font-semibold slate-gradient p-3 rounded-md">Add AWS Account</div>
+			<div class="p-3">
+				<p class="text-sm border-b border-gray-100 pb-3">
+                You must have AdministratorAccess (recommended) or be the root
+                user (not recommended). If you need help, see{" "}
+					<a
+						class="underline text-blue-500"
+						target="_blank"
+						href="https://docs.aws.amazon.com/IAM/latest/UserGuide/getting-set-up.html#create-an-admin"
+					>
+                    AWS guide.
+					</a>
+				</p>
+				<div class="mt-3 text-sm pb-3">
+					<label>AWS Account Name</label>
+					<div class="w-full">
+						<input
+							placeholder="Start typing..."
+							class="mt-2 border-gray-100 rounded-md p-2 border-2 w-full"
+						/>
+					</div>
+				</div>
+				<div class="mt-3 grid grid-cols-2 gap-4">
+					<div class="grid-col-1">
+						<button class="text-sm bg-[#ff9900] text-white px-3 py-1 rounded-md font-semibold">
+                        Link AWS Account
+						</button>
+					</div>
+				</div></div>
+		</div>
+	)
+}

@@ -1,0 +1,60 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "Securely connect your AWS account to CloudFriendly by deploying this cloudformation template.\n",
+    "Parameters": {
+      "CloudFriendlyId": {
+        "Type": "String",
+        "Description": "Do not edit! It is used to provide secure access to your AWS account"
+      }
+    },
+    "Outputs": {},
+    "Resources": {
+      "CloudFriendlyRole": {
+        "Type": "AWS::IAM::Role",
+        "Properties": {
+          "RoleName": {
+            "Fn::Join": [
+              "-",
+              [
+                "cloudfriendly",
+                {
+                  "Ref": "CloudFriendlyId"
+                }
+              ]
+            ]
+          },
+          "AssumeRolePolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Principal": {
+                  "AWS": 590183913396
+                },
+                "Action": "sts:AssumeRole",
+                "Condition": {
+                  "StringEquals": {
+                    "sts:ExternalId": {
+                      "Ref": "CloudFriendlyId"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "ManagedPolicyArns": ["arn:aws:iam::aws:policy/AdministratorAccess"]
+        }
+      },
+      "CloudFriendlyAuthenticator": {
+        "Type": "Custom::CloudFriendlyAuth",
+        "Properties": {
+          "ServiceToken": "arn:aws:lambda:us-east-1:590183913396:function:cross-account-auth",
+          "AwsAccount": {"Ref": "AWS::AccountId"},
+          "StackRegion": {"Ref": "AWS::Region"},
+          "CloudFriendlyRole": {"Fn::GetAtt": ["CloudFriendlyRole", "Arn"]},
+          "CloudFriendlyId": {"Ref": "CloudFriendlyId"}
+        }
+      }
+    },
+    "TimeoutInMinutes": 1
+  }

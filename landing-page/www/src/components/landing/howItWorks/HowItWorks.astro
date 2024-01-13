@@ -4,51 +4,50 @@ import InfrastructureCanvas from "./InfrastructureCanvas.astro";
 import Steps from "./Steps.astro";
 const items = [
 	{
+		id: "hiw-1",
 		name: "Create & Choose your Cloud Provider",
 		description:
             "Get started by creating a new project with your desired cloud provider.",
 	},
 	{
-		name: "Insert your Access Keys",
+		id: "hiw-2",
+		name: "Connect and Sync your Accounts with 1-Click",
 		description:
-            "Create Access Keys on your cloud provider with desired IAM permissions. " +
-			"You will not be able to access these keys later on our dashboard for security purposes.",
+		"Securely connect your AWS account to monitor and manage your resources " +
+            "where you have full ownership and control.",
 	},
 	{
+		id: "hiw-3",
 		name: "Manage & Monitor your Infrastructure",
 		description:
-            "Voila! Visualize and manage your cloud infrastructure in an instant!",
+            "Voila! Visualize and monitor your cloud infrastructure in an instant! " +
+            "Debug and identify point of failures to quickly fix them.",
 	},
 ];
 ---
 
 <div class="relative w-full" data-carousel="static">
-	<div class="relative overflow-hidden h-[650px] md:h-96">
+	<div class="">
 		{
 			items.map((item, i) => {
 				return (
-					<div
+					<section
+						id={item.id}
 						class={clsx(
-							"duration-700 ease-in-out",
-							"transform transition-transform inset-0 hidden absolute",
+							i === 0 ? "mt-10" : "mt-28",
+							i === 2 ? "mb-60" : "",
 						)}
-						data-carousel-item
 					>
 						<div class={clsx("grid grid-cols-2 gap-4 h-full")}>
-							{(i === 0 || i === 1) && (
-								<div class="col-span-2 md:col-span-1 flex items-center justify-end">
+							{i === 1 && (
+								<div class="col-span-2 md:col-span-1 hidden md:block">
 									<Steps index={i} />
-								</div>
-							)}
-							{i === 2 && (
-								<div class="md:hidden block col-span-2 md:col-span-1 h-full">
-									<InfrastructureCanvas />
 								</div>
 							)}
 							<div
 								class={clsx(
 									"px-5 col-span-2 md:col-span-1 flex md:justify-center flex-col",
-									i === 2 ? "md:items-end items-start" : "items-baseline",
+									i !== 1 ? "md:items-end" : "",
 								)}
 							>
 								<div class="font-extrabold text-sky-400 text-3xl">
@@ -59,18 +58,48 @@ const items = [
 								</h3>
 								<p class="mt-5">{item.description}</p>
 							</div>
+							{i !== 2 && (
+								<div
+									class={clsx(
+										"col-span-2 md:col-span-1",
+										i === 1 ? "md:hidden block" : ""
+									)}
+								>
+									<Steps index={i} />
+								</div>
+							)}
 							{i === 2 && (
-								<div class="hidden md:block col-span-2 md:col-span-1 h-full">
-									<InfrastructureCanvas />
+								<div
+									class={clsx(
+										"col-span-2 md:col-span-1 border-gray-100 border-2",
+										"shadow-lg p-3 rounded-md relative",
+									)}
+								>
+									<img
+										src="/assets/images/diagnose.webp"
+										alt="debug-cloud"
+									/>
+									<div
+										class={clsx(
+											"absolute top-40 md:-left-5 lg:top-60 shadow-lg rounded-md p-3",
+											"border-gray-100 border-2 z-20 bg-white lg:-left-40",
+										)}
+									>
+										<img
+											src="/assets/images/cloud-monitor.webp"
+											alt="monitor-cloud-2"
+											width="350"
+										/>
+									</div>
 								</div>
 							)}
 						</div>
-					</div>
+					</section>
 				);
 			})
 		}
 	</div>
-	<button
+    <!-- <button
 		type="button"
 		class={clsx(
 			"absolute top-[50%] start-0 z-30",
@@ -134,7 +163,7 @@ const items = [
 			</svg>
 			<span class="sr-only">Next</span>
 		</span>
-	</button>
+	</button> -->
 </div>
 
 <script>
