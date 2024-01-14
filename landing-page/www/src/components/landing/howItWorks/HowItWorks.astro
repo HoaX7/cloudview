@@ -26,7 +26,7 @@ const items = [
 ];
 ---
 
-<div class="relative w-full" data-carousel="static">
+<div class="w-full" data-carousel="static">
 	<div class="">
 		{
 			items.map((item, i) => {
@@ -35,7 +35,6 @@ const items = [
 						id={item.id}
 						class={clsx(
 							i === 0 ? "mt-10" : "mt-28",
-							i === 2 ? "mb-60" : "",
 						)}
 					>
 						<div class={clsx("grid grid-cols-2 gap-4 h-full")}>
@@ -46,8 +45,9 @@ const items = [
 							)}
 							<div
 								class={clsx(
-									"px-5 col-span-2 md:col-span-1 flex md:justify-center flex-col",
+									"px-5 col-span-2 md:col-span-1 flex flex-col",
 									i !== 1 ? "md:items-end" : "",
+									i === 2 ? "lg:justify-start md:justify-center lg:mt-24" : "md:justify-center"
 								)}
 							>
 								<div class="font-extrabold text-sky-400 text-3xl">
@@ -71,25 +71,32 @@ const items = [
 							{i === 2 && (
 								<div
 									class={clsx(
-										"col-span-2 md:col-span-1 border-gray-100 border-2",
-										"shadow-lg p-3 rounded-md relative",
+										"col-span-2 md:col-span-1",
 									)}
 								>
-									<img
-										src="/assets/images/diagnose.webp"
-										alt="debug-cloud"
-									/>
-									<div
-										class={clsx(
-											"absolute top-40 md:-left-5 lg:top-60 shadow-lg rounded-md p-3",
-											"border-gray-100 border-2 z-20 bg-white lg:-left-40",
-										)}
-									>
-										<img
-											src="/assets/images/cloud-monitor.webp"
-											alt="monitor-cloud-2"
-											width="350"
-										/>
+									<div>
+										<div class="border-gray-100 border-2 shadow-lg p-3 rounded-md w-[90%]">
+											<img
+												src="/assets/images/diagnose.webp"
+												alt="debug-cloud"
+												class=""
+											/>
+										</div>
+									</div>
+									<div class="flex justify-end">
+										<div
+											class={clsx(
+												"shadow-lg rounded-md p-3",
+												"border-gray-100 border-2 z-20 bg-white",
+												"relative -mt-10 w-[80%]"
+											)}
+										>
+											<img
+												src="/assets/images/cloud-monitor.webp"
+												alt="monitor-cloud-2"
+												class=""
+											/>
+										</div>
 									</div>
 								</div>
 							)}
