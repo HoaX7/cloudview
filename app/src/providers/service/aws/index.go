@@ -25,9 +25,9 @@ import (
 )
 
 type AWS struct {
-	Config    aws.Config
-	Region    string
-	ServiceId uuid.UUID
+	Config            aws.Config
+	Region            string
+	ProviderAccountID uuid.UUID
 }
 
 func (s *AWS) Name() string {

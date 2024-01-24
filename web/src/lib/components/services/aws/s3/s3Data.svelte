@@ -65,6 +65,10 @@
   		key: "Permission",
   	},
   ];
+
+  let awsLink = "";
+  $: awsLink = `https://s3.console.aws.amazon.com/s3/buckets/${bucket?.Name}?` +
+  "region=us-east-1&bucketType=general&tab=permissions";
 </script>
 
 <Drawer
@@ -111,11 +115,23 @@
     <Typography classname="mt-5" variant="h3" weight="semi-bold" font={20}>
       Access Control List
     </Typography>
-    {#if isPublicWrite}
+    {#if isPublicWrite || bucket?.isPublic}
       <div class="bg-yellow-200 text-sm font-medium p-3 mt-3 rounded">
         <strong>{bucket?.Name || "-"}</strong> S3 Bucket has
-        <strong>Public Write</strong> Access. If this was not intended change this
-        setting immediately from AWS console.
+        <strong>Public Write</strong> Access. If this was not intended change
+        this setting immediately from
+        <a
+          href={awsLink}
+          target="_blank"
+          class="text-blue-600 underline"
+          >AWS console
+          <img
+            alt="new-tab"
+            src="/assets/images/new-tab.svg"
+            class="inline-block mb-1"
+            width="14"
+          /></a
+        >
       </div>
     {/if}
     <div class="mt-3">

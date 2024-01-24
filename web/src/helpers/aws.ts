@@ -115,7 +115,7 @@ const computeDimensions = (
 	}
 	const totalInstances = numberOfInstances.reduce((acc, r) => acc + r, 0);
 	const proportions = getProportions(0, 0, "external");
-	const width = imageWidth + imagePadding + imageWidth / 2; // extra padding;
+	const width = imageWidth + imagePadding + (imageWidth / 2); // extra padding;
 	const height = totalInstances * imageHeight + totalInstances * imageYPadding;
 	return {
 		...proportions,

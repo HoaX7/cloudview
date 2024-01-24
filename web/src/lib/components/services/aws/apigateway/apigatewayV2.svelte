@@ -8,16 +8,18 @@
   import Datastore from "$src/store/data";
   import ApigatewayData from "./apigatewayData.svelte";
   import { delay } from "$src/helpers";
-  import { getProportions } from "$src/helpers/konva/index";
+  import { getProportions, truncateResourceLabel } from "$src/helpers/konva/index";
   import Rect from "$src/lib/components/common/KonvaCanvas/Rect.svelte";
   import { COLOR_SCHEME } from "$src/colorConfig";
   import type Konva from "konva";
   import { getImageRect } from "../shapeCache";
   import ServiceGroupWithLabel from "../ServiceGroupWithLabel.svelte";
+  import KonvaStore from "$src/store/konva";
 
   export let data: ApiGatewayWithIntegrationProps[];
   export let idx: number;
   const datastore = Datastore.getDatastore();
+  const konvastore = KonvaStore.getStore();
 
   /**
    * Line Targets - Indicates the number of instances
@@ -30,7 +32,7 @@
   export let highlights: HighLightProps;
 
   export const projectId: string = "";
-  export const serviceId: string = "";
+  export const providerAccountId: string = "";
   export const region: string = "";
 
   /**
@@ -59,12 +61,13 @@
   		x = proportions.x;
   		y = proportions.y;
   	}
-  	// TODO - make sure to place in the correct position
+  	// 55 is image padding with width
+  	const midX = ($konvastore.externalBoundingRect.width / 2) + $konvastore.externalBoundingRect.x - 55;
   	return {
   		ApiId: item.ApiId,
-  		Name: item.Name,
+  		Name: truncateResourceLabel(item.Name),
   		config: {
-  			x,
+  			x: midX,
   			y,
   			draggable: false,
   			id: item.ApiId,
@@ -182,13 +185,14 @@
       />
       <Text
         config={{
-        	text: `${item.Name} (${item.ApiId})`,
+        	text: item.Name,
         	draggable: false,
         	y: -20,
         	x: 0,
         	listening: false,
-        	fill: COLOR_SCHEME.GATEWAY,
+        	// fill: COLOR_SCHEME.GATEWAY,
         	fontStyle: "bold",
+        	// fontFamily: "inherit"
         }}
       />
     </Group>

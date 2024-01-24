@@ -23,4 +23,5 @@ type ProjectMembers struct {
 	IsDeleted   *bool
 	CreatedAt   *time.Time
 	UpdatedAt   *time.Time
+	DeletedAt   *time.Time
 }

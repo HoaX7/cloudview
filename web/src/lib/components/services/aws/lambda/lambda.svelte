@@ -7,7 +7,7 @@
   import Image from "../../../common/KonvaCanvas/Image.svelte";
   import Text from "../../../common/KonvaCanvas/Text.svelte";
   import LambdaData from "./lambdaData.svelte";
-  import { getProportions } from "$src/helpers/konva/index";
+  import { getProportions, truncateResourceLabel } from "$src/helpers/konva/index";
   import Rect from "$src/lib/components/common/KonvaCanvas/Rect.svelte";
   import type Konva from "konva";
   import { COLOR_SCHEME } from "$src/colorConfig";
@@ -45,7 +45,7 @@
   		y = proportions.y;
   	}
   	return {
-  		text: fn.FunctionName,
+  		text: truncateResourceLabel(fn.FunctionName),
   		data: fn,
   		config: {
   			draggable: true,
@@ -200,7 +200,7 @@
         	x: 0,
         	listening: false,
         	fontStyle: "bold",
-        	fill: COLOR_SCHEME.SERVERLESS,
+        	// fill: COLOR_SCHEME.SERVERLESS,
         }}
       />
     </Group>

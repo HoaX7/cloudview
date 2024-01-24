@@ -12,7 +12,7 @@
   import ElbV2Data from "./elbV2Data.svelte";
   import { delay } from "$src/helpers";
   import { AWS_SERVICES, LEGEND_NAMES } from "$src/helpers/constants";
-  import { getProportions } from "$src/helpers/konva/index";
+  import { getProportions, truncateResourceLabel } from "$src/helpers/konva/index";
   import type { HighLightProps, LegendProps } from "$src/customTypes/Konva";
   import { COLOR_SCHEME } from "$src/colorConfig";
   import Rect from "$src/lib/components/common/KonvaCanvas/Rect.svelte";
@@ -23,6 +23,7 @@
   import type { CloudFrontProps } from "$src/customTypes/aws/cloudfront";
   import PreviewData from "../../views/previewData.svelte";
   import StatusIcon from "../../views/statusIcon.svelte";
+  import KonvaStore from "$src/store/konva";
 
   export let data: ELBV2Props;
   export let externalGroup: MetricDataReturnType;
@@ -30,6 +31,7 @@
   export let highlights: HighLightProps;
   export let idx: number;
   const datastore = Datastore.getDatastore();
+  const konvastore = KonvaStore.getStore();
 
   let legend: LegendProps[] = [];
 
@@ -83,16 +85,18 @@
   		x = proportions.x;
   		y = proportions.y;
   	}
+  	// 55 is imagewidth plus padding
+	  const midX = ($konvastore.externalBoundingRect.width / 2) + $konvastore.externalBoundingRect.x - 55;
   	return {
   		config: {
-  			x,
+  			x: midX,
   			y,
   			id: lb.DNSName,
   			draggable: true,
   			label: `Load Balancer ${lb.CanonicalHostedZoneId}`,
   		} as GroupConfig,
   		id: lb.DNSName,
-  		name: `${lb.LoadBalancerName} ${lb.CanonicalHostedZoneId}`,
+  		name: truncateResourceLabel(lb.LoadBalancerName),
   		data: lb,
   	};
   });
@@ -230,7 +234,7 @@
         	y: -20,
         	x: 0,
         	listening: false,
-        	fill: COLOR_SCHEME.LOADBALANCER,
+        	// fill: COLOR_SCHEME.LOADBALANCER,
         	fontStyle: "bold",
         }}
       />

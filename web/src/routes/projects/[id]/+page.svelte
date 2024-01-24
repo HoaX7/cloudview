@@ -1,12 +1,12 @@
 <script lang="ts">
   import { getProjectById } from "$src/api/projects.js";
-  import ServiceIndex from "$src/lib/components/services/ServiceIndex.svelte";
+  import ProviderAccountIndex from "$src/lib/components/services/ProviderAccountsIndex.svelte";
   import { onMount } from "svelte";
 
   /**
    * This route takes url params and query params of service id
    * to fetch details.
-   * url ex: /projects/{id}?serviceId={id}
+   * url ex: /projects/{id}?providerAccountId={id}
    */
   export let data;
 
@@ -32,4 +32,4 @@
   });
 </script>
 
-<ServiceIndex {project} services={data.services} />
+<ProviderAccountIndex {project} providerAccounts={data.accounts} />

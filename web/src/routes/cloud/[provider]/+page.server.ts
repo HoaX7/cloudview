@@ -14,10 +14,10 @@ import { stripIntegrationUriIp } from "$src/helpers/konva";
 import type { PageServerLoad } from "./$types";
 
 export const load = (async ({ url, cookies, params }) => {
-	const serviceId = url.searchParams.get("serviceId");
+	const providerAccountId = url.searchParams.get("providerAccountId");
 	const region = url.searchParams.get("region") || DEFAULT_REGION;
 	const projectId = url.searchParams.get("projectId");
-	if (!projectId || !serviceId) {
+	if (!projectId || !providerAccountId) {
 		return { missingParams: true };
 	}
 	const cookie = cookies.get(COOKIE_NAME);
@@ -27,7 +27,7 @@ export const load = (async ({ url, cookies, params }) => {
 		const result = await getMetricData(
 			{
 				projectId,
-				serviceId,
+				providerAccountId,
 				region,
 			},
 			{ cookie }
@@ -45,7 +45,7 @@ export const load = (async ({ url, cookies, params }) => {
 					return getApiGatewayIntegrations(
 						{
 							projectId,
-							serviceId,
+							providerAccountId,
 							region,
 							apiId: item.ApiId,
 						},
@@ -78,7 +78,7 @@ export const load = (async ({ url, cookies, params }) => {
 	}
 	return {
 		projectId,
-		serviceId,
+		providerAccountId,
 		region,
 		metricData: res,
 		error,

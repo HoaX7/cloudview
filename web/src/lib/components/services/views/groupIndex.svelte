@@ -86,7 +86,7 @@ The accessibility grids show services that can be access publicily (external ser
   	externalGroup: {
   		x: 0,
   		y: 0,
-  		text: "External Services",
+  		text: "Entry Points",
   		visible: false,
   		fontStyle: "bold",
   		fontSize: 16,

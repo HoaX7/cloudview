@@ -2,7 +2,7 @@
   import { COLOR_SCHEME } from "$src/colorConfig";
   import type { HighLightProps } from "$src/customTypes/Konva";
   import type { DynamoDBProps } from "$src/customTypes/Services";
-  import { getProportions } from "$src/helpers/konva";
+  import { getProportions, truncateResourceLabel } from "$src/helpers/konva";
   import Group from "$src/lib/components/common/KonvaCanvas/Group.svelte";
   import Rect from "$src/lib/components/common/KonvaCanvas/Rect.svelte";
   import Datastore from "$src/store/data";
@@ -53,7 +53,7 @@
   			label: Table.TableName,
   		} as GroupConfig,
   		data: Table,
-  		text: Table.TableName,
+  		text: truncateResourceLabel(Table.TableName),
   	};
   });
   $: {
@@ -195,7 +195,7 @@
         	y: -20,
         	x: 0,
         	listening: false,
-        	fill: COLOR_SCHEME.DB,
+        	// fill: COLOR_SCHEME.DB,
         	fontStyle: "bold",
         }}
       />

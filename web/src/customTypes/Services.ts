@@ -3,16 +3,6 @@ import type { ConnectorTargetProps } from "./Konva";
 import type { CloudFrontProps } from "./aws/cloudfront";
 import type { RDSProps } from "./aws/rds";
 
-export type ServiceProps = {
-  id: string;
-  name: string;
-  projectId: string;
-  provider: string;
-  accessKeySecret?: string;
-  accessKeyId?: string;
-  description?: string;
-  isDeleted?: boolean;
-};
 export type MetricDataReturnType = ({
   name: typeof AWS_SERVICES.EC2;
   result: Ec2Props;
@@ -120,6 +110,7 @@ export type S3Props = {
     Buckets: {
       CreationDate: Date;
       Name: string;
+      isPublic?: boolean;
     }[];
   };
   Metrics: {

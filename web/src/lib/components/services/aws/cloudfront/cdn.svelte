@@ -13,14 +13,13 @@
   import { delay } from "$src/helpers";
   import type { ApiGatewayV2IntegrationProps, MetricDataReturnType } from "$src/customTypes/Services";
   import { AWS_SERVICES } from "$src/helpers/constants";
-  import { getProportions } from "$src/helpers/konva/index";
-  import Rect from "$src/lib/components/common/KonvaCanvas/Rect.svelte";
+  import { getProportions, truncateResourceLabel } from "$src/helpers/konva/index";
   import { COLOR_SCHEME } from "$src/colorConfig";
-  import type Konva from "konva";
   import { getImageRect } from "../shapeCache";
   import ServiceGroupWithLabel from "../ServiceGroupWithLabel.svelte";
   import PreviewData from "../../views/previewData.svelte";
   import StatusIcon from "../../views/statusIcon.svelte";
+  import KonvaStore from "$src/store/konva";
 
   export let data: CloudFrontProps;
   export let setLineTargets: (data: TargetFromNodeProps[]) => void;
@@ -29,6 +28,7 @@
   export let idx: number;
 
   const datastore = Datastore.getDatastore();
+  const konvastore = KonvaStore.getStore();
 
   const apigateways = externalGroup.find(
   	(et) => et.name === AWS_SERVICES.APIGATEWAYV2
@@ -65,11 +65,12 @@
   			to: org.Id,
   		};
   	});
+  	const midX = ($konvastore.externalBoundingRect.width / 2) + $konvastore.externalBoundingRect.x - 55;
   	return {
   		Id: item.Id,
-  		Name: item.DomainName,
+  		Name: truncateResourceLabel(item.DomainName),
   		config: {
-  			x,
+  			x: midX,
   			y,
   			draggable: true,
   			id: item.Id,
@@ -230,7 +231,7 @@
         	y: -20,
         	x: 0,
         	listening: false,
-        	fill: COLOR_SCHEME.CDN,
+        	// fill: COLOR_SCHEME.CDN,
         	fontStyle: "bold",
         }}
 		on:ready={(e) => {

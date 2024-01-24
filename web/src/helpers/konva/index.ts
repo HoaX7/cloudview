@@ -322,3 +322,10 @@ const adjustPoint = (point: Vector2d, offsetX: number, offsetY: number) => {
 	point.x += offsetX;
 	point.y += offsetY;
 };
+
+export const truncateResourceLabel = (text: string, maxLen = 15) => {
+	if (text.length > maxLen) {
+		return text.substring(0, maxLen) + "...";
+	}
+	return text;
+};

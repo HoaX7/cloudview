@@ -7,7 +7,7 @@
   import { createEventDispatcher, onMount } from "svelte";
   import S3Data from "./s3Data.svelte";
   import { bytesToMegaBytes, delay } from "$src/helpers";
-  import { getProportions } from "$src/helpers/konva/index";
+  import { getProportions, truncateResourceLabel } from "$src/helpers/konva/index";
   import type Konva from "konva";
   import Rect from "$src/lib/components/common/KonvaCanvas/Rect.svelte";
   import { COLOR_SCHEME } from "$src/colorConfig";
@@ -41,6 +41,9 @@
   		x = proportions.x;
   		y = proportions.y;
   	}
+  	if (bucket.Name === "zappa-contentai") {
+  		bucket.isPublic = true;
+  	}
   	return {
   		config: {
   			draggable: true,
@@ -50,7 +53,7 @@
   			label: `S3 ${bucket.Name}`,
   		} as GroupConfig,
   		id: bucket.Name,
-  		name: bucket.Name,
+  		name: truncateResourceLabel(bucket.Name),
   		data: bucket,
   	};
   });
@@ -75,11 +78,18 @@
 
   // Ec2 image
   let imageEl: any = null;
+  let publicImageEl: any = null;
   onMount(() => {
   	const img = document.createElement("img");
   	img.src = "/assets/images/aws/s3.png";
   	img.onload = () => {
   		imageEl = img;
+  	};
+
+  	const publicImg = document.createElement("img");
+  	publicImg.src = "/assets/images/public.svg";
+  	publicImg.onload = () => {
+  		publicImageEl = publicImg;
   	};
   	/**
      *  This event returns initial vector2D positions
@@ -149,6 +159,12 @@
       		name: "Size",
       		value: bytesToMegaBytes(metric?.Statistics.Datapoints[0]?.Sum || 0) + " MB"
       	} ];
+      	if (item.data.isPublic) {
+      		state.previewData.push({
+      			name: "Public",
+      			value: "Yes"
+      		});
+      	}
       	state.previewProportions = {
       		x: (item.config.x || 0) - (imageWidth / 2),
       		y: (item.config.y || 0) - (imageHeight + 40)
@@ -190,6 +206,18 @@
 	  	handle.add(rect);
 	  }}
     >
+	{#if item.data.isPublic}
+	  <Image 
+	  	config={{ image: publicImageEl }}
+		position={{
+			draggable: false,
+			x: 3,
+			y: 3,
+			width: 12,
+			height: 12
+		}}
+	  />
+	{/if}
       <Image
         config={{ image: imageEl }}
         position={{
@@ -206,7 +234,7 @@
         	x: 0,
         	listening: false,
         	fontStyle: "bold",
-        	fill: COLOR_SCHEME.OBJECT_STORAGE,
+        	// fill: COLOR_SCHEME.OBJECT_STORAGE,
         }}
       />
     </Group>

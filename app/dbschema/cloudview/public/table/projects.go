@@ -29,6 +29,7 @@ type projectsTable struct {
 	IsDeleted   postgres.ColumnBool
 	CreatedAt   postgres.ColumnTimestampz
 	UpdatedAt   postgres.ColumnTimestampz
+	DeletedAt   postgres.ColumnTimestampz
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -81,8 +82,9 @@ func newProjectsTableImpl(schemaName, tableName, alias string) projectsTable {
 		IsDeletedColumn   = postgres.BoolColumn("is_deleted")
 		CreatedAtColumn   = postgres.TimestampzColumn("created_at")
 		UpdatedAtColumn   = postgres.TimestampzColumn("updated_at")
-		allColumns        = postgres.ColumnList{IDColumn, NameColumn, DescriptionColumn, EmailColumn, OwnerIDColumn, MembersColumn, MemberLimitColumn, TypeColumn, MetadataColumn, IsDeletedColumn, CreatedAtColumn, UpdatedAtColumn}
-		mutableColumns    = postgres.ColumnList{NameColumn, DescriptionColumn, EmailColumn, OwnerIDColumn, MembersColumn, MemberLimitColumn, TypeColumn, MetadataColumn, IsDeletedColumn, CreatedAtColumn, UpdatedAtColumn}
+		DeletedAtColumn   = postgres.TimestampzColumn("deleted_at")
+		allColumns        = postgres.ColumnList{IDColumn, NameColumn, DescriptionColumn, EmailColumn, OwnerIDColumn, MembersColumn, MemberLimitColumn, TypeColumn, MetadataColumn, IsDeletedColumn, CreatedAtColumn, UpdatedAtColumn, DeletedAtColumn}
+		mutableColumns    = postgres.ColumnList{NameColumn, DescriptionColumn, EmailColumn, OwnerIDColumn, MembersColumn, MemberLimitColumn, TypeColumn, MetadataColumn, IsDeletedColumn, CreatedAtColumn, UpdatedAtColumn, DeletedAtColumn}
 	)
 
 	return projectsTable{
@@ -101,6 +103,7 @@ func newProjectsTableImpl(schemaName, tableName, alias string) projectsTable {
 		IsDeleted:   IsDeletedColumn,
 		CreatedAt:   CreatedAtColumn,
 		UpdatedAt:   UpdatedAtColumn,
+		DeletedAt:   DeletedAtColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,

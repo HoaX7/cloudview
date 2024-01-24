@@ -14,7 +14,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func Create(db *database.DB, data models.ProjectMembers) (models.ProjectMembers, error) {
+func _create(db *database.DB, data models.ProjectMembers) (models.ProjectMembers, error) {
 	stmt := table.ProjectMembers.INSERT(
 		table.ProjectMembers.ProjectID,
 		table.ProjectMembers.UserID,
@@ -46,7 +46,7 @@ func Create(db *database.DB, data models.ProjectMembers) (models.ProjectMembers,
 	return result, nil
 }
 
-func GetByIdAndUserId(db *database.DB, id uuid.UUID, userId uuid.UUID) (models.ProjectMembers, error) {
+func _getByIdAndUserId(db *database.DB, id uuid.UUID, userId uuid.UUID) (models.ProjectMembers, error) {
 	stmt := table.ProjectMembers.SELECT(table.ProjectMembers.AllColumns).
 		WHERE(postgres.AND(
 			table.ProjectMembers.ID.EQ(postgres.UUID(id)),
@@ -66,7 +66,7 @@ func GetByIdAndUserId(db *database.DB, id uuid.UUID, userId uuid.UUID) (models.P
 	return result, nil
 }
 
-func GetProjectsByUserId(db *database.DB, userId uuid.UUID) ([]models.Projects, error) {
+func _getProjectsByUserId(db *database.DB, userId uuid.UUID) ([]models.Projects, error) {
 	stmt := table.Projects.SELECT(table.Projects.AllColumns).
 		FROM(table.Projects.LEFT_JOIN(table.ProjectMembers, table.ProjectMembers.ProjectID.EQ(table.Projects.ID))).
 		WHERE(postgres.AND(
@@ -87,7 +87,7 @@ func GetProjectsByUserId(db *database.DB, userId uuid.UUID) ([]models.Projects, 
 }
 
 // This function is used to verify project members.
-func GetProjectByIdAndUserId(db *database.DB, id uuid.UUID, userId uuid.UUID) (models.Projects, error) {
+func _getProjectByIdAndUserId(db *database.DB, id uuid.UUID, userId uuid.UUID) (models.Projects, error) {
 	stmt := table.Projects.SELECT(table.Projects.AllColumns).
 		FROM(table.Projects.LEFT_JOIN(table.ProjectMembers, table.ProjectMembers.ProjectID.EQ(table.Projects.ID))).
 		WHERE(postgres.AND(
@@ -110,7 +110,10 @@ func GetProjectByIdAndUserId(db *database.DB, id uuid.UUID, userId uuid.UUID) (m
 	return result, nil
 }
 
-func GetMembersByProjectId(db *database.DB, projectId uuid.UUID) ([]models.ProjectMembersWithUserInfo, error) {
+/*
+TODO - Add pagination
+*/
+func _getMembersByProjectId(db *database.DB, projectId uuid.UUID) ([]models.ProjectMembersWithUserInfo, error) {
 	stmt := table.ProjectMembers.SELECT(table.ProjectMembers.AllColumns, table.Users.ID,
 		table.Users.Email,
 		table.Users.Username, table.Users.LastLoginAt).
@@ -134,7 +137,7 @@ func GetMembersByProjectId(db *database.DB, projectId uuid.UUID) ([]models.Proje
 	return result, nil
 }
 
-func Update(db *database.DB, id uuid.UUID, data models.ProjectMembers) error {
+func _update(db *database.DB, id uuid.UUID, data models.ProjectMembers) error {
 	columnsList := postgres.ColumnList{}
 
 	if data.IsActive != nil && reflect.ValueOf(*data.IsActive).Kind() == reflect.Bool {

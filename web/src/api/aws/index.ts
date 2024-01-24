@@ -8,7 +8,7 @@ import {
 export const getApiGatewayIntegrations = async (
 	params: {
     projectId: string;
-    serviceId: string;
+    providerAccountId: string;
     region: string;
     apiId: string;
   },
@@ -27,7 +27,7 @@ export const getApiGatewayIntegrations = async (
 export const getEc2UsageData = async (params: {
   instanceId: string;
   projectId: string;
-  serviceId: string;
+  providerAccountId: string;
   region: string;
   instance: "ec2";
 }): ApiResponsePromise<UsageProps> => {

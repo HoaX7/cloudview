@@ -7,7 +7,7 @@
   import { createEventDispatcher, onMount } from "svelte";
   import RdsData from "./rdsData.svelte";
   import { delay } from "$src/helpers";
-  import { getProportions } from "$src/helpers/konva/index";
+  import { getProportions, truncateResourceLabel } from "$src/helpers/konva/index";
   import { COLOR_SCHEME } from "$src/colorConfig";
   import type { HighLightProps, LegendProps } from "$src/customTypes/Konva";
   import { LEGEND_NAMES } from "$src/helpers/constants";
@@ -72,7 +72,7 @@
   	}
   	return {
   		id: instance.DBInstanceArn,
-  		name: instance.DBInstanceIdentifier,
+  		name: truncateResourceLabel(instance.DBInstanceIdentifier),
   		data: instance,
   		config: {
   			draggable: true,
@@ -242,7 +242,7 @@
         	x: 0,
         	listening: false,
         	fontStyle: "bold",
-        	fill: COLOR_SCHEME.RDB,
+        	// fill: COLOR_SCHEME.RDB,
         }}
       />
     </Group>

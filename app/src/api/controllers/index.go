@@ -12,13 +12,15 @@ By doing this, it allows us to access these controllers from
 type AuthController struct{}
 type UsersController struct{}
 type ProjectsController struct{}
-type ServiceController struct{}
+type ProviderAccountsController struct{}
 type ProjectMembersController struct{}
+type ServicesController struct{}
 
 type Controller struct {
 	*AuthController
 	*UsersController
 	*ProjectsController
-	*ServiceController
+	*ProviderAccountsController
 	*ProjectMembersController
+	*ServicesController
 }

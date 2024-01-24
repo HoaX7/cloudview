@@ -1,22 +1,20 @@
 <script lang="ts">
-  import type { ServiceProps } from "$src/customTypes/Services";
-  import Button from "../common/Button/Button.svelte";
   import Input from "../common/Input/Input.svelte";
   import Textarea from "../common/Input/Textarea.svelte";
   import Modal from "../common/Modal/index.svelte";
   import Accordion from "../common/Accordion/Accordion.svelte";
   import Select from "../common/Select/Select.svelte";
-  import { createService, editService } from "$src/api/services";
   import { isEmptyObject } from "$src/helpers";
-  import Spinner from "../common/Loaders/Spinner.svelte";
   import AlertMessage from "../common/Alerts/AlertMessage.svelte";
   import clsx from "clsx";
   import FormButtons from "../common/Modal/formButtons.svelte";
+  import { createProviderAccount, editProviderAccount } from "$src/api/providerAccounts";
+  import type { ProviderAccountProps } from "$src/customTypes/ProviderAccounts";
 
-  export let selectedService: ServiceProps | null;
+  export let selectedService: ProviderAccountProps | null;
   export let isCreate = false;
   export let projectId: string;
-  export let onSave: (data: ServiceProps) => void;
+  export let onSave: (data: ProviderAccountProps) => void;
   export let onClose: () => void;
 
   const data = {
@@ -25,7 +23,7 @@
   	provider: selectedService?.provider || "AWS",
   	accessKeyId: "",
   	accessKeySecret: "",
-  } as ServiceProps;
+  } as ProviderAccountProps;
 
   let state = {
   	saving: false,
@@ -36,9 +34,9 @@
 
   const edit = async () => {
   	if (!selectedService) return;
-  	const body = {} as ServiceProps;
+  	const body = {} as ProviderAccountProps;
   	Object.keys(data).forEach((key) => {
-  		const k = key as keyof ServiceProps;
+  		const k = key as keyof ProviderAccountProps;
   		if (selectedService && data[k] !== selectedService[k] && data[k] !== "") {
   			Object.assign(body, { [k]: data[k] });
   		}
@@ -49,7 +47,7 @@
   		return;
   	}
   	state.saving = true;
-  	await editService(selectedService.id, {
+  	await editProviderAccount(selectedService.id, {
   		...body,
   		projectId: projectId,
   	});
@@ -67,7 +65,7 @@
   				alert("Please fill all the required fields.");
   				return;
   			}
-  			const res = await createService({
+  			const res = await createProviderAccount({
   				projectId: projectId,
   				provider: "AWS",
   				name: data.name,
@@ -82,7 +80,7 @@
   		Alert?.alert("Successfully saved", true);
   		onClose();
   	} catch (err: any) {
-  		console.error("Unable to save service", err);
+  		console.error("Unable to save provider account", err);
   		Alert?.alert(err?.message || "Unable to save changes");
   	}
   	state.saving = false;
@@ -91,7 +89,7 @@
 
 <AlertMessage bind:this={Alert} />
 <Modal
-  title={isCreate ? "Create Service" : "Edit Service"}
+  title={isCreate ? "Create Account" : "Edit Account"}
   closeModal={onClose}
   isForm={true}
   showButtons={true}

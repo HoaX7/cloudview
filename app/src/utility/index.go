@@ -46,3 +46,18 @@ func IsEmpty(value reflect.Value) bool {
 		return reflect.DeepEqual(value.Interface(), zeroValue.Interface())
 	}
 }
+
+/*
+Usage: GetKeys(&struct{})
+*/
+func GetKeys(data interface{}) []string {
+	r := reflect.ValueOf(data).Elem()
+	rt := r.Type()
+	keys := []string{}
+	for i := 0; i < rt.NumField(); i++ {
+		field := rt.Field(i)
+		keys = append(keys, field.Name)
+	}
+
+	return keys
+}

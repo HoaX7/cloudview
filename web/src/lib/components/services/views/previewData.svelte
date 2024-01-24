@@ -3,6 +3,7 @@
   import Group from "../../common/KonvaCanvas/Group.svelte";
   import Rect from "../../common/KonvaCanvas/Rect.svelte";
   import Text from "../../common/KonvaCanvas/Text.svelte";
+  import { truncateResourceLabel } from "$src/helpers/konva";
 
   export let color: string;
   export let proportions: Vector2d;
@@ -25,19 +26,20 @@
 }}>
     <Rect config={{
     	fill: color,
-    	shadowColor: color,
-    	shadowBlur: 5,
+    	shadowColor: "black",
+    	shadowBlur: 10,
     	shadowOffset: {
-    		x: 5,
-    		y: 5
+    		x: 2,
+    		y: 2
     	},
     	width: 200,
     	height: 100,
-    	cornerRadius: 5
+    	cornerRadius: 5,
+    	shadowOpacity: .5
     }} />
     {#each data.slice(0, 4) as item, index (index)}
     <Text config={{
-    	text: `${item.name}: ${item.value || "N/A"}`,
+    	text: `${item.name}: ${truncateResourceLabel(item.value || "N/A", 20)}`,
     	fill: "white",
     	fontStyle: "bold",
     	...alignText(index)

@@ -20,7 +20,7 @@
 
   export let data: Ec2Props;
   export let projectId: string;
-  export let serviceId: string;
+  export let providerAccountId: string;
   export let region: string;
   export let idx: number = 0;
   export let setLegend: (legend: LegendProps[]) => void;
@@ -152,11 +152,20 @@
 
   // ##NOTICE - Elements are currently not draggable. If you wish to make them draggable,
   // make sure to also update the position of the image background rectangle.
+
+  const resetPreview = () => {
+  	state.showPreview = false;
+      	state.previewProportions = {
+      		x: 0,
+      		y: 0,
+      	};
+      	state.previewData = null;
+  };
 </script>
 
 <Ec2Data
   {projectId}
-  {serviceId}
+  {providerAccountId}
   {region}
   instance={state.instance}
   onClose={async () => {
@@ -222,19 +231,14 @@
       }}
       on:mouseleave={(e) => {
       	dispatch("mouseleave", e);
+      	console.log("Mouse leave...");
       }}
       on:dragend={() => {
       	dispatch("dragend", item.config);
       }}
-      on:mouseout={() => {
-      	state.showPreview = false;
-      	state.previewProportions = {
-      		x: 0,
-      		y: 0,
-      	};
-      	state.previewData = null;
-      }}
+      on:mouseout={resetPreview}
       on:click={() => {
+      	resetPreview();
       	dispatch("click", {
       		...item.config,
       		width: imageWidth,
@@ -280,7 +284,7 @@
         	y: -20,
         	x: 0,
         	listening: false,
-        	fill: COLOR_SCHEME.VM,
+        	// fill: COLOR_SCHEME.VM,
         	fontStyle: "bold",
         }}
       />

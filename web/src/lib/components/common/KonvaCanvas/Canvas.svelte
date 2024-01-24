@@ -10,7 +10,7 @@
   	getArrowHeadPoints,
   	getConnectorPointsByPosition,
   } from "$src/helpers/konva/index";
-  import { afterUpdate, createEventDispatcher, onDestroy, onMount } from "svelte";
+  import { createEventDispatcher, onDestroy } from "svelte";
   import type {
   	ConnectableNodeProps,
   	HighLightProps,
@@ -27,7 +27,7 @@
   import Minimap from "./minimap/Minimap.svelte";
   import GridLayer from "./GridLayer.svelte";
   import SettingStore from "$src/store/settings";
-  import Settings from "./Settings.svelte";
+  import Settings from "./CanvasSettings.svelte";
   // import { onMount } from "svelte";
 
   // To draw connecting arrows between nodes
@@ -42,6 +42,11 @@
    */
   const datastore = Datastore.getDatastore();
   const settingStore = SettingStore.getStore();
+
+
+  export let projectId: string;
+  export let providerAccountId: string;
+  export let region: string;
 
   export let legend: LegendProps[] = [];
   export let highlights: HighLightProps;
@@ -167,7 +172,8 @@
   				pathClone.dashOffset(pathLen);
   			}
   			const anim = new Konva.Animation(function (frame) {
-  				const dashLen = pathLen - (frame?.time || 0) / (item.line.animateForever ? 30 : 5);
+  				const dashLen =
+            pathLen - (frame?.time || 0) / (item.line.animateForever ? 30 : 5);
   				pathClone.dashOffset(dashLen);
   				if (dashLen < 0) {
   					if (!item.line.animateForever) {
@@ -405,53 +411,60 @@
   <div
     class="md:items-center absolute bottom-0 w-full gap-4 flex-col-reverse md:flex-row flex justify-between mb-3 px-5"
   >
-
-  {#if legend.length > 0}
-    <div
-      class="absolute right-5 md:left-2 bottom-[65px] md:relative md:bottom-0"
-    >
-      <Legend
-        {legend}
-        on:reset-highlight={() => {
-        	resetLineHighlights();
-        	dispatch("highlight-nodes", []);
-        }}
-        on:highlight={(e) => {
-        	dispatch("highlight-nodes", e.detail);
-        }}
-      />
-    </div>
-	{:else}
-	<div />
-  {/if}
+    {#if legend.length > 0}
+      <div
+        class="absolute right-5 md:left-2 bottom-[65px] md:relative md:bottom-0"
+      >
+        <Legend
+          {legend}
+          on:reset-highlight={() => {
+          	resetLineHighlights();
+          	dispatch("highlight-nodes", []);
+          }}
+          on:highlight={(e) => {
+          	dispatch("highlight-nodes", e.detail);
+          }}
+        />
+      </div>
+    {:else}
+      <div />
+    {/if}
     <!-- <div class="bg-gray-100 shadow rounded px-2">
       New changes may take up to 15 minutes to reflect
     </div> -->
-    <div class="flex items-center">
-      <button
-        class="help-text mr-2"
-        on:click={() => {
-        	// const node = ($datastore?.konvaConnectableNodes || [])[0];
-        	// if (node) {
-        	// 	handleRepositionStage(node.x, node.y, 0, 0);
-        	// } else {
-        	stage.to({
-        		x: 0,
-        		y: 0,
-        		duration: 0.5,
-        	});
-        	// }
-        }}
-      >
-        <Icon src="/assets/images/focus-center.svg" alt="center" width="20" />
-      </button>
-	  <Settings />
-    </div>
+	<div>
+		<div class="flex justify-end">
+			<a 
+				href={`/cloud/metrics?providerAccountId=${providerAccountId}&projectId=${projectId}&region=${region}`}
+			class={clsx("help-text hover:before:content-['dashboard']",
+				"hover:before:w-[80px] hover:before:bottom-[30px]")}>
+				<Icon src="/assets/images/dashboard.svg" alt="dashboard" width="28" />
+		</a>
+		</div>
+		<div class="flex items-center mt-3">
+			<button
+			  class="help-text mr-2"
+			  on:click={() => {
+				  // const node = ($datastore?.konvaConnectableNodes || [])[0];
+				  // if (node) {
+				  // 	handleRepositionStage(node.x, node.y, 0, 0);
+				  // } else {
+				  stage.to({
+					  x: 0,
+					  y: 0,
+					  duration: 0.5,
+				  });
+				  // }
+			  }}
+			>
+			  <Icon src="/assets/images/focus-center.svg" alt="center" width="24" />
+			</button>
+			<Settings />
+		  </div>
+	</div>
   </div>
   <GridLayer bind:this={gridLayerRef} />
-  <Layer
-    bind:handle={layer}
-  >
+  <Layer bind:handle={layer}>
     <slot />
   </Layer>
 </Stage>

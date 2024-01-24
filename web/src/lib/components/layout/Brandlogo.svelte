@@ -9,7 +9,7 @@
 
 <div class="flex items-center">
     <Icon src="/assets/images/cloudfriendly-logo.svg" alt="cloudfriendly-logo-ic" {width} /> 
-    <Typography variant="div" {font} weight="medium" classname="ml-2 text-[#478af5]">
+    <Typography variant="div" {font} weight="bold" classname="ml-2 text-[#478af5]">
         Cloud Friendly
     </Typography>
 </div>

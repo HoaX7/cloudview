@@ -86,7 +86,7 @@ func Create(db *database.DB, data Users) (Users, error) {
 	return result, nil
 }
 
-func GetByEmail(db *database.DB, email string) (Users, error) {
+func _getByEmail(db *database.DB, email string) (Users, error) {
 	stmt := table.Users.SELECT(table.Users.AllColumns).
 		WHERE(postgres.AND(
 			table.Users.Email.EQ(postgres.String(email)),

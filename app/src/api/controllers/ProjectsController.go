@@ -65,7 +65,7 @@ func (c *ProjectsController) CreateProject(db *database.DB) http.HandlerFunc {
 			rw.Error("Required enum field `type` must be one of value ('PUBLIC', 'PRIVATE')", http.StatusBadRequest)
 			return
 		}
-		request.OwnerID = authenticatedUser.ID
+		request.OwnerID = &authenticatedUser.ID
 		request.Email = authenticatedUser.Email
 		if request.MemberLimit <= 0 {
 			request.MemberLimit = 1
@@ -116,8 +116,9 @@ func (c *ProjectsController) GetProject(db *database.DB) http.HandlerFunc {
 	}
 }
 
+// @deprecated - in favor of using 'cross-account-access' over 'access_keys'
 // Allow users to create more projects based on subscription plan.
-func (c *ProjectsController) CreateWithService(db *database.DB) http.HandlerFunc {
+func (c *ProjectsController) _createWithService(db *database.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		rw := middleware.RegisterResponses(w)
 		authenticatedUser, err := rw.User(db, r)

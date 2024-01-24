@@ -7,7 +7,6 @@
   import Rect from "../../common/KonvaCanvas/Rect.svelte";
   import { clone } from "$src/helpers";
   import Text from "../../common/KonvaCanvas/Text.svelte";
-  import Konva from "konva";
 
   const konvastore = KonvaStore.getStore();
   const datastore = Datastore.getDatastore();
@@ -21,10 +20,13 @@
   	y: 0,
   };
   $: {
+  	// '58' is the padding added to entry point border
   	midY =
-      $konvastore.externalBoundingRect?.height / 2 -
-      groupH / 2 +
-      ($konvastore.externalBoundingRect?.y || 0) / 2;
+      $konvastore.externalBoundingRect.y -
+      58 +
+      $konvastore.externalBoundingRect.height / 2 -
+      borderHeight / 2 - 10;
+
   	position.x = $konvastore.externalBoundingRect.x - (groupW + 200); // 200 is spacing.
   	position.y = midY;
   	const res = clone($datastore);
@@ -46,7 +48,7 @@
   				dash: [ 5, 5 ],
   				dashOffset: 5,
   				stroke: "gray",
-  				animateForever: true
+  				animateForever: true,
   			},
   		});
   	}
@@ -91,7 +93,7 @@
 />
 <Text
   config={{
-  	text: "WWW",
+  	text: "USERS",
   	x: position.x,
   	y: position.y - 30,
   	fontSize: 14,

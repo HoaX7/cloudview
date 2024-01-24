@@ -31,7 +31,7 @@
   >
     Please select a valid Project and Service
     <Button
-      classname="mt-3 hover:bg-gray-100 !rounded bg-gray-200 !py-2 !px-3 font-medium text-sm"
+      classname="mt-3 hover:bg-gray-100 !rounded-full bg-gray-200 !py-2 !px-3 font-medium text-sm"
       type="button"
       on:click={() => {
       	history.back();
@@ -44,6 +44,7 @@
   <DisplayCloudData
     result={data.metricData || []}
     projectId={data.projectId || ""}
-    serviceId={data.serviceId || ""}
+    providerAccountId={data.providerAccountId || ""}
+    region={data.region || ""}
   />
 {/if}

@@ -7,7 +7,7 @@
   import { createEventDispatcher, onMount } from "svelte";
   import EfsData from "./efsData.svelte";
   import { delay } from "$src/helpers";
-  import { getProportions } from "$src/helpers/konva/index";
+  import { getProportions, truncateResourceLabel } from "$src/helpers/konva/index";
   import { COLOR_SCHEME } from "$src/colorConfig";
   import type { GroupConfig } from "konva/lib/Group";
   import type { HighLightProps } from "$src/customTypes/Konva";
@@ -45,7 +45,7 @@
   		} as GroupConfig,
   		id: fs.FileSystemId,
   		fileSystem: fs,
-  		name: fs.Name || "Efs",
+  		name: truncateResourceLabel(fs.Name) || "Efs",
   		data: fs,
   	};
   });
@@ -156,7 +156,7 @@
         	x: 0,
         	listening: false,
         	fontStyle: "bold",
-        	fill: COLOR_SCHEME.FILE_SYSTEMS,
+        	// fill: COLOR_SCHEME.FILE_SYSTEMS,
         }}
       />
     </Group>

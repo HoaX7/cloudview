@@ -4,7 +4,7 @@ import (
 	"cloudview/app/src/api/encryption"
 	"cloudview/app/src/api/middleware/logger"
 	"cloudview/app/src/database"
-	models "cloudview/app/src/models/services"
+	models "cloudview/app/src/models"
 	"cloudview/app/src/providers/service/aws"
 	"cloudview/app/src/types"
 	"errors"
@@ -15,18 +15,18 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
 )
 
-func GetAwsUsageData(db *database.DB) func(*http.Request, models.Services, string, string, string) (interface{}, error) {
-	return func(r *http.Request, serviceData models.Services, region string, instance string, instanceId string) (interface{}, error) {
+func GetAwsUsageData(db *database.DB) func(*http.Request, models.ProviderAccounts, string, string, string) (interface{}, error) {
+	return func(r *http.Request, providerAccount models.ProviderAccounts, region string, instance string, instanceId string) (interface{}, error) {
 		client := aws.AWS{
-			Region:    region,
-			ServiceId: serviceData.ID,
+			Region:            region,
+			ProviderAccountID: providerAccount.ID,
 		}
-		accessKeySecret, err := encryption.Decrypt(serviceData.AccessKeySecret, serviceData.RotationSecretKey)
+		accessKeySecret, err := encryption.Decrypt(providerAccount.AccessKeySecret, providerAccount.RotationSecretKey)
 		if err != nil {
 			logger.Logger.Error("Invalid provider access-key-secret", err)
 			return nil, errors.New("Invalid provider secret")
 		}
-		client.Init(serviceData.AccessKeyID, accessKeySecret, region)
+		client.Init(providerAccount.AccessKeyID, accessKeySecret, region)
 		caller := client.GetServiceCaller()
 		caller.CloudWatchInit()
 		switch instance {

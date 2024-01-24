@@ -106,7 +106,7 @@ func (c *ProjectMembersController) CreateMember(db *database.DB) http.HandlerFun
 		// By fetching project directly from `projects` table you can also verify if the
 		// authenticated user is the project owner.
 		project, err := projects_model.GetByIdAndUserId(db, request.ProjectID, authenticatedUser.ID)
-		if err != nil || project.OwnerID != authenticatedUser.ID {
+		if err != nil || project.OwnerID != &authenticatedUser.ID {
 			logger.Logger.Error("ProjectMembersController.CreateMember Project not found: ERROR project owner mismatch, project:", request.ProjectID, "auth user:", authenticatedUser.ID)
 			rw.Forbidden()
 			return
@@ -233,7 +233,7 @@ func (c *ProjectMembersController) ToggleMemberAccess(db *database.DB) http.Hand
 		// By fetching project directly from `projects` table you can also verify if the
 		// authenticated user is the project owner.
 		project, err := projects_model.GetByIdAndUserId(db, request.ProjectID, authenticatedUser.ID)
-		if err != nil || project.OwnerID != authenticatedUser.ID {
+		if err != nil || *project.OwnerID != authenticatedUser.ID {
 			logger.Logger.Error("ProjectMembersController.ToggleMemberAccess Project not found: ERROR project owner mismatch, project:", request.ProjectID, "auth user:", authenticatedUser.ID)
 			rw.Forbidden()
 			return

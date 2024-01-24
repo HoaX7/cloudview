@@ -34,7 +34,7 @@
 
   export let result: MetricDataReturnType;
   export let projectId: string;
-  export let serviceId: string;
+  export let providerAccountId: string;
   export let region: string;
   export let setLoading: (bool: boolean) => void;
   export let setLegend: (data: LegendProps[]) => void;
@@ -104,7 +104,7 @@
   		remount = false;
   		const resp = await getMetricData({
   			projectId,
-  			serviceId,
+  			providerAccountId,
   			region,
   		});
   		if (resp.error || !resp.data) throw resp;
@@ -119,7 +119,7 @@
   				apigateway.result.Items.map((item: ApiGatewayV2Props["Items"][0]) => {
   					return getApiGatewayIntegrations({
   						projectId,
-  						serviceId,
+  						providerAccountId,
   						region,
   						apiId: item.ApiId,
   					}).then((res) => {
@@ -171,9 +171,9 @@
           {externalGroup}
           data={_result(item)}
           {projectId}
-          {serviceId}
+          {providerAccountId}
           {region}
-		  {highlights}
+		      {highlights}
           on:mouseenter={(e) => {
           	dispatch("mouseenter", e.detail);
           }}

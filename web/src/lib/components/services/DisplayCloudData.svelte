@@ -18,7 +18,8 @@
   // Contains ec2, dynamodb etc objects.
   export let result: MetricDataReturnType;
   export let projectId: string;
-  export let serviceId: string;
+  export let providerAccountId: string;
+  export let region: string;
   let loading = false;
 
   let canvas: any = null;
@@ -77,7 +78,7 @@
   // on:click={() => stage?.handleRepositionStage(imageConfig.x, imageConfig.y)}
 
   const datastore = Datastore.getDatastore();
-  let _region = $datastore.selectedRegion;
+  let _region = $datastore.selectedRegion || region;
 
   $: {
   		if ($datastore.fetchData) {
@@ -210,6 +211,9 @@
   on:highlight-nodes={(e) => {
   	highlightNodes(e.detail);
   }}
+  {projectId}
+  {providerAccountId}
+  region={_region}
 >
 <div class="absolute top-5 left-5">
 	<PageNavButtons back={true} />
@@ -218,7 +222,7 @@
 <AwsIndex
   	bind:this={awsRef}
     {projectId}
-    {serviceId}
+    {providerAccountId}
     region={_region}
     {result}
 	{highlights}

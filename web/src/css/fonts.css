@@ -1,0 +1,28 @@
+@font-face {
+    font-family: "Plus Jakarta Sans light";
+    src: url("./fonts/Plus_Jakarta_Sans/static/PlusJakartaSans-Light.ttf");
+}
+@font-face {
+    font-family: "Plus Jakarta Sans thin";
+    src: url("./fonts/Plus_Jakarta_Sans/static/PlusJakartaSans-ExtraLight.ttf");
+}
+@font-face {
+    font-family: "Plus Jakarta Sans bold";
+    src: url("./fonts/Plus_Jakarta_Sans/static/PlusJakartaSans-Bold.ttf");
+}
+@font-face {
+    font-family: "Plus Jakarta Sans extrabold";
+    src: url("./fonts/Plus_Jakarta_Sans/static/PlusJakartaSans-ExtraBold.ttf");
+}
+@font-face {
+    font-family: "Plus Jakarta Sans semibold";
+    src: url("./fonts/Plus_Jakarta_Sans/static/PlusJakartaSans-SemiBold.ttf");
+}
+@font-face {
+    font-family: "Plus Jakarta Sans medium";
+    src: url("./fonts/Plus_Jakarta_Sans/static/PlusJakartaSans-Medium.ttf");
+}
+@font-face {
+    font-family: "Plus Jakarta Sans regular";
+    src: url("./fonts/Plus_Jakarta_Sans/static/PlusJakartaSans-Regular.ttf");
+}

@@ -4,8 +4,7 @@
   import Typography from "../common/Typography/Typography.svelte";
   import Icon from "../common/Image/index.svelte";
   import PageNavButtons from "../common/Navigation/PageNavButtons.svelte";
-  import type { ServiceProps } from "$src/customTypes/Services";
-  import EditService from "./CreateEditService.svelte";
+  import EditService from "./CreateEditProviderAccount.svelte";
   import type { ProjectProps } from "$src/customTypes/Projects";
   import auth from "$src/store/auth";
   import Datastore from "$src/store/data";
@@ -17,10 +16,11 @@
   import DeleteProject from "./DeleteProject.svelte";
   import { clone } from "$src/helpers";
   import AlertMessage from "../common/Alerts/AlertMessage.svelte";
-  import { editService } from "$src/api/services";
+  import type { ProviderAccountProps } from "$src/customTypes/ProviderAccounts";
+  import { editProviderAccount } from "$src/api/providerAccounts";
 
   export let project: ProjectProps;
-  export let services: ServiceProps[];
+  export let providerAccounts: ProviderAccountProps[];
 
   const user = auth.getUser();
   const datastore = Datastore.getDatastore();
@@ -62,16 +62,16 @@
   const handleDeleteService = async (id: string) => {
   	try {
   		deleting = true;
-  		const res = clone(services);
+  		const res = clone(providerAccounts);
   		const idx = res.findIndex((r) => r.id === id);
   		if (idx >= 0) {
-  			const resp = await editService(id, {
+  			const resp = await editProviderAccount(id, {
   				isDeleted: true,
   				projectId: project.id 
   			});
   			if (resp.error) throw resp;
   			res.splice(idx, 1);
-  			services = res;
+  			providerAccounts = res;
   		}
   		alertRef?.alert("Successfully deleted service", true);
   	} catch (err: any) {
@@ -167,7 +167,7 @@
       {/if}
     </div>
     <Typography variant="p" weight="regular" font={16} classname="mt-3">
-      Connect and monitor your services running on your favorite cloud provider.
+      Link and monitor your services running on your favorite cloud provider.
     </Typography>
     {#if project.ownerId === $user?.id}
       <Button
@@ -175,20 +175,20 @@
         on:click={() => {
         	state.isCreate = true;
         	state.showModal = true;
-        }}>Connect</Button
+        }}>Link Account</Button
       >
     {:else}
       <Typography variant="div" weight="regular" font={16} classname="mt-3">
         <span class="bg-yellow-200"
-          >Contact your Admin to connect to your cloud provider services.</span
+          >Contact your Admin to connect to your cloud provider account.</span
         >
       </Typography>
     {/if}
     <div class="mt-10 border-t border-black pt-10">
       <Typography variant="h3" weight="semi-bold" font={18}>
-        Services
+        Linked Accounts
       </Typography>
-      <Table data={services} {columns}>
+      <Table data={providerAccounts} {columns}>
         <svelte:fragment slot="head">
           {#if $user?.id === project.ownerId}
             <td class="font-semibold p-3"> Actions </td>
@@ -208,7 +208,7 @@
             {/if}
             <a
               class="ml-3"
-              href={`/cloud/${(item.provider || "").toLowerCase()}?serviceId=${
+              href={`/cloud/${(item.provider || "").toLowerCase()}?providerAccountId=${
               	item.id
               }&projectId=${project.id}&region=${$datastore.selectedRegion}`}
               on:click={() => {
@@ -248,7 +248,7 @@
           </td>
         </svelte:fragment>
         <svelte:fragment slot="footer">
-          {#if services.length <= 0}
+          {#if providerAccounts.length <= 0}
             <tr>
               <td colspan="5" class="text-center p-3">No data available</td>
             </tr>
@@ -261,12 +261,12 @@
         isCreate={state.isCreate}
         selectedService={state.selectedService}
         onSave={(data) => {
-        	const idx = services.findIndex((s) => s.id === data.id);
+        	const idx = providerAccounts.findIndex((s) => s.id === data.id);
         	if (idx >= 0) {
-        		services[idx].name = data.name;
-        		services[idx].description = data.description;
+        		providerAccounts[idx].name = data.name;
+        		providerAccounts[idx].description = data.description;
         	} else {
-        		services.push(data);
+        		providerAccounts.push(data);
         	}
         }}
         onClose={() => {

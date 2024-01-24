@@ -28,21 +28,30 @@
   .font-36 {
     font-size: var(--font-36);
   }
+  .extra-bold {
+    font-family: "Plus Jakarta Sans extrabold";;
+  }
   .bold {
-    font-weight: var(--bold);
+    /* font-weight: var(--bold); */
+    font-family: "Plus Jakarta Sans bold";
   }
   .semi-bold {
-    font-weight: var(--semi-bold);
+    /* font-weight: var(--semi-bold); */
+    font-family: "Plus Jakarta Sans semibold";
   }
   .regular {
-    font-weight: var(--regular);
+    /* font-weight: var(--regular); */
+    font-family: "Plus Jakarta Sans regular";
   }
   .thin {
-    font-weight: var(--thin);
+    /* font-weight: var(--thin); */
+    font-family: "Plus Jakarta Sans thin";
   }
   .light {
-    font-weight: var(--light);
+    /* font-weight: var(--light); */
+    font-family: "Plus Jakarta Sans light";
   }
   .medium {
-    font-weight: var(--medium);
+    /* font-weight: var(--medium); */
+    font-family: "Plus Jakarta Sans medium"; 
   }

@@ -28,8 +28,9 @@ func RegisterRoutes(s APIServerInterface) *mux.Router {
 	oauthRouter(router, controller.AuthController, db)
 	usersRouter(router, controller.UsersController, db)
 	projectsRouter(router, controller.ProjectsController, db)
-	servicesRouter(router, controller.ServiceController, db)
+	providerAccountsRouter(router, controller.ProviderAccountsController, db)
 	projectMembersRouter(router, controller.ProjectMembersController, db)
+	servicesRouter(router, controller.ServicesController, db)
 
 	return router
 }

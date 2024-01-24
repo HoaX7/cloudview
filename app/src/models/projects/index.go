@@ -7,7 +7,6 @@ import (
 	"cloudview/app/src/api/middleware/logger"
 	"cloudview/app/src/database"
 	"cloudview/app/src/models"
-	service_model "cloudview/app/src/models/services"
 	"context"
 	"errors"
 	"fmt"
@@ -20,49 +19,11 @@ import (
 
 type Visiblity string // Enum ("PUBLIC", "PRIVATE")
 
-func Create(db *database.DB, data models.Projects) (models.Projects, error) {
-	stmt := table.Projects.INSERT(table.Projects.Name,
-		table.Projects.Description,
-		table.Projects.Email,
-		table.Projects.OwnerID,
-		table.Projects.Type,
-		table.Projects.Members,
-		table.Projects.MemberLimit,
-		table.Projects.Metadata).
-		MODEL(data).
-		RETURNING(table.Projects.AllColumns)
-
-	queryString, args := stmt.Sql()
-	logger.Logger.Log("Inserting into Projects table with data: ", queryString, args)
-
-	result := models.Projects{}
-	rows, err := db.Postgres.Query(queryString, args...)
-	if err != nil {
-		logger.Logger.Error("ProjectsModel.Create: ERROR", err)
-		return result, custom_errors.DBErrors(err)
-	}
-	if rows.Next() {
-		if err := rows.Scan(&result.ID, &result.Name,
-			&result.Description,
-			&result.Email, &result.OwnerID,
-			&result.Members, &result.MemberLimit,
-			&result.Type, &result.Metadata,
-			&result.IsDeleted,
-			&result.CreatedAt,
-			&result.UpdatedAt); err != nil {
-
-			logger.Logger.Error("models.Projects.Create: ERROR", err)
-			return result, err
-		}
-	}
-	return result, nil
-}
-
 /*
 Fetch projects where owner_id matches or if the user id is present
 in the member list.
 */
-func GetByOwnerId(db *database.DB, userId uuid.UUID) ([]models.Projects, error) {
+func _getByOwnerId(db *database.DB, userId uuid.UUID) ([]models.Projects, error) {
 	stmt := table.Projects.SELECT(table.Projects.AllColumns).
 		WHERE(postgres.AND(
 			table.Projects.OwnerID.EQ(postgres.UUID(userId)),
@@ -80,7 +41,7 @@ func GetByOwnerId(db *database.DB, userId uuid.UUID) ([]models.Projects, error) 
 	return result, nil
 }
 
-func GetById(db *database.DB, id uuid.UUID) (models.Projects, error) {
+func _getById(db *database.DB, id uuid.UUID) (models.Projects, error) {
 	stmt := table.Projects.SELECT(table.Projects.AllColumns).
 		WHERE(postgres.AND(
 			table.Projects.ID.EQ(postgres.UUID(id)),
@@ -98,29 +59,7 @@ func GetById(db *database.DB, id uuid.UUID) (models.Projects, error) {
 	return result, nil
 }
 
-func GetByIds(db *database.DB, ids []uuid.UUID) ([]models.Projects, error) {
-	params := []postgres.Expression{}
-	for _, uid := range ids {
-		params = append(params, postgres.UUID(uid))
-	}
-	stmt := table.Projects.SELECT(table.Projects.AllColumns).
-		WHERE(postgres.AND(
-			table.Projects.ID.IN(params...),
-			table.Projects.IsDeleted.EQ(postgres.Bool(false)),
-		))
-
-	var result []models.Projects
-	if err := stmt.Query(db.Postgres, &result); err != nil {
-		if errors.Is(err, qrm.ErrNoRows) {
-			return result, custom_errors.NoDataFound
-		}
-		return result, err
-	}
-
-	return result, nil
-}
-
-func GetByIdAndUserId(db *database.DB, id uuid.UUID, userId uuid.UUID) (models.Projects, error) {
+func _getByIdAndUserId(db *database.DB, id uuid.UUID, userId uuid.UUID) (models.Projects, error) {
 	stmt := table.Projects.SELECT(table.Projects.AllColumns).
 		WHERE(postgres.AND(
 			table.Projects.ID.EQ(postgres.UUID(id)),
@@ -161,6 +100,9 @@ type CreateWithServiceReturnType struct {
 	Service ServiceResult   `json:"service"`
 }
 
+/*
+@Deprecated - In favor of using cross account access
+*/
 func CreateWithService(db *database.DB, data CreateWithServiceProps) (CreateWithServiceReturnType, error) {
 	var result CreateWithServiceReturnType
 	// Use DB `transactions` to insert projects, project_members
@@ -178,7 +120,7 @@ func CreateWithService(db *database.DB, data CreateWithServiceProps) (CreateWith
 	defer tx.Rollback()
 
 	projectData := models.Projects{
-		OwnerID:     data.OwnerID,
+		OwnerID:     &data.OwnerID,
 		Name:        data.Name,
 		Description: &data.Description,
 		Email:       data.Email,
@@ -204,7 +146,7 @@ func CreateWithService(db *database.DB, data CreateWithServiceProps) (CreateWith
 	projectMemberStmt := table.ProjectMembers.INSERT(table.ProjectMembers.ProjectID, table.ProjectMembers.UserID,
 		table.ProjectMembers.IsOwner).MODEL(models.ProjectMembers{
 		ProjectID: projectResult.ID,
-		UserID:    projectResult.OwnerID,
+		UserID:    *projectResult.OwnerID,
 		IsOwner:   true,
 	})
 	stmtSql, stmtArgs := projectMemberStmt.Sql()
@@ -223,18 +165,18 @@ func CreateWithService(db *database.DB, data CreateWithServiceProps) (CreateWith
 		logger.Logger.Error("models.projects.CreateWithService: ERROR unable to encrypt access key", err)
 		return result, errors.New("Unable to insert data")
 	}
-	serviceData := service_model.Services{
+	serviceData := models.ProviderAccounts{
 		AccessKeySecret:   cipherText,
 		AccessKeyID:       data.AccessKeyID,
 		Provider:          data.Provider,
-		ProjectID:         projectResult.ID,
+		ProjectID:         &projectResult.ID,
 		RotationSecretKey: key,
 		Name:              data.Provider,
 	}
-	serviceStmt := table.Services.INSERT(table.Services.Name, table.Services.AccessKeyID,
-		table.Services.AccessKeySecret, table.Services.RotationSecretKey,
-		table.Services.ProjectID, table.Services.Provider).MODEL(serviceData).
-		RETURNING(table.Services.ID, table.Services.Name, table.Services.ProjectID, table.Services.Provider)
+	serviceStmt := table.ProviderAccounts.INSERT(table.ProviderAccounts.Name, table.ProviderAccounts.AccessKeyID,
+		table.ProviderAccounts.AccessKeySecret, table.ProviderAccounts.RotationSecretKey,
+		table.ProviderAccounts.ProjectID, table.ProviderAccounts.Provider).MODEL(serviceData).
+		RETURNING(table.ProviderAccounts.ID, table.ProviderAccounts.Name, table.ProviderAccounts.ProjectID, table.ProviderAccounts.Provider)
 
 	serviceSql, sargs := serviceStmt.Sql()
 	serviceResult := ServiceResult{}
@@ -256,7 +198,7 @@ func CreateWithService(db *database.DB, data CreateWithServiceProps) (CreateWith
 	}, nil
 }
 
-func Update(db *database.DB, id uuid.UUID, ownerId uuid.UUID, data models.Projects) error {
+func _update(db *database.DB, id uuid.UUID, ownerId uuid.UUID, data models.Projects) error {
 	columnsList := postgres.ColumnList{}
 	if data.Name != "" {
 		columnsList = append(columnsList, table.Projects.Name)
@@ -287,4 +229,64 @@ func Update(db *database.DB, id uuid.UUID, ownerId uuid.UUID, data models.Projec
 		return custom_errors.DBErrors(err)
 	}
 	return nil
+}
+
+func Create(db *database.DB, data models.Projects) (models.Projects, error) {
+	stmt := table.Projects.INSERT(table.Projects.Name,
+		table.Projects.Description,
+		table.Projects.Email,
+		table.Projects.OwnerID,
+		table.Projects.Type,
+		table.Projects.Members,
+		table.Projects.MemberLimit,
+		table.Projects.Metadata).
+		MODEL(data).
+		RETURNING(table.Projects.AllColumns)
+
+	queryString, args := stmt.Sql()
+	logger.Logger.Log("Inserting into Projects table with data: ", queryString, args)
+
+	result := models.Projects{}
+	rows, err := db.Postgres.Query(queryString, args...)
+	if err != nil {
+		logger.Logger.Error("ProjectsModel.Create: ERROR", err)
+		return result, custom_errors.DBErrors(err)
+	}
+	if rows.Next() {
+		if err := rows.Scan(&result.ID, &result.Name,
+			&result.Description,
+			&result.Email, &result.OwnerID,
+			&result.Members, &result.MemberLimit,
+			&result.Type, &result.Metadata,
+			&result.IsDeleted,
+			&result.CreatedAt,
+			&result.UpdatedAt); err != nil {
+
+			logger.Logger.Error("models.Projects.Create: ERROR", err)
+			return result, err
+		}
+	}
+	return result, nil
+}
+
+func GetByIds(db *database.DB, ids []uuid.UUID) ([]models.Projects, error) {
+	params := []postgres.Expression{}
+	for _, uid := range ids {
+		params = append(params, postgres.UUID(uid))
+	}
+	stmt := table.Projects.SELECT(table.Projects.AllColumns).
+		WHERE(postgres.AND(
+			table.Projects.ID.IN(params...),
+			table.Projects.IsDeleted.EQ(postgres.Bool(false)),
+		))
+
+	var result []models.Projects
+	if err := stmt.Query(db.Postgres, &result); err != nil {
+		if errors.Is(err, qrm.ErrNoRows) {
+			return result, custom_errors.NoDataFound
+		}
+		return result, err
+	}
+
+	return result, nil
 }

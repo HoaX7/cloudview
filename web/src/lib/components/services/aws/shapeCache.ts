@@ -11,8 +11,8 @@ const rect = new Konva.Rect({
 	y: 0,
 	shadowBlur: 10,
 	shadowOffset: {
-		x: 5,
-		y: 5
+		x: 2,
+		y: 2
 	}
 });
 rect.cache();
@@ -29,7 +29,8 @@ boundingGroupRect.cache();
 
 // We are caching the rect as the dimensions are static
 export const getImageRect = (obj: RectConfig) => {
-	obj.shadowColor = obj.fill;
+	obj.shadowColor = "black";
+	obj.shadowOpacity = .5;
 	return rect.clone(obj);
 };
 

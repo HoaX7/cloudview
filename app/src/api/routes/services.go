@@ -7,12 +7,9 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func servicesRouter(r *mux.Router, controller *controllers.ServiceController, db *database.DB) {
+func servicesRouter(r *mux.Router, controller *controllers.ServicesController, db *database.DB) {
 	subrouter := r.PathPrefix("/services").Subrouter()
 
-	subrouter.HandleFunc("", controller.StoreAccessKey(db)).Methods("POST")
-	subrouter.HandleFunc("/{id}", controller.UpdateService(db)).Methods("PATCH")
-	subrouter.HandleFunc("", controller.GetByProject(db)).Methods("GET")
 	subrouter.HandleFunc("/getData", controller.GetServiceData(db)).Methods("GET")
 
 	// This route is for apigatewayv2 to fetch integrations
