@@ -19,7 +19,7 @@ type AccessType string // Access Keys, Cross Account Role
 func _getById(db *database.DB, id uuid.UUID) (models.ProviderAccountWithProject, error) {
 	stmt := table.ProviderAccounts.SELECT(table.ProviderAccounts.ID, table.ProviderAccounts.Name,
 		table.ProviderAccounts.Description, table.ProviderAccounts.Provider,
-		table.ProviderAccounts.AccountID,
+		table.ProviderAccounts.AccountID, table.ProviderAccounts.FeatureAccessPermission,
 		table.ProviderAccounts.AccessRole, table.ProviderAccounts.Metadata,
 		table.Projects.Name, table.Projects.ID).
 		FROM(table.ProviderAccounts.LEFT_JOIN(table.Projects,
@@ -42,7 +42,7 @@ func _getById(db *database.DB, id uuid.UUID) (models.ProviderAccountWithProject,
 }
 
 func _getByIdForSDK(db *database.DB, id uuid.UUID) (models.ProviderAccounts, error) {
-	stmt := table.ProviderAccounts.SELECT(table.ProviderAccounts.AccessKeyID, table.ProviderAccounts.AccessKeySecret,
+	stmt := table.ProviderAccounts.SELECT(table.ProviderAccounts.ID, table.ProviderAccounts.AccessKeyID, table.ProviderAccounts.AccessKeySecret,
 		table.ProviderAccounts.AccessRole, table.ProviderAccounts.AccountID, table.ProviderAccounts.FeatureAccessPermission,
 		table.ProviderAccounts.RotationSecretKey, table.ProviderAccounts.Provider).
 		WHERE(postgres.AND(

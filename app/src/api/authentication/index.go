@@ -8,9 +8,11 @@ import (
 	"cloudview/app/src/helpers/constants"
 	"cloudview/app/src/models"
 	project_members_model "cloudview/app/src/models/project_members"
+	provider_accounts_model "cloudview/app/src/models/provider_accounts"
 	jwtAuth "cloudview/app/src/providers/oauth/jwt"
 	"cloudview/app/src/types"
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -72,36 +74,76 @@ func GetAuthToken(r *http.Request) (string, error) {
 }
 
 /*
-Verify if the auth user has access to project and services
+Verify if the auth user has access to project and services.
+
+This function returns member permissions and minimal project details.
+If you pass providerAccId in the input - the data returned also contains
+minimal account details and acc permissions.
 */
-func VerifyProjectAccess(db *database.DB, projectId interface{}, userId uuid.UUID) (*models.Projects, error) {
+func VerifyProjectAccess(db *database.DB, userId uuid.UUID, input types.VerifyProjectAccessInput) (*types.VerifyProjectAccessOutput, error) {
 	var projectUUID uuid.UUID
-	switch v := projectId.(type) {
-	case string:
-		isValid := helpers.IsValidUUID(projectId.(string))
-		if !isValid {
-			logger.Logger.Error("authentication.VerifyProjectAccess: ERROR invalid projectId type, got:", v)
-			return nil, errors.New("Invalid `projectId` type. Expected uuid string, got " + v)
-		}
-		uid, err := uuid.Parse(projectId.(string))
+	var providerAccount models.ProviderAccounts
+	if input.ProjectID == nil && input.ProviderAccountID == nil {
+		return nil, errors.New("Invalid 'VerifyProjectAccessInput'. Expected 'ProjectID' or 'ProviderAccountID'")
+	}
+	projectId := input.ProjectID
+	providerAccountId := input.ProviderAccountID
+	if providerAccountId != nil {
+		uuid, err := checkUUID(providerAccountId, "providerAccountId")
 		if err != nil {
-			logger.Logger.Error("authentication.VerifyProjectAccess: ERROR Unable to parse uuid", err)
+			return nil, err
+		}
+		providerAcc, err := provider_accounts_model.GetById(db, *uuid)
+		if err != nil {
+			logger.Logger.Error("VerifyProjectAccess: Error fetching provider account", err)
 			return nil, custom_errors.UnknownError
 		}
-		projectUUID = uid
-		break
-	case uuid.UUID:
-		projectUUID = projectId.(uuid.UUID)
-		break
-	default:
-		logger.Logger.Error("authentication.VerifyProjectAccess: ERROR invalid projectId type 'unknown'.")
-		return nil, errors.New("Invalid `projectId` type. Expected uuid string, got `unknown`.")
+		projectUUID = providerAcc.Project.ID
+		providerAccount = providerAcc.ProviderAccounts
+	} else {
+		uuid, err := checkUUID(projectId, "projectId")
+		if err != nil {
+			return nil, err
+		}
+		projectUUID = *uuid
 	}
 
 	result, err := project_members_model.GetProjectByIdAndUserId(db, projectUUID, userId)
 	if err != nil {
 		logger.Logger.Error("authentication.VerifyProjectAccess: ERROR Unable to fetch project", err)
 		return nil, errors.New("You do not have access to this project.")
+	}
+	res := &types.VerifyProjectAccessOutput{
+		ProjectAccessDetails: result,
+		ProviderAccount:      &providerAccount,
+	}
+	return res, nil
+}
+
+func checkUUID(id interface{}, checkString string) (*uuid.UUID, error) {
+	var result uuid.UUID
+	errorStr := fmt.Sprintf("Invalid `%s` type. Expected uuid string, got", checkString)
+	switch v := id.(type) {
+	case string:
+		isValid := helpers.IsValidUUID(id.(string))
+		if !isValid {
+
+			logger.Logger.Error("authentication.checkUUID: ERROR", errorStr, v)
+			return nil, errors.New(errorStr + v)
+		}
+		uid, err := uuid.Parse(id.(string))
+		if err != nil {
+			logger.Logger.Error("authentication.checkUUID: ERROR Unable to parse uuid", err)
+			return nil, custom_errors.UnknownError
+		}
+		result = uid
+		break
+	case uuid.UUID:
+		result = id.(uuid.UUID)
+		break
+	default:
+		logger.Logger.Error("authentication.checkUUID: ERROR ", errorStr, "'unknown'")
+		return nil, errors.New(errorStr + "'Unkown'")
 	}
 	return &result, nil
 }

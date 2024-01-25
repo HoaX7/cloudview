@@ -38,5 +38,5 @@
   <Typography classname="mt-5" font={16} weight="regular" variant="p">
     Customize and Monitor your resource usage in one single place, in real-time.
   </Typography>
-  <DashboardIndex />
+  <DashboardIndex resourceList={data.metricData} data={data.providerAcc?.metadata || {}} />
 {/if}

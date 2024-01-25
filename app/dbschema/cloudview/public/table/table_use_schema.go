@@ -11,6 +11,7 @@ package table
 // this method only once at the beginning of the program.
 func UseSchema(schema string) {
 	AuditLogs = AuditLogs.FromSchema(schema)
+	MetricPanels = MetricPanels.FromSchema(schema)
 	Pgmigrations = Pgmigrations.FromSchema(schema)
 	ProjectMembers = ProjectMembers.FromSchema(schema)
 	Projects = Projects.FromSchema(schema)

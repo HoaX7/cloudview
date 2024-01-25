@@ -15,6 +15,7 @@ type ProjectsController struct{}
 type ProviderAccountsController struct{}
 type ProjectMembersController struct{}
 type ServicesController struct{}
+type MetricPanelsController struct{}
 
 type Controller struct {
 	*AuthController
@@ -23,4 +24,5 @@ type Controller struct {
 	*ProviderAccountsController
 	*ProjectMembersController
 	*ServicesController
+	*MetricPanelsController
 }

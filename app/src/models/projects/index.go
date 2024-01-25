@@ -42,21 +42,23 @@ func _getByOwnerId(db *database.DB, userId uuid.UUID) ([]models.Projects, error)
 }
 
 func _getById(db *database.DB, id uuid.UUID) (models.Projects, error) {
-	stmt := table.Projects.SELECT(table.Projects.AllColumns).
-		WHERE(postgres.AND(
-			table.Projects.ID.EQ(postgres.UUID(id)),
-			table.Projects.IsDeleted.EQ(postgres.Bool(false)),
-		))
+	// stmt := table.Projects.SELECT(table.Projects.AllColumns).
+	// 	WHERE(postgres.AND(
+	// 		table.Projects.ID.EQ(postgres.UUID(id)),
+	// 		table.Projects.IsDeleted.EQ(postgres.Bool(false)),
+	// 	))
 
-	var result models.Projects
-	if err := stmt.Query(db.Postgres, &result); err != nil {
-		if errors.Is(err, qrm.ErrNoRows) {
-			return result, custom_errors.NoDataFound
-		}
-		return result, err
-	}
+	// var result models.Projects
+	// if err := stmt.Query(db.Postgres, &result); err != nil {
+	// 	if errors.Is(err, qrm.ErrNoRows) {
+	// 		return result, custom_errors.NoDataFound
+	// 	}
+	// 	return result, err
+	// }
 
-	return result, nil
+	// return result, nil
+	result, err := GetByIds(db, []uuid.UUID{id})
+	return result[0], err
 }
 
 func _getByIdAndUserId(db *database.DB, id uuid.UUID, userId uuid.UUID) (models.Projects, error) {

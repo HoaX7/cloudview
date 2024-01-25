@@ -83,22 +83,24 @@ func Expire(key string, duration time.Duration) {
 /*
 This method first checks cache and fetchs data if cache miss and updates cache.
 Set duration to `0` to not set expiration time.
+
+Make sure to pass the address of the result var `&result` to get data returned from this func.
+@Usage Fetch(key, duration, &target, cb)
 */
-func Fetch(key string, duration time.Duration, callback func() (interface{}, error)) (interface{}, error) {
+func Fetch(key string, duration time.Duration, target any, callback func() (interface{}, error)) error {
 	data, err := Get(key)
 	if data != "" {
 		logger.Logger.Log("cache.Fetch: Cache hit for:", key)
-		var result interface{}
-		if err := json.Unmarshal([]byte(data), &result); err != nil {
+		if err := json.Unmarshal([]byte(data), target); err != nil {
 			logger.Logger.Log("cache.Fetch: Fatal ERROR", err)
-			return nil, errors.New("Unable to fetch data from cache")
+			return errors.New("Unable to fetch data from cache")
 		}
-		return result, nil
+		return nil
 	}
 	logger.Logger.Log("cache.Fetch: Cache miss for:", key)
 	result, err := callback()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	jsonData, err := json.Marshal(result)
@@ -107,5 +109,6 @@ func Fetch(key string, duration time.Duration, callback func() (interface{}, err
 	} else {
 		Set(key, string(jsonData), duration)
 	}
-	return result, nil
+	target = &result
+	return nil
 }

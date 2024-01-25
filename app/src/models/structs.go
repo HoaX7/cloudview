@@ -63,3 +63,20 @@ type ProviderAccounts struct {
 	CreatedAt               *time.Time       `json:"createdAt,omitempty"`
 	UpdatedAt               *time.Time       `json:"updatedAt,omitempty"`
 }
+
+type MetricPanels struct {
+	ID                uuid.UUID        `sql:"primary_key" json:"id,omitempty"`
+	Name              string           `json:"name,omitempty"`
+	Description       *string          `json:"description,omiempty"`
+	Panels            *json.RawMessage `json:"panels,omitempty" jet:"type=jsonb,nullable"`
+	ProviderAccountID uuid.UUID        `json:"providerAccountId,omitempty"`
+	Metadata          *json.RawMessage `json:"metadata,omitempty" jet:"type=jsonb,nullable"`
+	IsDeleted         *bool            `json:"isDeleted,omitempty"`
+	CreatedAt         *time.Time       `json:"createdAt,omitempty"`
+	UpdatedAt         *time.Time       `json:"updatedAt,omitempty"`
+}
+
+type ProjectAccessDetails struct {
+	Projects
+	Member ProjectMembers `json:"member"`
+}

@@ -87,8 +87,9 @@ func _getProjectsByUserId(db *database.DB, userId uuid.UUID) ([]models.Projects,
 }
 
 // This function is used to verify project members.
-func _getProjectByIdAndUserId(db *database.DB, id uuid.UUID, userId uuid.UUID) (models.Projects, error) {
-	stmt := table.Projects.SELECT(table.Projects.AllColumns).
+func _getProjectByIdAndUserId(db *database.DB, id uuid.UUID, userId uuid.UUID) (models.ProjectAccessDetails, error) {
+	stmt := table.Projects.SELECT(table.Projects.ID, table.Projects.Name,
+		table.Projects.OwnerID, table.ProjectMembers.Permissions).
 		FROM(table.Projects.LEFT_JOIN(table.ProjectMembers, table.ProjectMembers.ProjectID.EQ(table.Projects.ID))).
 		WHERE(postgres.AND(
 			table.ProjectMembers.UserID.EQ(postgres.UUID(userId)),
@@ -98,7 +99,7 @@ func _getProjectByIdAndUserId(db *database.DB, id uuid.UUID, userId uuid.UUID) (
 		))
 
 	logger.Logger.Log("models.project_members.GetProjectByIdAndUserId", stmt.DebugSql())
-	var result models.Projects
+	var result models.ProjectAccessDetails
 	if err := stmt.Query(db.Postgres, &result); err != nil {
 		logger.Logger.Error("models.project_members.GetProjectByIdAndUserId: ERROR", err)
 		if errors.Is(err, qrm.ErrNoRows) {

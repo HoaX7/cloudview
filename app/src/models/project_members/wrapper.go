@@ -19,7 +19,7 @@ func GetMembersByProjectId(db *database.DB, projectId uuid.UUID) ([]models.Proje
 	return _getMembersByProjectId(db, projectId)
 }
 
-func GetProjectByIdAndUserId(db *database.DB, id uuid.UUID, userId uuid.UUID) (models.Projects, error) {
+func GetProjectByIdAndUserId(db *database.DB, id uuid.UUID, userId uuid.UUID) (models.ProjectAccessDetails, error) {
 	return _getProjectByIdAndUserId(db, id, userId)
 }
 

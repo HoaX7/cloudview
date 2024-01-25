@@ -8,16 +8,15 @@ import (
 	"cloudview/app/src/api/middleware/logger"
 	"cloudview/app/src/cache"
 	"cloudview/app/src/database"
-	"cloudview/app/src/helpers"
 	models "cloudview/app/src/models/provider_accounts"
 	"cloudview/app/src/providers/service"
 	"cloudview/app/src/providers/service/aws"
+	"cloudview/app/src/types"
 	"errors"
 	"fmt"
 	"net/http"
 	"strings"
 
-	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 )
 
@@ -43,48 +42,38 @@ func (c *ServicesController) GetServiceData(db *database.DB) http.HandlerFunc {
 			rw.Forbidden()
 			return
 		}
-		projectId := r.URL.Query().Get("projectId")
 		providerAccountId := r.URL.Query().Get("providerAccountId")
 		region := r.URL.Query().Get("region")
-		if projectId == "" || providerAccountId == "" {
+		if providerAccountId == "" {
 			logger.Logger.Error("ServicesController.GetServiceData: ERROR", err)
-			rw.Error("Invalid `projectId` or `seriviceId` provided", http.StatusBadRequest)
+			rw.Error("Invalid `providerAccountId` provided", http.StatusBadRequest)
 			return
 		}
 		if region == "" {
 			rw.Error("Invalid region provided.", http.StatusBadRequest)
 			return
 		}
-		isValidUUID := helpers.IsValidUUID(providerAccountId)
-		if !isValidUUID {
-			logger.Logger.Error("ServicesController.GetServiceData: Invalid service ID", err)
-			rw.Error("Invalid service ID provided", http.StatusUnprocessableEntity)
-			return
-		}
-		providerAccountUid, err := uuid.Parse(providerAccountId)
-		if err != nil {
-			rw.Error("Invalid service ID provided", http.StatusUnprocessableEntity)
-			return
-		}
 
-		project, err := authentication.VerifyProjectAccess(db, projectId, authenticatedUser.ID)
+		verifiedData, err := authentication.VerifyProjectAccess(db, authenticatedUser.ID, types.VerifyProjectAccessInput{
+			ProviderAccountID: providerAccountId,
+		})
 		if err != nil {
 			logger.Logger.Error("ServicesController.GetServiceData: ERROR, project verification failed", err)
 			rw.Error(err.Error(), http.StatusForbidden)
 			return
 		}
-		logger.Logger.Log("Project access verified", project.ID)
-		providerAccount, err := models.GetByIdForSDK(db, providerAccountUid)
+		providerAccount, err := models.GetByIdForSDK(db, verifiedData.ProviderAccount.ID)
 		if err != nil {
 			logger.Logger.Error("ServicesController.GetServiceData: ERROR", err)
 			rw.Error("Unable to fetch service data", http.StatusInternalServerError)
 			return
 		}
 
-		cacheKey := fmt.Sprintf("service:%s:%s:%s", providerAccountId, providerAccount.Provider, region)
+		cacheKey := fmt.Sprintf("service:%s:%s:%s", providerAccount.ID, providerAccount.Provider, region)
 		// Add switch case to switch services like 'aws', 'gcp'
 		// Caching data for 15 minutes
-		result, err := cache.Fetch(cacheKey, 0, func() (interface{}, error) {
+		var result interface{}
+		if cache.Fetch(cacheKey, 0, &result, func() (interface{}, error) {
 			accessKeySecret, err := encryption.Decrypt(providerAccount.AccessKeySecret, providerAccount.RotationSecretKey)
 			if err != nil {
 				logger.Logger.Error("Invalid provider access-key-secret", err)
@@ -92,10 +81,9 @@ func (c *ServicesController) GetServiceData(db *database.DB) http.HandlerFunc {
 			}
 			return service.GetData(&aws.AWS{
 				Region:            region,
-				ProviderAccountID: providerAccountUid,
+				ProviderAccountID: providerAccount.ID,
 			}, providerAccount.AccessKeyID, accessKeySecret, region)
-		})
-		if err != nil {
+		}); err != nil {
 			logger.Logger.Error("ServicesController.GetServiceData: ERROR fetching metrics", err)
 			rw.Error("Unknown error occured", http.StatusInternalServerError)
 			return
@@ -121,13 +109,12 @@ func (c *ServicesController) GetApiGatewayV2Integrations(db *database.DB) http.H
 			rw.Forbidden()
 			return
 		}
-		projectId := r.URL.Query().Get("projectId")
 		providerAccountId := r.URL.Query().Get("providerAccountId")
 		region := r.URL.Query().Get("region")
 		apiId := r.URL.Query().Get("apiId")
-		if projectId == "" || providerAccountId == "" {
+		if providerAccountId == "" {
 			logger.Logger.Error("ServicesController.GetApiGatewayV2Integrations: ERROR", err)
-			rw.Error("Invalid `projectId` or `seriviceId` provided", http.StatusBadRequest)
+			rw.Error("Invalid `providerAccountId` provided", http.StatusBadRequest)
 			return
 		}
 		if region == "" {
@@ -138,26 +125,17 @@ func (c *ServicesController) GetApiGatewayV2Integrations(db *database.DB) http.H
 			rw.Error("Invalid appId provided", http.StatusBadRequest)
 			return
 		}
-		isValidUUID := helpers.IsValidUUID(providerAccountId)
-		if !isValidUUID {
-			logger.Logger.Error("ServicesController.GetApiGatewayV2Integrations: Invalid service ID", err)
-			rw.Error("Invalid service ID provided", http.StatusUnprocessableEntity)
-			return
-		}
-		providerAccountUid, err := uuid.Parse(providerAccountId)
-		if err != nil {
-			rw.Error("Invalid service ID provided", http.StatusUnprocessableEntity)
-			return
-		}
 
-		project, err := authentication.VerifyProjectAccess(db, projectId, authenticatedUser.ID)
+		verifiedData, err := authentication.VerifyProjectAccess(db, authenticatedUser.ID, types.VerifyProjectAccessInput{
+			ProviderAccountID: providerAccountId,
+		})
 		if err != nil {
 			logger.Logger.Error("ServicesController.GetApiGatewayV2Integrations: ERROR, project verification failed", err)
 			rw.Error(err.Error(), http.StatusForbidden)
 			return
 		}
-		logger.Logger.Log("Project access verified", project.ID)
-		providerAccount, err := models.GetByIdForSDK(db, providerAccountUid)
+		logger.Logger.Log("Project access verified", verifiedData.ProjectAccessDetails.Projects.ID)
+		providerAccount, err := models.GetByIdForSDK(db, verifiedData.ProviderAccount.ID)
 		if err != nil {
 			logger.Logger.Error("ServicesController.GetApiGatewayV2Integrations: ERROR", err)
 			rw.Error("Unable to fetch service data", http.StatusInternalServerError)
@@ -165,9 +143,10 @@ func (c *ServicesController) GetApiGatewayV2Integrations(db *database.DB) http.H
 		}
 		// cache for 15mins
 		cacheKey := fmt.Sprintf("integrations:%s", apiId)
-		result, err := cache.Fetch(cacheKey, 0, func() (interface{}, error) {
+		var result interface{}
+		if cache.Fetch(cacheKey, 0, &result, func() (interface{}, error) {
 			awsClient := &aws.AWS{
-				ProviderAccountID: providerAccountUid,
+				ProviderAccountID: providerAccount.ID,
 				Region:            region,
 			}
 			if err := awsClient.Init(providerAccount.AccessKeyID, providerAccount.AccessKeySecret, region); err != nil {
@@ -175,8 +154,7 @@ func (c *ServicesController) GetApiGatewayV2Integrations(db *database.DB) http.H
 				return nil, custom_errors.UnknownError
 			}
 			return awsClient.GetApiGatewayV2Integrations(apiId)
-		})
-		if err != nil {
+		}); err != nil {
 			rw.Error(err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -204,40 +182,29 @@ func (c *ServicesController) GetUsage(db *database.DB) http.HandlerFunc {
 			rw.Error("Invalid route provided. Malformed arguments", http.StatusBadRequest)
 			return
 		}
-		projectId := r.URL.Query().Get("projectId")
 		providerAccountId := r.URL.Query().Get("providerAccountId")
 		instance := r.URL.Query().Get("instance")
 		instanceId := r.URL.Query().Get("instanceId")
 		region := r.URL.Query().Get("region")
-		if projectId == "" || providerAccountId == "" || instance == "" || instanceId == "" {
+		if providerAccountId == "" || instance == "" || instanceId == "" {
 			logger.Logger.Error("ServicesController.GetUsage: ERROR", err)
-			rw.Error("Invalid `projectId`or `seriviceId` or `instance` or `instanceId` provided", http.StatusBadRequest)
+			rw.Error("Invalid `providerAccountId` or `instance` or `instanceId` provided", http.StatusBadRequest)
 			return
 		}
 		if region == "" {
 			rw.Error("Invalid region provided.", http.StatusBadRequest)
 			return
 		}
-		isValidUUID := helpers.IsValidUUID(providerAccountId)
-		if !isValidUUID {
-			logger.Logger.Error("ServicesController.GetUsage: Invalid service ID", err)
-			rw.Error("Invalid service ID provided", http.StatusUnprocessableEntity)
-			return
-		}
-		providerAccountUid, err := uuid.Parse(providerAccountId)
-		if err != nil {
-			rw.Error("Invalid service ID provided", http.StatusUnprocessableEntity)
-			return
-		}
 
-		project, err := authentication.VerifyProjectAccess(db, projectId, authenticatedUser.ID)
+		verifiedData, err := authentication.VerifyProjectAccess(db, authenticatedUser.ID, types.VerifyProjectAccessInput{
+			ProviderAccountID: providerAccountId,
+		})
 		if err != nil {
 			logger.Logger.Error("ServicesController.GetUsage: ERROR, project verification failed", err)
 			rw.Error(err.Error(), http.StatusForbidden)
 			return
 		}
-		logger.Logger.Log("Project access verified", project.ID)
-		providerAccount, err := models.GetByIdForSDK(db, providerAccountUid)
+		providerAccount, err := models.GetByIdForSDK(db, verifiedData.ProviderAccount.ID)
 		if err != nil {
 			logger.Logger.Error("ServicesController.GetUsage: ERROR", err)
 			rw.Error("Unable to fetch service data", http.StatusInternalServerError)
@@ -246,13 +213,14 @@ func (c *ServicesController) GetUsage(db *database.DB) http.HandlerFunc {
 		switch provider {
 		case "aws":
 			// Caching data for 15 minutes
+			var result interface{}
 			cacheKey := fmt.Sprintf("%s:usage:%s:%s", provider, instance, instanceId)
-			result, err := cache.Fetch(cacheKey, 0, func() (interface{}, error) {
+			if cache.Fetch(cacheKey, 0, &result, func() (interface{}, error) {
 				return GetAwsUsageData(db)(r, providerAccount, region, strings.ToLower(instance), instanceId)
-			})
-			if err != nil {
+			}); err != nil {
 				logger.Logger.Error("ServicesController.GetUsage: ERROR", err)
 				rw.Error(err.Error(), http.StatusBadRequest)
+				return
 			}
 			rw.Success(result, http.StatusOK)
 			return

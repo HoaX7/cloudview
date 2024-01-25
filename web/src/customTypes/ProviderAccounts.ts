@@ -20,5 +20,6 @@ export type ProviderAccountWithProjectProps = {
     project: {
       id: string;
       name: string;
-    }
+    };
+    metadata?: Record<string, unknown>;
   }

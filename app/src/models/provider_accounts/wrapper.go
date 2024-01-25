@@ -14,14 +14,17 @@ func GetByIdForSDK(db *database.DB, id uuid.UUID) (models.ProviderAccounts, erro
 	return _getByIdForSDK(db, id)
 }
 
-func GetById(db *database.DB, id uuid.UUID) (interface{}, error) {
+func GetById(db *database.DB, id uuid.UUID) (models.ProviderAccountWithProject, error) {
 	key := fmt.Sprintf("%s_%s", cache_keys.PROVIDER_ACCOUNT, id)
-	result, err := cache.Fetch(key, 0, func() (interface{}, error) {
+	var result models.ProviderAccountWithProject
+	err := cache.Fetch(key, 0, &result, func() (interface{}, error) {
 		return _getById(db, id)
 	})
 	return result, err
 }
 
 func Update(db *database.DB, id uuid.UUID, data models.ProviderAccounts) error {
+	key := fmt.Sprintf("%s_%s", cache_keys.PROVIDER_ACCOUNT, id)
+	cache.Del(key)
 	return _update(db, id, data)
 }

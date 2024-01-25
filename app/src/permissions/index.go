@@ -1,4 +1,4 @@
-package features
+package permissions
 
 import (
 	"cloudview/app/src/api/middleware/logger"
@@ -8,16 +8,20 @@ import (
 	"strconv"
 )
 
-type FeatureMap struct {
+type PermissionMap struct {
 	VISUALIZATION_AND_METRICS bool
 	ALERTING                  bool
 	SMART_DEBUGGING           bool
+	MODIFY_RESOURCE_STATE     bool
+	MANAGE_METRICS_PANEL      bool
 }
 
-type FeatureConstant struct {
+type PermissionConstant struct {
 	VISUALIZATION_AND_METRICS int
 	ALERTING                  int
 	SMART_DEBUGGING           int
+	MODIFY_RESOURCE_STATE     int
+	MANAGE_METRICS_PANEL      int
 }
 
 /*
@@ -33,17 +37,19 @@ var (
 		which can later be deserialized to figure out all the
 		features he has access to.
 	*/
-	featureConstants = FeatureConstant{
+	permissionConstants = PermissionConstant{
 		VISUALIZATION_AND_METRICS: 1 << 0,
 		ALERTING:                  1 << 1,
 		SMART_DEBUGGING:           1 << 2,
+		MODIFY_RESOURCE_STATE:     1 << 3,
+		MANAGE_METRICS_PANEL:      1 << 4,
 	}
 )
 
 func SetPermissions(permissions []string) string {
 	flag := 0
 	for _, key := range permissions {
-		field := reflect.ValueOf(&featureConstants).Elem().FieldByName(key)
+		field := reflect.ValueOf(&permissionConstants).Elem().FieldByName(key)
 		if !field.IsValid() {
 			continue
 		}
@@ -54,7 +60,7 @@ func SetPermissions(permissions []string) string {
 	return serialize(flag)
 }
 
-func GetPermissions(hex string) (FeatureMap, error) {
+func GetPermissions(hex string) (PermissionMap, error) {
 	return deSerialize(hex)
 }
 
@@ -63,16 +69,16 @@ func serialize(num int) string {
 	return fmt.Sprintf("%x", num)
 }
 
-func deSerialize(hex string) (FeatureMap, error) {
-	result := FeatureMap{}
+func deSerialize(hex string) (PermissionMap, error) {
+	result := PermissionMap{}
 	num, err := strconv.ParseInt(hex, 16, 64)
 	if err != nil {
 		logger.Logger.Error("Failed to deserialize feature permissions:", err)
 		return result, err
 	}
 
-	for _, key := range utility.GetKeys(&featureConstants) {
-		field := reflect.ValueOf(&featureConstants).Elem().FieldByName(key)
+	for _, key := range utility.GetKeys(&permissionConstants) {
+		field := reflect.ValueOf(&permissionConstants).Elem().FieldByName(key)
 		if !field.IsValid() {
 			continue
 		}

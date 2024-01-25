@@ -11,6 +11,7 @@ import (
 	"cloudview/app/src/models"
 	projects_model "cloudview/app/src/models/projects"
 	provider_models "cloudview/app/src/models/provider_accounts"
+	"cloudview/app/src/types"
 	"encoding/json"
 	"errors"
 	"io"
@@ -136,20 +137,9 @@ func (c *ProviderAccountsController) GetById(db *database.DB) http.HandlerFunc {
 			rw.Error("Invalid provider account ID provided", http.StatusUnprocessableEntity)
 			return
 		}
-		projectId := r.URL.Query().Get("projectId")
-		isProjectIDValidUUID := helpers.IsValidUUID(projectId)
-		if !isProjectIDValidUUID {
-			logger.Logger.Error("ProviderAccountsController.GetById: Invalid project ID", err)
-			rw.Error("Please select a valid project", http.StatusUnprocessableEntity)
-			return
-		}
-		projectUUID, err := uuid.Parse(projectId)
-		if err != nil {
-			logger.Logger.Error("ProviderAccountsController.GetById: Unable to parse project UUID", err)
-			rw.Error(custom_errors.UnknownError.Error(), http.StatusInternalServerError)
-			return
-		}
-		_, verificationErr := authentication.VerifyProjectAccess(db, projectUUID, authenticatedUser.ID)
+		_, verificationErr := authentication.VerifyProjectAccess(db, authenticatedUser.ID, types.VerifyProjectAccessInput{
+			ProviderAccountID: providerAccountId,
+		})
 		if verificationErr != nil {
 			logger.Logger.Error("ProviderAccountsController.GetById: Project verification failed", verificationErr)
 			rw.Error(verificationErr.Error(), http.StatusForbidden)
@@ -196,14 +186,16 @@ func (c *ProviderAccountsController) GetByProject(db *database.DB) http.HandlerF
 		verification to make sure the project
 		can be accessed by user.
 		*/
-		project, err := authentication.VerifyProjectAccess(db, projectId, authenticatedUser.ID)
+		project, err := authentication.VerifyProjectAccess(db, authenticatedUser.ID, types.VerifyProjectAccessInput{
+			ProjectID: projectId,
+		})
 		if err != nil {
 			logger.Logger.Error("ProviderAccountsController.GetByProject: invalid project uuid provided", err)
 			rw.Error(err.Error(), http.StatusBadRequest)
 			return
 		}
-		logger.Logger.Log("ProviderAccountsController.GetByProject: fetching data for projectId:", project.ID)
-		result, err := provider_models.GetByProjectId(db, project.ID)
+		logger.Logger.Log("ProviderAccountsController.GetByProject: fetching data for projectId:", project.ProjectAccessDetails.Projects.ID)
+		result, err := provider_models.GetByProjectId(db, project.ProjectAccessDetails.Projects.ID)
 		if err != nil {
 			logger.Logger.Error("ProviderAccountsController.GetByProject: ERROR", err)
 			rw.Error("Unable to fetch provider accounts", http.StatusInternalServerError)
@@ -258,7 +250,9 @@ func (c *ProviderAccountsController) UpdateProviderAccount(db *database.DB) http
 			rw.Error(custom_errors.UnknownError.Error(), http.StatusUnprocessableEntity)
 			return
 		}
-		project, err := authentication.VerifyProjectAccess(db, request.ProjectID, authenticatedUser.ID)
+		verifiedData, err := authentication.VerifyProjectAccess(db, authenticatedUser.ID, types.VerifyProjectAccessInput{
+			ProviderAccountID: providerAccountId,
+		})
 		if err != nil {
 			logger.Logger.Error("ProviderAccountsController.UpdateProviderAccount: Project verification failed", err)
 			rw.Error(err.Error(), http.StatusForbidden)
@@ -271,8 +265,8 @@ func (c *ProviderAccountsController) UpdateProviderAccount(db *database.DB) http
 		if the authenticated user is the owner of the project
 		before allowing them to create provider account.
 		*/
-		if *project.OwnerID != authenticatedUser.ID {
-			logger.Logger.Error("ProviderAccountsController.UpdateProviderAccount: ERROR project owner mismatch, Owner:", project.OwnerID, "AuthUser:", authenticatedUser.ID)
+		if *verifiedData.ProjectAccessDetails.OwnerID != authenticatedUser.ID {
+			logger.Logger.Error("ProviderAccountsController.UpdateProviderAccount: ERROR project owner mismatch, Owner:", verifiedData.ProjectAccessDetails.OwnerID, "AuthUser:", authenticatedUser.ID)
 			rw.Error("Please contact your project owner to edit provider account details.", http.StatusForbidden)
 			return
 		}
