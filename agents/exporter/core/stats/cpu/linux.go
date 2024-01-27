@@ -6,133 +6,67 @@ import (
 	"fmt"
 	"strings"
 	"sync"
-	"time"
 )
 
 const (
 	cpuTicks  = 100
 	cpuFields = 8
 	cpuMax    = 1000
-	statFile  = "/proc/stat"
+	statFile  = "./test"
 )
 
 var (
 	preSystem uint64
-	preTotal  uint64
+	prevReads []uint64
 	limit     float64
 	cores     uint64
 	initOnce  sync.Once
 )
 
-// if /proc not present, ignore the cpu calculation, like wsl linux
 func initialize() {
-	cpus, err := effectiveCpus()
-	if err != nil {
-		panic(err)
-	}
-
-	cores = uint64(cpus)
-	limit = float64(cpus)
-	quota, err := cpuQuota()
-	if err == nil && quota > 0 {
-		if quota < limit {
-			limit = quota
-		}
-	}
-
-	preSystem, err = systemCpuUsage()
-	if err != nil {
-		panic(err)
-	}
-
-	preTotal, err = cpuUsage()
-	if err != nil {
-		panic(err)
-	}
+	preSystem, _, prevReads = systemCpuUsage()
+	fmt.Println(prevReads)
 }
 
-// RefreshCpu refreshes cpu usage and returns.
 func RefreshCpu() uint64 {
 	initOnce.Do(initialize)
-
-	total, err := cpuUsage()
-	if err != nil {
-		return 0
-	}
-
-	system, err := systemCpuUsage()
-	if err != nil {
-		return 0
-	}
-
-	var usage uint64
-	cpuDelta := total - preTotal
-	systemDelta := system - preSystem
-	if cpuDelta > 0 && systemDelta > 0 {
-		usage = uint64(float64(cpuDelta*cores*cpuMax) / (float64(systemDelta) * limit))
-		if usage > cpuMax {
-			usage = cpuMax
-		}
-	}
+	system, _, curReads := systemCpuUsage()
+	delta := system - preSystem
+	idle := curReads[4] - prevReads[4]
+	cpu_used := delta - idle
+	usage := 100 * cpu_used / idle
 	preSystem = system
-	preTotal = total
-
+	prevReads = curReads
 	return usage
 }
 
-func cpuQuota() (float64, error) {
-	cg, err := currentCgroup()
-	if err != nil {
-		return 0, err
-	}
-
-	return cg.cpuQuota()
-}
-
-func cpuUsage() (uint64, error) {
-	cg, err := currentCgroup()
-	if err != nil {
-		return 0, err
-	}
-
-	return cg.cpuUsage()
-}
-
-func effectiveCpus() (int, error) {
-	cg, err := currentCgroup()
-	if err != nil {
-		return 0, err
-	}
-
-	return cg.effectiveCpus()
-}
-
-func systemCpuUsage() (uint64, error) {
+func systemCpuUsage() (uint64, error, []uint64) {
 	lines, err := iox.ReadTextLines(statFile, iox.WithoutBlank())
 	if err != nil {
-		return 0, err
+		return 0, err, []uint64{}
 	}
 
 	for _, line := range lines {
 		fields := strings.Fields(line)
 		if fields[0] == "cpu" {
 			if len(fields) < cpuFields {
-				return 0, fmt.Errorf("bad format of cpu stats")
+				return 0, fmt.Errorf("bad format of cpu stats"), []uint64{}
 			}
 
+			rt, _ := parseUints(strings.Join(fields[1:cpuFields], ","))
 			var totalClockTicks uint64
 			for _, i := range fields[1:cpuFields] {
 				v, err := parseUint(i)
 				if err != nil {
-					return 0, err
+					return 0, err, rt
 				}
 
 				totalClockTicks += v
 			}
 
-			return (totalClockTicks * uint64(time.Second)) / cpuTicks, nil
+			return totalClockTicks, nil, rt
 		}
 	}
 
-	return 0, errors.New("bad stats format")
+	return 0, errors.New("bad stats format"), []uint64{}
 }
