@@ -16,6 +16,10 @@ func IsValidUUID(u string) bool {
 	return err == nil
 }
 
+func IsDummyUUID(u uuid.UUID) bool {
+	return u == uuid.Nil
+}
+
 func CheckEmptyFields(data interface{}) error {
 	value := reflect.ValueOf(data)
 	for i := 0; i < value.NumField(); i++ {

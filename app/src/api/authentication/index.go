@@ -122,12 +122,11 @@ func VerifyProjectAccess(db *database.DB, userId uuid.UUID, input types.VerifyPr
 
 func checkUUID(id interface{}, checkString string) (*uuid.UUID, error) {
 	var result uuid.UUID
-	errorStr := fmt.Sprintf("Invalid `%s` type. Expected uuid string, got", checkString)
+	errorStr := fmt.Sprintf("Invalid `%s` type. Expected uuid string, got ", checkString)
 	switch v := id.(type) {
 	case string:
 		isValid := helpers.IsValidUUID(id.(string))
 		if !isValid {
-
 			logger.Logger.Error("authentication.checkUUID: ERROR", errorStr, v)
 			return nil, errors.New(errorStr + v)
 		}
@@ -140,10 +139,14 @@ func checkUUID(id interface{}, checkString string) (*uuid.UUID, error) {
 		break
 	case uuid.UUID:
 		result = id.(uuid.UUID)
+		if helpers.IsDummyUUID(result) {
+			return nil, errors.New(errorStr + "'Unknown")
+		}
 		break
 	default:
 		logger.Logger.Error("authentication.checkUUID: ERROR ", errorStr, "'unknown'")
 		return nil, errors.New(errorStr + "'Unkown'")
 	}
+	logger.Logger.Log("authenticate.checkUUID: success", &result)
 	return &result, nil
 }

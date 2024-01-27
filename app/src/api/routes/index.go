@@ -31,6 +31,7 @@ func RegisterRoutes(s APIServerInterface) *mux.Router {
 	providerAccountsRouter(router, controller.ProviderAccountsController, db)
 	projectMembersRouter(router, controller.ProjectMembersController, db)
 	servicesRouter(router, controller.ServicesController, db)
+	metricPanelsRouter(router, controller.MetricPanelsController, db)
 
 	return router
 }

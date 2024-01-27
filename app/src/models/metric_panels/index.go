@@ -24,7 +24,7 @@ func _create(db *database.DB, data models.MetricPanels) (models.MetricPanels, er
 		columnList = append(columnList, table.MetricPanels.Description)
 	}
 
-	stmt := table.ProjectMembers.INSERT(columnList).MODEL(data).
+	stmt := table.MetricPanels.INSERT(columnList).MODEL(data).
 		RETURNING(table.MetricPanels.AllColumns)
 
 	queryString, args := stmt.Sql()

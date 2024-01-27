@@ -107,7 +107,6 @@ func _getProjectByIdAndUserId(db *database.DB, id uuid.UUID, userId uuid.UUID) (
 		}
 		return result, err
 	}
-
 	return result, nil
 }
 

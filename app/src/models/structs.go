@@ -14,7 +14,7 @@ type ProjectMembers struct {
 	UserID      uuid.UUID        `json:"userId"`
 	IsOwner     bool             `json:"isOwner"`
 	IsActive    *bool            `json:"isActive"`
-	Permissions *json.RawMessage `json:"permissions,omitempty"`
+	Permissions string           `json:"permissions,omitempty"`
 	Metadata    *json.RawMessage `json:"metadata,omitempty"`
 	IsDeleted   *bool            `json:"isDeleted"`
 	CreatedAt   *time.Time       `json:"createdAt"`
@@ -78,5 +78,5 @@ type MetricPanels struct {
 
 type ProjectAccessDetails struct {
 	Projects
-	Member ProjectMembers `json:"member"`
+	ProjectMembers ProjectMembers `json:"projectMembers"`
 }

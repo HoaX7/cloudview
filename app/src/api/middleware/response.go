@@ -25,6 +25,7 @@ type HttpResponseWriter interface {
 
 type HttpResponseWriterImpl struct {
 	http.ResponseWriter
+	ErrorMessage string
 }
 
 func (rw HttpResponseWriterImpl) Success(data interface{}, status int) {
@@ -48,7 +49,12 @@ func (rw HttpResponseWriterImpl) Error(message string, status int) {
 }
 
 func (rw HttpResponseWriterImpl) Forbidden() {
-	rw.Error("You are not allowed to perform this action", http.StatusForbidden)
+	msg := rw.ErrorMessage
+	if msg == "" {
+		msg = "You are not allowed to perform this action"
+	}
+	rw.ErrorMessage = ""
+	rw.Error(msg, http.StatusForbidden)
 }
 
 func (rw HttpResponseWriterImpl) Unauthorized() {
@@ -89,7 +95,8 @@ func (rw HttpResponseWriterImpl) User(db *database.DB, r *http.Request) (*types.
 }
 
 func RegisterResponses(w http.ResponseWriter) *HttpResponseWriterImpl {
-	return &HttpResponseWriterImpl{w}
+	resp := HttpResponseWriterImpl{w, ""}
+	return &resp
 }
 
 func PanicOnError(err error) {
