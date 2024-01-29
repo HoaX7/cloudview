@@ -2,71 +2,115 @@ package cpu
 
 import (
 	"cloudview/agents/exporter/core/iox"
-	"errors"
+	"cloudview/agents/exporter/core/logging"
 	"fmt"
 	"strings"
 	"sync"
+	"sync/atomic"
 )
 
 const (
 	cpuTicks  = 100
 	cpuFields = 8
-	cpuMax    = 1000
-	statFile  = "./test"
+	cpuMax    = 100
+	statFile  = "/proc/stat"
 )
 
 var (
-	preSystem uint64
-	prevReads []uint64
-	limit     float64
-	cores     uint64
-	initOnce  sync.Once
+	preTotal uint64
+	preIdle  uint64
+	limit    float64
+	cores    uint64
+	initOnce sync.Once
+	usage    uint64
 )
 
 func initialize() {
-	preSystem, _, prevReads = systemCpuUsage()
-	fmt.Println(prevReads)
+	cpus, err := effectiveCpus()
+	if err != nil {
+		logging.Error(err.Error())
+		return
+	}
+
+	cores = uint64(cpus)
+	limit = float64(cpus)
+	quota, err := cpuQuota()
+	if err == nil && quota > 0 {
+		if quota < limit {
+			limit = quota
+		}
+	}
 }
 
 func RefreshCpu() uint64 {
 	initOnce.Do(initialize)
-	system, _, curReads := systemCpuUsage()
-	delta := system - preSystem
-	idle := curReads[4] - prevReads[4]
-	cpu_used := delta - idle
-	usage := 100 * cpu_used / idle
-	preSystem = system
-	prevReads = curReads
-	return usage
+	idle, total := systemCpuUsage()
+
+	idleTicks := float64(idle - atomic.LoadUint64(&preIdle))
+	totalTicks := float64(total - atomic.LoadUint64(&preTotal))
+	atomic.StoreUint64(&preIdle, idle)
+	atomic.StoreUint64(&preTotal, total)
+
+	cpuUsage := uint64(100 * (totalTicks - idleTicks) / totalTicks)
+	if cpuUsage > cpuMax {
+		cpuUsage = cpuMax
+	}
+	atomic.StoreUint64(&usage, cpuUsage)
+	return cpuUsage
 }
 
-func systemCpuUsage() (uint64, error, []uint64) {
-	lines, err := iox.ReadTextLines(statFile, iox.WithoutBlank())
+func GetCpuUsage() uint64 {
+	return atomic.LoadUint64(&usage)
+}
+
+func cpuQuota() (float64, error) {
+	cg, err := currentCgroup()
 	if err != nil {
-		return 0, err, []uint64{}
+		return 0, err
 	}
 
+	return cg.cpuQuota()
+}
+
+func cpuUsage() (uint64, error) {
+	cg, err := currentCgroup()
+	if err != nil {
+		return 0, err
+	}
+
+	return cg.cpuUsage()
+}
+
+func effectiveCpus() (int, error) {
+	cg, err := currentCgroup()
+	if err != nil {
+		return 0, err
+	}
+
+	return cg.effectiveCpus()
+}
+
+func systemCpuUsage() (idle, total uint64) {
+	lines, err := iox.ReadTextLines(statFile, iox.WithoutBlank())
+	if err != nil {
+		return
+	}
 	for _, line := range lines {
 		fields := strings.Fields(line)
 		if fields[0] == "cpu" {
-			if len(fields) < cpuFields {
-				return 0, fmt.Errorf("bad format of cpu stats"), []uint64{}
-			}
-
-			rt, _ := parseUints(strings.Join(fields[1:cpuFields], ","))
-			var totalClockTicks uint64
-			for _, i := range fields[1:cpuFields] {
-				v, err := parseUint(i)
+			numFields := len(fields)
+			for i := 1; i < numFields; i++ {
+				val, err := iox.ParseUint(fields[i])
 				if err != nil {
-					return 0, err, rt
+					fmt.Println("Error: ", i, fields[i], err)
 				}
-
-				totalClockTicks += v
+				total += val // tally up all the numbers to get total ticks
+				if i == 4 {  // idle is the 5th field in the cpu line
+					idle = val
+				}
 			}
-
-			return totalClockTicks, nil, rt
+			return
 		}
 	}
-
-	return 0, errors.New("bad stats format"), []uint64{}
+	return
 }

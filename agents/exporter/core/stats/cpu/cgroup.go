@@ -3,7 +3,6 @@ package cpu
 import (
 	"bufio"
 	"cloudview/agents/exporter/core/iox"
-	"errors"
 	"fmt"
 	"math"
 	"os"
@@ -28,10 +27,7 @@ var (
 	isUnified     bool
 	inUserNS      bool
 	nsOnce        sync.Once
-	Placeholder   PlaceholderType
 )
-
-type PlaceholderType = struct{}
 
 type cgroup interface {
 	cpuQuota() (float64, error)
@@ -41,6 +37,7 @@ type cgroup interface {
 
 func currentCgroup() (cgroup, error) {
 	if isCgroup2UnifiedMode() {
+		fmt.Println("Current mode is cgroup2")
 		return currentCgroupV2()
 	}
 
@@ -75,7 +72,7 @@ func (c *cgroupV1) cpuPeriodUs() (uint64, error) {
 		return 0, err
 	}
 
-	return parseUint(data)
+	return iox.ParseUint(data)
 }
 
 func (c *cgroupV1) cpuQuotaUs() (int64, error) {
@@ -93,7 +90,7 @@ func (c *cgroupV1) cpuUsage() (uint64, error) {
 		return 0, err
 	}
 
-	return parseUint(data)
+	return iox.ParseUint(data)
 }
 
 func (c *cgroupV1) effectiveCpus() (int, error) {
@@ -102,7 +99,7 @@ func (c *cgroupV1) effectiveCpus() (int, error) {
 		return 0, err
 	}
 
-	cpus, err := parseUints(data)
+	cpus, err := iox.ParseUints(data)
 	if err != nil {
 		return 0, err
 	}
@@ -143,7 +140,7 @@ func (c *cgroupV2) cpuQuota() (float64, error) {
 }
 
 func (c *cgroupV2) cpuUsage() (uint64, error) {
-	usec, err := parseUint(c.cgroups["usage_usec"])
+	usec, err := iox.ParseUint(c.cgroups["usage_usec"])
 	if err != nil {
 		return 0, err
 	}
@@ -157,7 +154,7 @@ func (c *cgroupV2) effectiveCpus() (int, error) {
 		return 0, err
 	}
 
-	cpus, err := parseUints(data)
+	cpus, err := iox.ParseUints(data)
 	if err != nil {
 		return 0, err
 	}
@@ -236,70 +233,6 @@ func isCgroup2UnifiedMode() bool {
 	})
 
 	return isUnified
-}
-
-func parseUint(s string) (uint64, error) {
-	v, err := strconv.ParseInt(s, 10, 64)
-	if err != nil {
-		if errors.Is(err, strconv.ErrRange) {
-			return 0, nil
-		}
-
-		return 0, fmt.Errorf("cgroup: bad int format: %s", s)
-	}
-
-	if v < 0 {
-		return 0, nil
-	}
-
-	return uint64(v), nil
-}
-
-func parseUints(val string) ([]uint64, error) {
-	if val == "" {
-		return nil, nil
-	}
-
-	var sets []uint64
-	ints := make(map[uint64]PlaceholderType)
-	cols := strings.Split(val, ",")
-	for _, r := range cols {
-		if strings.Contains(r, "-") {
-			fields := strings.SplitN(r, "-", 2)
-			minimum, err := parseUint(fields[0])
-			if err != nil {
-				return nil, fmt.Errorf("cgroup: bad int list format: %s", val)
-			}
-
-			maximum, err := parseUint(fields[1])
-			if err != nil {
-				return nil, fmt.Errorf("cgroup: bad int list format: %s", val)
-			}
-
-			if maximum < minimum {
-				return nil, fmt.Errorf("cgroup: bad int list format: %s", val)
-			}
-
-			for i := minimum; i <= maximum; i++ {
-				if _, ok := ints[i]; !ok {
-					ints[i] = Placeholder
-					sets = append(sets, i)
-				}
-			}
-		} else {
-			v, err := parseUint(r)
-			if err != nil {
-				return nil, err
-			}
-
-			if _, ok := ints[v]; !ok {
-				ints[v] = Placeholder
-				sets = append(sets, v)
-			}
-		}
-	}
-
-	return sets, nil
 }
 
 // runningInUserNS detects whether we are currently running in a user namespace.

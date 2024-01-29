@@ -1,29 +1,47 @@
 package main
 
 import (
+	"cloudview/agents/exporter/core/logging"
 	"cloudview/agents/exporter/core/stats/cpu"
+	"cloudview/agents/exporter/core/stats/memory"
+	"cloudview/agents/exporter/core/stats/sysinfo"
 	"fmt"
-	"sync/atomic"
+	"sync"
 	"time"
 )
 
-var cpuUsage int64
-
-const beta = 0.95
+var initOnce sync.Once
 
 func main() {
-	cpuTicker := time.NewTicker(time.Millisecond * 250)
-	defer cpuTicker.Stop()
+	initOnce.Do(initialize)
+	sysinfo, _ := sysinfo.GetSysInfo()
+	fmt.Println("Exporter active and monitoring cpu usage: see 'usage.log'")
+	fmt.Println("Logging errors to 'error.log'")
+	ticker := time.NewTicker(time.Second)
+	defer ticker.Stop()
 
 	for {
 		select {
-		case tm := <-cpuTicker.C:
-			curUsage := cpu.RefreshCpu()
-			prevUsage := atomic.LoadInt64(&cpuUsage)
-			// cpu = cpuᵗ⁻¹ * beta + cpuᵗ * (1 - beta)
-			usage := int64(float64(prevUsage)*beta + float64(curUsage)*(1-beta))
-			atomic.StoreInt64(&cpuUsage, usage)
-			fmt.Println("Current Time:", tm, usage)
+		case tm := <-ticker.C:
+			runSafe(func() {
+				usage := cpu.RefreshCpu()
+				msg := fmt.Sprintf("Cpu Usage: %d%%", usage)
+				logging.Log(msg)
+
+				// send usage data to cloudview backend
+				if staticConfig.Reporting {
+					cpuUsage := &Usage{
+						Type:    "cpu",
+						Percent: int(cpu.GetCpuUsage()),
+					}
+					memUsage := &Usage{
+						Type:    "ram",
+						Percent: int(memory.RefreshMemoryUsage()),
+					}
+					sysinfo.Timestamp = tm
+					go reportMetrics(sysinfo, *cpuUsage, *memUsage)
+				}
+			})
 		}
 	}
 }

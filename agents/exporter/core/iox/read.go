@@ -2,9 +2,16 @@ package iox
 
 import (
 	"bufio"
+	"errors"
+	"fmt"
 	"os"
+	"strconv"
 	"strings"
 )
+
+type PlaceholderType = struct{}
+
+var Placeholder PlaceholderType
 
 type (
 	textReadOptions struct {
@@ -22,6 +29,18 @@ func KeepSpace() TextReadOption {
 	return func(o *textReadOptions) {
 		o.keepSpace = true
 	}
+}
+
+func Exists(path string) bool {
+	_, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+	return true
+}
+
+func ReadFile(filename string) ([]byte, error) {
+	return os.ReadFile(filename)
 }
 
 // ReadText reads content from the given file with leading and tailing spaces trimmed.
@@ -79,4 +98,68 @@ func OmitWithPrefix(prefix string) TextReadOption {
 	return func(o *textReadOptions) {
 		o.omitPrefix = prefix
 	}
+}
+
+func ParseUint(s string) (uint64, error) {
+	v, err := strconv.ParseInt(s, 10, 64)
+	if err != nil {
+		if errors.Is(err, strconv.ErrRange) {
+			return 0, nil
+		}
+
+		return 0, fmt.Errorf("cgroup: bad int format: %s", s)
+	}
+
+	if v < 0 {
+		return 0, nil
+	}
+
+	return uint64(v), nil
+}
+
+func ParseUints(val string) ([]uint64, error) {
+	if val == "" {
+		return nil, nil
+	}
+
+	var sets []uint64
+	ints := make(map[uint64]PlaceholderType)
+	cols := strings.Split(val, ",")
+	for _, r := range cols {
+		if strings.Contains(r, "-") {
+			fields := strings.SplitN(r, "-", 2)
+			minimum, err := ParseUint(fields[0])
+			if err != nil {
+				return nil, fmt.Errorf("cgroup: bad int list format: %s", val)
+			}
+
+			maximum, err := ParseUint(fields[1])
+			if err != nil {
+				return nil, fmt.Errorf("cgroup: bad int list format: %s", val)
+			}
+
+			if maximum < minimum {
+				return nil, fmt.Errorf("cgroup: bad int list format: %s", val)
+			}
+
+			for i := minimum; i <= maximum; i++ {
+				if _, ok := ints[i]; !ok {
+					ints[i] = Placeholder
+					sets = append(sets, i)
+				}
+			}
+		} else {
+			v, err := ParseUint(r)
+			if err != nil {
+				return nil, err
+			}
+
+			if _, ok := ints[v]; !ok {
+				ints[v] = Placeholder
+				sets = append(sets, v)
+			}
+		}
+	}
+
+	return sets, nil
 }

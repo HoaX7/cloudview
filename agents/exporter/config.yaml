@@ -1,0 +1,13 @@
+resource: "Ec2 Instance"
+service: metrics
+publicKey: "test-key"
+reporting: true
+config:
+  instanceId: i-0107b14069e718af8
+  region: us-west-2
+  accountId: 123
+  unit: "seconds"
+  period:
+    cpu: 1
+    ram: 1
+    disk: 1
