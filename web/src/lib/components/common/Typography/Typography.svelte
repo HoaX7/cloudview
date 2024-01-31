@@ -1,6 +1,6 @@
 <script lang="ts">
     import css from "./Typography.module.css";
-	import type { TypographyProps } from "$src/customTypes/Typography";
+	import type { TypographyProps } from "$src/customTypes/typography";
 	import clsx from "clsx";
 
     export let variant: TypographyProps["variant"];

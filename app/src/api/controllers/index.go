@@ -26,3 +26,25 @@ type Controller struct {
 	*ServicesController
 	*MetricPanelsController
 }
+
+func (m *AuthController) Name() string {
+	return "AuthController"
+}
+func (m *UsersController) Name() string {
+	return "UsersController"
+}
+func (m *ProjectsController) Name() string {
+	return "ProjectsController"
+}
+func (m *ProviderAccountsController) Name() string {
+	return "ProviderAccountsController"
+}
+func (m *ProjectMembersController) Name() string {
+	return "ProjectMembersController"
+}
+func (m *ServicesController) Name() string {
+	return "ServicesController"
+}
+func (m *MetricPanelsController) Name() string {
+	return "MetricPanelsController"
+}

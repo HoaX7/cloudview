@@ -1,7 +1,7 @@
 import { getProviderAccountDetails } from "$src/api/providerAccounts";
-import { getMetricData } from "$src/api/services";
-import type { ProviderAccountWithProjectProps } from "$src/customTypes/ProviderAccounts";
-import type { MetricDataReturnType } from "$src/customTypes/Services";
+import { getResourceData } from "$src/api/services";
+import type { ProviderAccountWithProjectProps } from "$src/customTypes/providerAccounts";
+import type { ResourceDataReturnType } from "$src/customTypes/services";
 import { COOKIE_NAME, DEFAULT_REGION } from "$src/helpers/constants";
 import type { PageServerLoad } from "./$types";
 
@@ -13,12 +13,12 @@ export const load = (async ({ url, cookies, params }) => {
 		return { missingParams: true };
 	}
 	const cookie = cookies.get(COOKIE_NAME);
-	let res: MetricDataReturnType = [];
+	let res: ResourceDataReturnType = [];
 	let error = "";
 	let providerAcc;
 	try {
 		const [ result, providerAccDetails ] = await Promise.all([
-			getMetricData(
+			getResourceData(
 				{
 					projectId,
 					providerAccountId,

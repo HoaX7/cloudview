@@ -2,7 +2,7 @@
   import type {
   	Ec2VolumeProps,
   	Ec2InstanceProps,
-  } from "$src/customTypes/Services";
+  } from "$src/customTypes/ervices;
   import Drawer from "$lib/components/common/Drawer/Drawer.svelte";
   import Typography from "$lib/components/common/Typography/Typography.svelte";
   import { bytesToMegaBytes, toLocaleDate } from "$src/helpers";

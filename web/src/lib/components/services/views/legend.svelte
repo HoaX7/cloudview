@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { LegendProps } from "$src/customTypes/Konva";
+  import type { LegendProps } from "$src/customTypes/konva";
   import { groupByKey } from "$src/helpers";
   import clsx from "clsx";
   import Accordion from "../../common/Accordion/Accordion.svelte";

@@ -1,0 +1,3 @@
+-- Up Migration
+-- Nothing to run
+-- Down Migration

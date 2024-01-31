@@ -1,4 +1,4 @@
-import type { SessionProps } from "$src/customTypes/User";
+import type { SessionProps } from "$src/customTypes/user";
 import { requester, type ApiResponsePromise } from "$src/helpers/requester";
 
 export const Login = async (params: {

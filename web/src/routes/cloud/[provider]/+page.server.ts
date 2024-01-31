@@ -1,10 +1,10 @@
 import { getApiGatewayIntegrations } from "$src/api/aws";
-import { getMetricData } from "$src/api/services";
+import { getResourceData } from "$src/api/services";
 import type {
 	ApiGatewayV2Props,
 	ApiGatewayWithIntegrationProps,
-	MetricDataReturnType,
-} from "$src/customTypes/Services";
+	ResourceDataReturnType,
+} from "$src/customTypes/services";
 import {
 	AWS_SERVICES,
 	COOKIE_NAME,
@@ -21,10 +21,10 @@ export const load = (async ({ url, cookies, params }) => {
 		return { missingParams: true };
 	}
 	const cookie = cookies.get(COOKIE_NAME);
-	let res: MetricDataReturnType = [];
+	let res: ResourceDataReturnType = [];
 	let error = "";
 	try {
-		const result = await getMetricData(
+		const result = await getResourceData(
 			{
 				projectId,
 				providerAccountId,

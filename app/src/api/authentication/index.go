@@ -51,6 +51,7 @@ func SetSession(w http.ResponseWriter, s types.SessionUser) error {
 }
 
 func GetAuthToken(r *http.Request) (string, error) {
+	logger.Logger.SetName("authentication.GetAuthToken")
 	/*
 		`Authorization` header is not passed
 		since cookie is not available on the client-side.

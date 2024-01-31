@@ -2,8 +2,8 @@
   import type {
   	ApiGatewayV2IntegrationProps,
   	ELBV2Props,
-  	MetricDataReturnType,
-  } from "$src/customTypes/Services";
+  	ResourceDataReturnType,
+  } from "$src/customTypes/ervices;
   import Group from "$src/lib/components/common/KonvaCanvas/Group.svelte";
   import Image from "$src/lib/components/common/KonvaCanvas/Image.svelte";
   import Text from "$src/lib/components/common/KonvaCanvas/Text.svelte";
@@ -13,7 +13,7 @@
   import { delay } from "$src/helpers";
   import { AWS_SERVICES, LEGEND_NAMES } from "$src/helpers/constants";
   import { getProportions, truncateResourceLabel } from "$src/helpers/konva/index";
-  import type { HighLightProps, LegendProps } from "$src/customTypes/Konva";
+  import type { HighLightProps, LegendProps } from "$src/customTypes/konva";
   import { COLOR_SCHEME } from "$src/colorConfig";
   import Rect from "$src/lib/components/common/KonvaCanvas/Rect.svelte";
   import type Konva from "konva";
@@ -26,7 +26,7 @@
   import KonvaStore from "$src/store/konva";
 
   export let data: ELBV2Props;
-  export let externalGroup: MetricDataReturnType;
+  export let externalGroup: ResourceDataReturnType;
   export let setLegend: (legend: LegendProps[]) => void;
   export let highlights: HighLightProps;
   export let idx: number;

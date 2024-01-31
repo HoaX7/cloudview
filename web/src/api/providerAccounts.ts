@@ -1,7 +1,7 @@
 import type {
 	ProviderAccountProps,
 	ProviderAccountWithProjectProps,
-} from "$src/customTypes/ProviderAccounts";
+} from "$src/customTypes/providerAccounts";
 import {
 	requester,
 	type ApiResponsePromise,

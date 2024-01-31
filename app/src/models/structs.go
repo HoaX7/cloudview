@@ -17,6 +17,7 @@ type ProjectMembers struct {
 	Permissions string           `json:"permissions,omitempty"`
 	Metadata    *json.RawMessage `json:"metadata,omitempty"`
 	IsDeleted   *bool            `json:"isDeleted"`
+	IsSystem    *bool            `json:"isSystem"`
 	CreatedAt   *time.Time       `json:"createdAt"`
 	UpdatedAt   *time.Time       `json:"updatedAt"`
 }
@@ -74,6 +75,8 @@ type MetricPanels struct {
 	IsDeleted         *bool            `json:"isDeleted,omitempty"`
 	CreatedAt         *time.Time       `json:"createdAt,omitempty"`
 	UpdatedAt         *time.Time       `json:"updatedAt,omitempty"`
+	InstanceID        string           `json:"instanceId,omitempty"`
+	HealthStatus      string           `json:"healthStatus,omitempty"`
 }
 
 type ProjectAccessDetails struct {

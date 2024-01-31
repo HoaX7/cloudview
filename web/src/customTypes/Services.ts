@@ -1,9 +1,9 @@
 import type { AWS_SERVICES } from "$src/helpers/constants";
-import type { ConnectorTargetProps } from "./Konva";
+import type { ConnectorTargetProps } from "./konva";
 import type { CloudFrontProps } from "./aws/cloudfront";
 import type { RDSProps } from "./aws/rds";
 
-export type MetricDataReturnType = ({
+export type ResourceDataReturnType = ({
   name: typeof AWS_SERVICES.EC2;
   result: Ec2Props;
 } | {
@@ -268,6 +268,6 @@ export type UsageProps = {
 }
 
 export type GroupedData = {
-  externalGroup: MetricDataReturnType;
-  internalGroup: MetricDataReturnType;
+  externalGroup: ResourceDataReturnType;
+  internalGroup: ResourceDataReturnType;
 };

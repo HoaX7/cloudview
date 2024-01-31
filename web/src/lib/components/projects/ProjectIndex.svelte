@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { ProjectProps } from "$src/customTypes/Projects";
+  import type { ProjectProps } from "$src/customTypes/projects";
   import auth from "$src/store/auth";
   import CreateProject from "./CreateProject.svelte";
   import SelectProject from "./SelectProject.svelte";

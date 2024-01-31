@@ -16,7 +16,7 @@
   	HighLightProps,
   	LegendProps,
   	TargetFromNodeProps,
-  } from "$src/customTypes/Konva";
+  } from "$src/customTypes/konva";
   import Icon from "../Image/index.svelte";
   import Legend from "../../services/views/legend.svelte";
   import type { PathConfig } from "konva/lib/shapes/Path";

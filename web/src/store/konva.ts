@@ -3,7 +3,7 @@
  * bounding rectangle backgrounds for services.
  */
 
-import type { KonvaStoreProps } from "$src/customTypes/Store";
+import type { KonvaStoreProps } from "$src/customTypes/store";
 import type { Writable } from "svelte/store";
 import storable from ".";
 

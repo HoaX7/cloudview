@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { EFSProps } from "$src/customTypes/Services";
+  import type { EFSProps } from "$src/customTypes/ervices;
   import Group from "$src/lib/components/common/KonvaCanvas/Group.svelte";
   import Image from "$src/lib/components/common/KonvaCanvas/Image.svelte";
   import Text from "$src/lib/components/common/KonvaCanvas/Text.svelte";
@@ -10,7 +10,7 @@
   import { getProportions, truncateResourceLabel } from "$src/helpers/konva/index";
   import { COLOR_SCHEME } from "$src/colorConfig";
   import type { GroupConfig } from "konva/lib/Group";
-  import type { HighLightProps } from "$src/customTypes/Konva";
+  import type { HighLightProps } from "$src/customTypes/konva";
   import { getImageRect } from "../shapeCache";
   import ServiceGroupWithLabel from "../ServiceGroupWithLabel.svelte";
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { ProjectMemberApiProps } from "$src/customTypes/ProjectMembers";
+  import type { ProjectMemberApiProps } from "$src/customTypes/projectMembers";
   import clsx from "clsx";
   import Button from "../common/Button/Button.svelte";
   import SettingsComponent from "../common/Settings/SettingsComponent.svelte";

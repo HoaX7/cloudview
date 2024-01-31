@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { ProjectProps } from "$src/customTypes/Projects";
+  import type { ProjectProps } from "$src/customTypes/projects";
   import Typography from "../common/Typography/Typography.svelte";
   import Icon from "../common/Image/index.svelte";
   import clsx from "clsx";
@@ -115,13 +115,13 @@
         </td>
       </svelte:fragment>
       <svelte:fragment slot="extra-row-td" let:item>
-        <td class="p-3">
+        <td class="p-3 flex items-center">
           {#if state.tab === "you-own"}
             <button on:click={() => {
             	state.showModal = true;
             	state.selectedProject = item;
             }}>
-              <Icon src="/assets/images/edit.svg" width="18" alt="edit" />
+              <Icon src="/assets/images/edit.svg" width="24" alt="edit" />
             </button>
           {/if}
           <button
@@ -130,7 +130,7 @@
             	goto(`/projects/${item.id}`, { state: item });
             }}
           >
-            <Icon src="/assets/images/view.svg" width="18" alt="view" />
+            <Icon src="/assets/images/view.svg" width="24" alt="view" />
           </button>
         </td>
       </svelte:fragment>

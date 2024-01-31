@@ -6,7 +6,7 @@ This is a common component that renders service data based on accessibility.
 The accessibility grids show services that can be access publicily (external services) and internal services. -->
 
 <script lang="ts">
-  import type { GroupedData } from "$src/customTypes/Services";
+  import type { GroupedData } from "$src/customTypes/ervices;
   import Konva from "konva";
   import Group from "../../common/KonvaCanvas/Group.svelte";
   import Rect from "../../common/KonvaCanvas/Rect.svelte";

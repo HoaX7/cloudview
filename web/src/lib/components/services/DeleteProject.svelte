@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { ProjectProps } from "$src/customTypes/Projects";
+  import type { ProjectProps } from "$src/customTypes/projects";
   import Modal from "$lib/components/common/Modal/index.svelte";
   import Typography from "../common/Typography/Typography.svelte";
 	import Input from "../common/Input/Input.svelte";

@@ -20,6 +20,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
+var log_services = logger.NewLogger()
+
 /*
 *
 
@@ -27,14 +29,15 @@ import (
 	show metrics and other data on `client-side`
 */
 func (c *ServicesController) GetServiceData(db *database.DB) http.HandlerFunc {
+	log_services.SetName(c.Name() + ".GetServiceData")
 	return func(w http.ResponseWriter, r *http.Request) {
-		rw := middleware.RegisterResponses(w)
+		rw := middleware.CustomResponseWriter(w)
 		/*
 			Need to verify if user can access project.
 		*/
 		authenticatedUser, err := rw.User(db, r)
 		if err != nil {
-			logger.Logger.Error("ServicesController.GetServiceData: ERROR", err)
+			log_services.Error("ERROR", err)
 			if errors.Is(err, custom_errors.NoDataFound) {
 				rw.Unauthorized()
 				return
@@ -45,7 +48,7 @@ func (c *ServicesController) GetServiceData(db *database.DB) http.HandlerFunc {
 		providerAccountId := r.URL.Query().Get("providerAccountId")
 		region := r.URL.Query().Get("region")
 		if providerAccountId == "" {
-			logger.Logger.Error("ServicesController.GetServiceData: ERROR", err)
+			log_services.Error("ERROR", err)
 			rw.Error("Invalid `providerAccountId` provided", http.StatusBadRequest)
 			return
 		}
@@ -58,13 +61,13 @@ func (c *ServicesController) GetServiceData(db *database.DB) http.HandlerFunc {
 			ProviderAccountID: providerAccountId,
 		})
 		if err != nil {
-			logger.Logger.Error("ServicesController.GetServiceData: ERROR, project verification failed", err)
+			log_services.Error("ERROR, project verification failed", err)
 			rw.Error(err.Error(), http.StatusForbidden)
 			return
 		}
 		providerAccount, err := models.GetByIdForSDK(db, verifiedData.ProviderAccount.ID)
 		if err != nil {
-			logger.Logger.Error("ServicesController.GetServiceData: ERROR", err)
+			log_services.Error("ERROR", err)
 			rw.Error("Unable to fetch service data", http.StatusInternalServerError)
 			return
 		}
@@ -76,7 +79,7 @@ func (c *ServicesController) GetServiceData(db *database.DB) http.HandlerFunc {
 		if cache.Fetch(cacheKey, 0, &result, func() (interface{}, error) {
 			accessKeySecret, err := encryption.Decrypt(providerAccount.AccessKeySecret, providerAccount.RotationSecretKey)
 			if err != nil {
-				logger.Logger.Error("Invalid provider access-key-secret", err)
+				log_services.Error("Invalid provider access-key-secret", err)
 				return nil, errors.New("Invalid provider secret")
 			}
 			return service.GetData(&aws.AWS{
@@ -84,7 +87,7 @@ func (c *ServicesController) GetServiceData(db *database.DB) http.HandlerFunc {
 				ProviderAccountID: providerAccount.ID,
 			}, providerAccount.AccessKeyID, accessKeySecret, region)
 		}); err != nil {
-			logger.Logger.Error("ServicesController.GetServiceData: ERROR fetching metrics", err)
+			log_services.Error("ERROR fetching metrics", err)
 			rw.Error("Unknown error occured", http.StatusInternalServerError)
 			return
 		}
@@ -97,23 +100,14 @@ func (c *ServicesController) GetServiceData(db *database.DB) http.HandlerFunc {
 AWS - fetch integrations for apigateway route.
 */
 func (c *ServicesController) GetApiGatewayV2Integrations(db *database.DB) http.HandlerFunc {
+	log_services.SetName(c.Name() + ".GetApiGatewayV2Integrations")
 	return func(w http.ResponseWriter, r *http.Request) {
-		rw := middleware.RegisterResponses(w)
-		authenticatedUser, err := rw.User(db, r)
-		if err != nil {
-			logger.Logger.Error("ServicesController.GetApiGatewayV2Integrations: ERROR", err)
-			if errors.Is(err, custom_errors.NoDataFound) {
-				rw.Unauthorized()
-				return
-			}
-			rw.Forbidden()
-			return
-		}
+		rw := middleware.CustomResponseWriter(w)
+		authenticatedUser := rw.SessionUser
 		providerAccountId := r.URL.Query().Get("providerAccountId")
 		region := r.URL.Query().Get("region")
 		apiId := r.URL.Query().Get("apiId")
 		if providerAccountId == "" {
-			logger.Logger.Error("ServicesController.GetApiGatewayV2Integrations: ERROR", err)
 			rw.Error("Invalid `providerAccountId` provided", http.StatusBadRequest)
 			return
 		}
@@ -130,14 +124,14 @@ func (c *ServicesController) GetApiGatewayV2Integrations(db *database.DB) http.H
 			ProviderAccountID: providerAccountId,
 		})
 		if err != nil {
-			logger.Logger.Error("ServicesController.GetApiGatewayV2Integrations: ERROR, project verification failed", err)
+			log_services.Error("ERROR, project verification failed", err)
 			rw.Error(err.Error(), http.StatusForbidden)
 			return
 		}
-		logger.Logger.Log("Project access verified", verifiedData.ProjectAccessDetails.Projects.ID)
+		log_services.Log("Project access verified", verifiedData.ProjectAccessDetails.Projects.ID)
 		providerAccount, err := models.GetByIdForSDK(db, verifiedData.ProviderAccount.ID)
 		if err != nil {
-			logger.Logger.Error("ServicesController.GetApiGatewayV2Integrations: ERROR", err)
+			log_services.Error("ERROR", err)
 			rw.Error("Unable to fetch service data", http.StatusInternalServerError)
 			return
 		}
@@ -150,7 +144,7 @@ func (c *ServicesController) GetApiGatewayV2Integrations(db *database.DB) http.H
 				Region:            region,
 			}
 			if err := awsClient.Init(providerAccount.AccessKeyID, providerAccount.AccessKeySecret, region); err != nil {
-				logger.Logger.Error("ServicesController.GetApiGatewayV2Integrations: ERROR unable to initialize aws client", err)
+				log_services.Error("ERROR unable to initialize aws client", err)
 				return nil, custom_errors.UnknownError
 			}
 			return awsClient.GetApiGatewayV2Integrations(apiId)
@@ -164,18 +158,10 @@ func (c *ServicesController) GetApiGatewayV2Integrations(db *database.DB) http.H
 }
 
 func (c *ServicesController) GetUsage(db *database.DB) http.HandlerFunc {
+	log_services.SetName(c.Name() + ".GetUsage")
 	return func(w http.ResponseWriter, r *http.Request) {
-		rw := middleware.RegisterResponses(w)
-		authenticatedUser, err := rw.User(db, r)
-		if err != nil {
-			logger.Logger.Error("ServicesController.GetUsage: ERROR", err)
-			if errors.Is(err, custom_errors.NoDataFound) {
-				rw.Unauthorized()
-				return
-			}
-			rw.Forbidden()
-			return
-		}
+		rw := middleware.CustomResponseWriter(w)
+		authenticatedUser := rw.SessionUser
 		params := mux.Vars(r)
 		provider := strings.ToLower(params["provider"])
 		if provider == "" {
@@ -187,7 +173,6 @@ func (c *ServicesController) GetUsage(db *database.DB) http.HandlerFunc {
 		instanceId := r.URL.Query().Get("instanceId")
 		region := r.URL.Query().Get("region")
 		if providerAccountId == "" || instance == "" || instanceId == "" {
-			logger.Logger.Error("ServicesController.GetUsage: ERROR", err)
 			rw.Error("Invalid `providerAccountId` or `instance` or `instanceId` provided", http.StatusBadRequest)
 			return
 		}
@@ -200,13 +185,13 @@ func (c *ServicesController) GetUsage(db *database.DB) http.HandlerFunc {
 			ProviderAccountID: providerAccountId,
 		})
 		if err != nil {
-			logger.Logger.Error("ServicesController.GetUsage: ERROR, project verification failed", err)
+			log_services.Error("ERROR, project verification failed", err)
 			rw.Error(err.Error(), http.StatusForbidden)
 			return
 		}
 		providerAccount, err := models.GetByIdForSDK(db, verifiedData.ProviderAccount.ID)
 		if err != nil {
-			logger.Logger.Error("ServicesController.GetUsage: ERROR", err)
+			log_services.Error("ERROR", err)
 			rw.Error("Unable to fetch service data", http.StatusInternalServerError)
 			return
 		}
@@ -218,7 +203,7 @@ func (c *ServicesController) GetUsage(db *database.DB) http.HandlerFunc {
 			if cache.Fetch(cacheKey, 0, &result, func() (interface{}, error) {
 				return GetAwsUsageData(db)(r, providerAccount, region, strings.ToLower(instance), instanceId)
 			}); err != nil {
-				logger.Logger.Error("ServicesController.GetUsage: ERROR", err)
+				log_services.Error("ERROR", err)
 				rw.Error(err.Error(), http.StatusBadRequest)
 				return
 			}

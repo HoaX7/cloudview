@@ -22,7 +22,7 @@ import (
 // TODO - add pagination
 func (c *ProjectMembersController) GetMembersByProjectId(db *database.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		rw := middleware.RegisterResponses(w)
+		rw := middleware.CustomResponseWriter(w)
 		projectId := r.URL.Query().Get("projectId")
 		if projectId == "" || !helpers.IsValidUUID(projectId) {
 			rw.Error("Invalid `projectId` provided", http.StatusBadRequest)
@@ -35,7 +35,7 @@ func (c *ProjectMembersController) GetMembersByProjectId(db *database.DB) http.H
 		}
 		authenticatedUser, err := rw.User(db, r)
 		if err != nil {
-			logger.Logger.Error("ProjectMembersController.GetMembersByProjectId: ERROR", err)
+			logp.Error("ProjectMembersController.GetMembersByProjectId: ERROR", err)
 			rw.Forbidden()
 			return
 		}
@@ -45,7 +45,7 @@ func (c *ProjectMembersController) GetMembersByProjectId(db *database.DB) http.H
 				rw.Error("Please select a valid Project.", http.StatusNotFound)
 				return
 			}
-			logger.Logger.Error("ProjectMembersController.GetMembersByProjectId: ERROR", err)
+			logp.Error("ProjectMembersController.GetMembersByProjectId: ERROR", err)
 			rw.Error("Unable to fetch data", http.StatusInternalServerError)
 			return
 		}
@@ -71,25 +71,23 @@ type CreateMemberReturnStruct struct {
 	User *users_model.Users `json:"user"`
 }
 
+var logp = logger.NewLogger()
+
 func (c *ProjectMembersController) CreateMember(db *database.DB) http.HandlerFunc {
+	logp.SetName(c.Name() + ".CreateMember")
 	return func(w http.ResponseWriter, r *http.Request) {
-		rw := middleware.RegisterResponses(w)
-		authenticatedUser, err := rw.User(db, r)
-		if err != nil {
-			logger.Logger.Error("ProjectMembersController.CreateMember: ERROR", err)
-			rw.Forbidden()
-			return
-		}
+		rw := middleware.CustomResponseWriter(w)
+		authenticatedUser := rw.SessionUser
 		body, err := io.ReadAll(r.Body)
 		defer r.Body.Close()
 		if err != nil {
-			logger.Logger.Error("ProjectMembersController.CreateMember: Error reading request body:", err)
+			logp.Error("Error reading request body:", err)
 			rw.Error("Bad request", http.StatusUnprocessableEntity)
 			return
 		}
 		var request CreateMemberStruct
 		if err := json.Unmarshal(body, &request); err != nil {
-			logger.Logger.Error("ProjectMembersController.CreateMember: Error parsing request body:", err)
+			logp.Error("Error parsing request body:", err)
 			rw.Error(custom_errors.UnknownError.Error(), http.StatusUnprocessableEntity)
 			return
 		}
@@ -107,7 +105,7 @@ func (c *ProjectMembersController) CreateMember(db *database.DB) http.HandlerFun
 		// authenticated user is the project owner.
 		project, err := projects_model.GetByIdAndUserId(db, request.ProjectID, authenticatedUser.ID)
 		if err != nil || project.OwnerID != &authenticatedUser.ID {
-			logger.Logger.Error("ProjectMembersController.CreateMember Project not found: ERROR project owner mismatch, project:", request.ProjectID, "auth user:", authenticatedUser.ID)
+			logp.Error("Project not found: ERROR project owner mismatch, project:", request.ProjectID, "auth user:", authenticatedUser.ID)
 			rw.Forbidden()
 			return
 		}
@@ -120,34 +118,34 @@ func (c *ProjectMembersController) CreateMember(db *database.DB) http.HandlerFun
 		existingUser, err := users_model.GetByEmail(db, request.Email)
 		if err != nil {
 			if errors.Is(err, custom_errors.NoDataFound) {
-				logger.Logger.Log("ProjectMembersController.CreateMember: user not found in system, creating new user...")
+				logp.Log("user not found in system, creating new user...")
 				data, err := users_model.Create(db, users_model.Users{
 					Email:    request.Email,
 					Username: request.Email,
 				})
 				if err != nil {
-					logger.Logger.Error("ProjectMembersController.CreateMember: Unable to create user in system", err)
+					logp.Error("Unable to create user in system", err)
 					rw.Error("Unable to invite member, Please try again later.", http.StatusInternalServerError)
 					return
 				}
 				user = data
 			} else {
-				logger.Logger.Error("ProjectMembersController.CreateMember: Unknown ERROR", err)
+				logp.Error("Unknown ERROR", err)
 				rw.Error("Unable to invite member, Please try again later.", http.StatusInternalServerError)
 				return
 			}
 		} else {
-			logger.Logger.Log("ProjectMembersController.CreateMember: user found:", existingUser.ID)
+			logp.Log("user found:", existingUser.ID)
 			user = existingUser
 		}
 
-		logger.Logger.Log("checking if member exists in Team:", user.ID)
+		logp.Log("checking if member exists in Team:", user.ID)
 		// Check if the member is already part of the Team.
 		projectMember, err := project_members_model.GetProjectByIdAndUserId(db, request.ProjectID, user.ID)
 		if err != nil {
 			// if user is not already a member send invite.
 			if !errors.Is(err, custom_errors.NoDataFound) {
-				logger.Logger.Error("ProjectMembersController.CreateMember: ERROR", err)
+				logp.Error("Unable to invite user", err)
 				rw.Error("Unable to invite member, Please try again later.", http.StatusInternalServerError)
 				return
 			}
@@ -157,7 +155,7 @@ func (c *ProjectMembersController) CreateMember(db *database.DB) http.HandlerFun
 			need to check how to validate uuid correctly.
 		*/
 		if projectMember.ID.String() != "00000000-0000-0000-0000-000000000000" {
-			logger.Logger.Log("ProjectMmebersController.CreateMember: Member is already part of the Team:", user.ID)
+			logp.Log("Member is already part of the Team:", user.ID)
 			rw.Error("Member has already joined your Team. Upgrade your account to invite more members.", http.StatusConflict)
 			return
 		}
@@ -167,11 +165,11 @@ func (c *ProjectMembersController) CreateMember(db *database.DB) http.HandlerFun
 			IsOwner:   false,
 		})
 		if err != nil {
-			logger.Logger.Error("ProjectMembersController.CreateMember: ERROR", err)
+			logp.Error("Unable to invite member", err)
 			rw.Error("Unable to invite member, Please try again later.", http.StatusInternalServerError)
 			return
 		}
-		logger.Logger.Log("ProjectMembersController.CreateMember: create success", result.ID)
+		logp.Log("create success", result.ID)
 		res := CreateMemberReturnStruct{
 			&result,
 			&user,
@@ -189,25 +187,21 @@ type ToggleMemberAccessStruct struct {
 }
 
 func (c *ProjectMembersController) ToggleMemberAccess(db *database.DB) http.HandlerFunc {
+	logp.SetName(c.Name() + ".ToggleMemberAccess")
 	return func(w http.ResponseWriter, r *http.Request) {
-		rw := middleware.RegisterResponses(w)
-		authenticatedUser, err := rw.User(db, r)
-		if err != nil {
-			logger.Logger.Error("ProjectMembersController.ToggleMemberAccess: ERROR", err)
-			rw.Forbidden()
-			return
-		}
+		rw := middleware.CustomResponseWriter(w)
+		authenticatedUser := rw.SessionUser
 		id := mux.Vars(r)["id"]
 		body, err := io.ReadAll(r.Body)
 		defer r.Body.Close()
 		if err != nil {
-			logger.Logger.Error("ProjectMembersController.ToggleMemberAccess: Error reading request body:", err)
+			logp.Error("Error reading request body:", err)
 			rw.Error("Bad request", http.StatusUnprocessableEntity)
 			return
 		}
 		var request ToggleMemberAccessStruct
 		if err := json.Unmarshal(body, &request); err != nil {
-			logger.Logger.Error("ProjectMembersController.ToggleMemberAccess: Error parsing request body:", err)
+			logp.Error("Error parsing request body:", err)
 			rw.Error(custom_errors.UnknownError.Error(), http.StatusUnprocessableEntity)
 			return
 		}
@@ -234,7 +228,7 @@ func (c *ProjectMembersController) ToggleMemberAccess(db *database.DB) http.Hand
 		// authenticated user is the project owner.
 		project, err := projects_model.GetByIdAndUserId(db, request.ProjectID, authenticatedUser.ID)
 		if err != nil || *project.OwnerID != authenticatedUser.ID {
-			logger.Logger.Error("ProjectMembersController.ToggleMemberAccess Project not found: ERROR project owner mismatch, project:", request.ProjectID, "auth user:", authenticatedUser.ID)
+			logp.Error("Project not found: ERROR project owner mismatch, project:", request.ProjectID, "auth user:", authenticatedUser.ID)
 			rw.Forbidden()
 			return
 		}
@@ -242,7 +236,7 @@ func (c *ProjectMembersController) ToggleMemberAccess(db *database.DB) http.Hand
 			IsActive:  request.IsActive,
 			IsDeleted: request.IsDeleted,
 		}); err != nil {
-			logger.Logger.Error("ProjectMembersController.ToggleMemberAccess: ERROR", err)
+			logp.Error("unable to update data", err)
 			rw.Error("Unable to update data", http.StatusInternalServerError)
 			return
 		}

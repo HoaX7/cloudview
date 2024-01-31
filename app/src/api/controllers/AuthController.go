@@ -3,7 +3,7 @@ package controllers
 import (
 	"cloudview/app/src/api/authentication"
 	"cloudview/app/src/api/middleware"
-	"cloudview/app/src/api/middleware/logger"
+	logging "cloudview/app/src/api/middleware/logger"
 	"cloudview/app/src/database"
 	"cloudview/app/src/helpers"
 	"cloudview/app/src/helpers/constants"
@@ -20,16 +20,19 @@ type OauthBody struct {
 	Code string `json:"code"`
 }
 
+var log = logging.NewLogger()
+
 /*
 This method allows github & google oauth logins
 */
 func (c *AuthController) OauthLogin(db *database.DB) http.HandlerFunc {
+	log.SetName(c.Name() + ".OauthLogin")
 	return func(w http.ResponseWriter, r *http.Request) {
 		rw := middleware.RegisterResponses(w)
-		logger.Logger.Log(r.Body)
+		log.Log(r.Body)
 		reqBody, err := io.ReadAll(r.Body)
 		if err != nil {
-			logger.Logger.Error(err)
+			log.Error(err)
 			rw.Error("Unable to parse json body", http.StatusBadRequest)
 			return
 		}
@@ -44,7 +47,7 @@ func (c *AuthController) OauthLogin(db *database.DB) http.HandlerFunc {
 			rw.Error("Invalid code provided", http.StatusBadRequest)
 			return
 		}
-		logger.Logger.Log("AuthController.OauthLogin: authenticating " + provider + " provider with code: " + body.Code)
+		log.Log("authenticating " + provider + " provider with code: " + body.Code)
 		switch strings.ToLower(provider) {
 		case constants.OAuth.GOOGLE:
 			// TODO - Unimplemented

@@ -11,6 +11,7 @@ import (
 	projects_model "cloudview/app/src/models/projects"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 
@@ -18,11 +19,14 @@ import (
 	"github.com/gorilla/mux"
 )
 
+var projects_logger = logger.NewLogger()
+
 /*
 TODO - Decide the `member_limit` prop value based on the user
 subscription plan. Default value is 1
 */
 func (c *ProjectsController) CreateProject(db *database.DB) http.HandlerFunc {
+	projects_logger.SetName(c.Name() + ".CreateProject")
 	/*
 		TODO - Add middleware to check if the user
 		has the correct subscription plan to be able to
@@ -33,10 +37,10 @@ func (c *ProjectsController) CreateProject(db *database.DB) http.HandlerFunc {
 
 	*/
 	return func(w http.ResponseWriter, r *http.Request) {
-		rw := middleware.RegisterResponses(w)
+		rw := middleware.CustomResponseWriter(w)
 		authenticatedUser, err := rw.User(db, r)
 		if err != nil {
-			logger.Logger.Error("ProjectsController.CreateProject: ERROR", err)
+			projects_logger.Error(err)
 			if errors.Is(err, custom_errors.NoDataFound) {
 				rw.Unauthorized()
 				return
@@ -46,13 +50,13 @@ func (c *ProjectsController) CreateProject(db *database.DB) http.HandlerFunc {
 		}
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
-			logger.Logger.Error("ProjectsController.CreateProject: Error reading request body:", err)
+			projects_logger.Error("Error reading request body:", err)
 			rw.Error("Bad request", http.StatusUnprocessableEntity)
 			return
 		}
 		var request models.Projects
 		if err := json.Unmarshal(body, &request); err != nil {
-			logger.Logger.Error("ProjectsController.CreateProject: Error parsing request body:", err)
+			projects_logger.Error("Error parsing request body:", err)
 			rw.Error(custom_errors.UnknownError.Error(), http.StatusUnprocessableEntity)
 			return
 		}
@@ -70,10 +74,10 @@ func (c *ProjectsController) CreateProject(db *database.DB) http.HandlerFunc {
 		if request.MemberLimit <= 0 {
 			request.MemberLimit = 1
 		}
-		logger.Logger.Log("ProjectsController.CreateProject: creating new project for owner: ", request.OwnerID)
+		projects_logger.Log("creating new project for owner: ", request.OwnerID)
 		result, err := projects_model.Create(db, request)
 		if err != nil {
-			logger.Logger.Error("ProjectsController.CreateProject: Unable to create project", err.Error())
+			projects_logger.Error("Unable to create project", err.Error())
 			rw.Error("Something went wrong, Please try again", http.StatusUnprocessableEntity)
 			return
 		}
@@ -89,25 +93,21 @@ func (c *ProjectsController) CreateProject(db *database.DB) http.HandlerFunc {
 }
 
 func (c *ProjectsController) GetProject(db *database.DB) http.HandlerFunc {
+	projects_logger.SetName(c.Name() + ".GetProject")
 	/*
 		TODO - Add pagination
 	*/
 	return func(w http.ResponseWriter, r *http.Request) {
-		rw := middleware.RegisterResponses(w)
-		authenticatedUser, err := rw.User(db, r)
-		if err != nil {
-			logger.Logger.Error("ProjectsController.GetProject: ERROR", err)
-			rw.Forbidden()
-			return
-		}
-
+		rw := middleware.CustomResponseWriter(w)
+		authenticatedUser := rw.SessionUser
 		// Fetch projects from `project_members` table to also
 		// fetch the projects that the user is a member of.
 		// result, err := models.GetByOwnerId(db, authenticatedUser.ID)
 
+		fmt.Printf("%v", authenticatedUser)
 		result, err := project_members_model.GetProjectsByUserId(db, authenticatedUser.ID)
 		if err != nil {
-			logger.Logger.Error("ProjectsController.GetProject: ERROR", err)
+			projects_logger.Error("unable to fetch data", err)
 			rw.Error("Unable to fetch data", http.StatusInternalServerError)
 			return
 		}
@@ -119,27 +119,19 @@ func (c *ProjectsController) GetProject(db *database.DB) http.HandlerFunc {
 // @deprecated - in favor of using 'cross-account-access' over 'access_keys'
 // Allow users to create more projects based on subscription plan.
 func (c *ProjectsController) _createWithService(db *database.DB) http.HandlerFunc {
+	projects_logger.SetName(c.Name() + "._createWithService")
 	return func(w http.ResponseWriter, r *http.Request) {
-		rw := middleware.RegisterResponses(w)
-		authenticatedUser, err := rw.User(db, r)
-		if err != nil {
-			logger.Logger.Error("ProjectsController.createWithService: ERROR", err)
-			if errors.Is(err, custom_errors.NoDataFound) {
-				rw.Unauthorized()
-				return
-			}
-			rw.Forbidden()
-			return
-		}
+		rw := middleware.CustomResponseWriter(w)
+		authenticatedUser := rw.SessionUser
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
-			logger.Logger.Error("ProjectsController.createWithService: Error reading request body:", err)
+			projects_logger.Error("Error reading request body:", err)
 			rw.Error("Bad request", http.StatusUnprocessableEntity)
 			return
 		}
 		var request projects_model.CreateWithServiceProps
 		if err := json.Unmarshal(body, &request); err != nil {
-			logger.Logger.Error("ProjectsController.createWithService: Error parsing request body:", err)
+			projects_logger.Error("Error parsing request body:", err)
 			rw.Error(custom_errors.UnknownError.Error(), http.StatusUnprocessableEntity)
 			return
 		}
@@ -165,14 +157,10 @@ func (c *ProjectsController) _createWithService(db *database.DB) http.HandlerFun
 }
 
 func (c *ProjectsController) GetProjectById(db *database.DB) http.HandlerFunc {
+	projects_logger.SetName(c.Name() + ".GetProjectById")
 	return func(w http.ResponseWriter, r *http.Request) {
-		rw := middleware.RegisterResponses(w)
-		authenticatedUser, err := rw.User(db, r)
-		if err != nil {
-			logger.Logger.Error("ProjectsController.GetProjectById: ERROR", err)
-			rw.Forbidden()
-			return
-		}
+		rw := middleware.CustomResponseWriter(w)
+		authenticatedUser := rw.SessionUser
 		id := mux.Vars(r)["id"]
 		isUUIDValid := helpers.IsValidUUID(id)
 		if !isUUIDValid {
@@ -189,7 +177,7 @@ func (c *ProjectsController) GetProjectById(db *database.DB) http.HandlerFunc {
 		// result, err := models.GetByIdAndUserId(db, uuid, authenticatedUser.ID)
 		result, err := project_members_model.GetProjectByIdAndUserId(db, uuid, authenticatedUser.ID)
 		if err != nil {
-			logger.Logger.Error("ProjectsController.GetProjectById: ERROR", err)
+			projects_logger.Error("Unable to fetch data", err)
 			rw.Error("Unable to fetch data", http.StatusInternalServerError)
 			return
 		}
@@ -206,14 +194,10 @@ type UpdateDTO struct {
 }
 
 func (c *ProjectsController) Update(db *database.DB) http.HandlerFunc {
+	projects_logger.SetName(c.Name() + ".Update")
 	return func(w http.ResponseWriter, r *http.Request) {
-		rw := middleware.RegisterResponses(w)
-		authenticatedUser, err := rw.User(db, r)
-		if err != nil {
-			logger.Logger.Error("ProjectsController.Update: ERROR", err)
-			rw.Forbidden()
-			return
-		}
+		rw := middleware.CustomResponseWriter(w)
+		authenticatedUser := rw.SessionUser
 		id := mux.Vars(r)["id"]
 		isUUIDValid := helpers.IsValidUUID(id)
 		if !isUUIDValid {
@@ -228,13 +212,13 @@ func (c *ProjectsController) Update(db *database.DB) http.HandlerFunc {
 		body, err := io.ReadAll(r.Body)
 		defer r.Body.Close()
 		if err != nil {
-			logger.Logger.Error("ProjectsController.Update: Error reading request body:", err)
+			projects_logger.Error("Error reading request body:", err)
 			rw.Error("Bad request", http.StatusUnprocessableEntity)
 			return
 		}
 		var request UpdateDTO
 		if err := json.Unmarshal(body, &request); err != nil {
-			logger.Logger.Error("ProjectsController.Update: Error parsing request body:", err)
+			projects_logger.Error("Error parsing request body:", err)
 			rw.Error(custom_errors.UnknownError.Error(), http.StatusUnprocessableEntity)
 			return
 		}
@@ -244,7 +228,7 @@ func (c *ProjectsController) Update(db *database.DB) http.HandlerFunc {
 			Email:       request.Email,
 			IsDeleted:   request.IsDeleted,
 		}); err != nil {
-			logger.Logger.Error("ProjectsController.Update: ERROR", err)
+			projects_logger.Error("unable to save", err)
 			rw.Error("Unable to save data", http.StatusInternalServerError)
 			return
 		}

@@ -12,7 +12,7 @@
   	Tooltip,
   } from "chart.js";
   import Chart from "./Chart.svelte";
-  import type { ChartBaseProps } from "$src/customTypes/Chart";
+  import type { ChartBaseProps } from "$src/customTypes/chart";
   import { onDestroy } from "svelte";
 
   interface $$Props<TData = DefaultDataPoint<"line">, TLabel = unknown>

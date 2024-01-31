@@ -2,7 +2,7 @@
   import type {
   	HighLightProps,
   	TargetFromNodeProps,
-  } from "$src/customTypes/Konva";
+  } from "$src/customTypes/konva";
   import type { CloudFrontProps } from "$src/customTypes/aws/cloudfront";
   import Group from "$src/lib/components/common/KonvaCanvas/Group.svelte";
   import Image from "$src/lib/components/common/KonvaCanvas/Image.svelte";
@@ -11,7 +11,7 @@
   import { createEventDispatcher, onMount, tick } from "svelte";
   import CdnData from "./cdnData.svelte";
   import { delay } from "$src/helpers";
-  import type { ApiGatewayV2IntegrationProps, MetricDataReturnType } from "$src/customTypes/Services";
+  import type { ApiGatewayV2IntegrationProps, ResourceDataReturnType } from "$src/customTypes/ervices;
   import { AWS_SERVICES } from "$src/helpers/constants";
   import { getProportions, truncateResourceLabel } from "$src/helpers/konva/index";
   import { COLOR_SCHEME } from "$src/colorConfig";
@@ -23,7 +23,7 @@
 
   export let data: CloudFrontProps;
   export let setLineTargets: (data: TargetFromNodeProps[]) => void;
-  export let externalGroup: MetricDataReturnType;
+  export let externalGroup: ResourceDataReturnType;
   export let highlights: HighLightProps;
   export let idx: number;
 

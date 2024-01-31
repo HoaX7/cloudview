@@ -1,7 +1,7 @@
 import type { Vector2d } from "konva/lib/types";
-import type { DatastoreProps } from "$src/customTypes/Store";
+import type { DatastoreProps } from "$src/customTypes/store";
 import { NODE_POSITIONS } from "../constants";
-import type { PathPoint, Points } from "$src/customTypes/Konva";
+import type { PathPoint, Points } from "$src/customTypes/konva";
 import { calculateCurveControlPoints, calculateEdgePoints, getEdgePosition } from "./edgePaths";
 import { get } from "svelte/store";
 import KonvaStore from "$src/store/konva";

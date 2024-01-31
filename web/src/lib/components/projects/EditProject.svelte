@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { ProjectProps } from "$src/customTypes/Projects";
+  import type { ProjectProps } from "$src/customTypes/projects";
   import Modal from "$lib/components/common/Modal/index.svelte";
   import Spinner from "../common/Loaders/Spinner.svelte";
   import Button from "../common/Button/Button.svelte";

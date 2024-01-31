@@ -1,4 +1,4 @@
-import type { ProjectProps, ProjectWithServiceProps } from "$src/customTypes/Projects";
+import type { ProjectProps, ProjectWithServiceProps } from "$src/customTypes/projects";
 import { requester, type ApiResponsePromise, type RequestHeaders } from "$src/helpers/requester";
 
 export const getProjects = (params: { cookie?: string; }): ApiResponsePromise<ProjectProps[]> => {

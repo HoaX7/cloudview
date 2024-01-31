@@ -1,10 +1,10 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from "svelte";
   import Image from "../../../common/KonvaCanvas/Image.svelte";
-  import type { ApiGatewayWithIntegrationProps } from "$src/customTypes/Services";
+  import type { ApiGatewayWithIntegrationProps } from "$src/customTypes/ervices;
   import Group from "../../../common/KonvaCanvas/Group.svelte";
   import Text from "../../../common/KonvaCanvas/Text.svelte";
-  import type { HighLightProps, TargetFromNodeProps } from "$src/customTypes/Konva";
+  import type { HighLightProps, TargetFromNodeProps } from "$src/customTypes/konva";
   import Datastore from "$src/store/data";
   import ApigatewayData from "./apigatewayData.svelte";
   import { delay } from "$src/helpers";

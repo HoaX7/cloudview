@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createProjectWithService } from "$src/api/projects";
-  import type { ProjectProps } from "$src/customTypes/Projects";
+  import type { ProjectProps } from "$src/customTypes/projects";
   import Datastore from "$src/store/data";
   import Button from "../common/Button/Button.svelte";
   import Input from "../common/Input/Input.svelte";

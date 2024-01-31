@@ -1,5 +1,5 @@
 import { getProjects } from "$src/api/projects";
-import type { ProjectProps } from "$src/customTypes/Projects";
+import type { ProjectProps } from "$src/customTypes/projects";
 import { COOKIE_NAME } from "$src/helpers/constants";
 import type { PageServerLoad } from "./$types";
 

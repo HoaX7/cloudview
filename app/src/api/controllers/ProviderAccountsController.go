@@ -13,13 +13,14 @@ import (
 	provider_models "cloudview/app/src/models/provider_accounts"
 	"cloudview/app/src/types"
 	"encoding/json"
-	"errors"
 	"io"
 	"net/http"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 )
+
+var log_pa = logger.NewLogger()
 
 /**
 This controller handles all process related to AWS, GCP ...etc provider accounts
@@ -30,28 +31,20 @@ Responsible for storing access_keys with encryption and rotating keys.
 
 // @deprecated - in favor using 'cross-account-access' to authenticate aws-sdk
 func (c *ProviderAccountsController) StoreAccessKey(db *database.DB) http.HandlerFunc {
+	log_pa.SetName(c.Name() + ".StoreAccessKey")
 	return func(w http.ResponseWriter, r *http.Request) {
-		rw := middleware.RegisterResponses(w)
-		authenticatedUser, err := rw.User(db, r)
-		if err != nil {
-			logger.Logger.Error("ProviderAccountsController.StoreAccessKey: ERROR", err)
-			if errors.Is(err, custom_errors.NoDataFound) {
-				rw.Unauthorized()
-				return
-			}
-			rw.Forbidden()
-			return
-		}
+		rw := middleware.CustomResponseWriter(w)
+		authenticatedUser := rw.SessionUser
 		body, err := io.ReadAll(r.Body)
 		defer r.Body.Close()
 		if err != nil {
-			logger.Logger.Error("ProviderAccountsController.StoreAccessKey: Error reading request body:", err)
+			log_pa.Error("Error reading request body:", err)
 			rw.Error("Bad request", http.StatusBadRequest)
 			return
 		}
 		var request models.ProviderAccounts
 		if err := json.Unmarshal(body, &request); err != nil {
-			logger.Logger.Error("ProviderAccountsController.StoreAccessKey: Error parsing request body:", err)
+			log_pa.Error("Error parsing request body:", err)
 			rw.Error(custom_errors.UnknownError.Error(), http.StatusUnprocessableEntity)
 			return
 		}
@@ -61,13 +54,13 @@ func (c *ProviderAccountsController) StoreAccessKey(db *database.DB) http.Handle
 		}
 		isValidUUID := helpers.IsValidUUID(request.ProjectID.String())
 		if !isValidUUID {
-			logger.Logger.Error("ProviderAccountsController.StoreAccessKey: Invalid project ID provided", err)
+			log_pa.Error("Invalid project ID provided", err)
 			rw.Error("Invalid `projectId` of value uuid provided", http.StatusUnprocessableEntity)
 			return
 		}
 		projectData, err := projects_model.GetById(db, *request.ProjectID)
 		if err != nil {
-			logger.Logger.Error("ProviderAccountsController.StoreAccessKey: ERROR projectId", request.ProjectID, err)
+			log_pa.Error("ERROR projectId", request.ProjectID, err)
 			rw.Error("Please select a valid Project.", http.StatusNotFound)
 			return
 		}
@@ -79,7 +72,7 @@ func (c *ProviderAccountsController) StoreAccessKey(db *database.DB) http.Handle
 		before allowing them to create provider account.
 		*/
 		if *projectData.OwnerID != authenticatedUser.ID {
-			logger.Logger.Error("ProviderAccountsController.StoreAccessKey: ERROR project owner mismatch, Owner:", projectData.OwnerID, "AuthUser:", authenticatedUser.ID)
+			log_pa.Error("ERROR project owner mismatch, Owner:", projectData.OwnerID, "AuthUser:", authenticatedUser.ID)
 			rw.Error("Please contact your project owner to add Access Keys.", http.StatusForbidden)
 			return
 		}
@@ -89,13 +82,13 @@ func (c *ProviderAccountsController) StoreAccessKey(db *database.DB) http.Handle
 		*/
 		key, err := encryption.GenerateRandomSecretKey(16)
 		if err != nil {
-			logger.Logger.Error("ProviderAccountsController.StoreAccessKey: ERROR unable to generate secret key", err)
+			log_pa.Error("ERROR unable to generate secret key", err)
 			rw.Error("Something went wrong, Please try again later", http.StatusInternalServerError)
 			return
 		}
 		cipherText, err := encryption.Encrypt(request.AccessKeySecret, key)
 		if err != nil {
-			logger.Logger.Error("ProviderAccountsController.StoreAccessKey: ERROR unable to encrypt access key", err)
+			log_pa.Error("ERROR unable to encrypt access key", err)
 			rw.Error("Something went wrong, Please try again later", http.StatusInternalServerError)
 			return
 		}
@@ -103,7 +96,7 @@ func (c *ProviderAccountsController) StoreAccessKey(db *database.DB) http.Handle
 		request.RotationSecretKey = key
 		result, err := provider_models.Create(db, request)
 		if err != nil {
-			logger.Logger.Error("ProviderAccountsController.StoreAccessKey: ERROR unable to create data", err)
+			log_pa.Error("ERROR unable to create data", err)
 			rw.Error("Something went wrong, Please try again later", http.StatusInternalServerError)
 			return
 		}
@@ -113,22 +106,14 @@ func (c *ProviderAccountsController) StoreAccessKey(db *database.DB) http.Handle
 }
 
 func (c *ProviderAccountsController) GetById(db *database.DB) http.HandlerFunc {
+	log_pa.SetName(c.Name() + ".GetById")
 	return func(w http.ResponseWriter, r *http.Request) {
-		rw := middleware.RegisterResponses(w)
-		authenticatedUser, err := rw.User(db, r)
-		if err != nil {
-			logger.Logger.Error("ProviderAccountsController.GetById: ERROR", err)
-			if errors.Is(err, custom_errors.NoDataFound) {
-				rw.Unauthorized()
-				return
-			}
-			rw.Forbidden()
-			return
-		}
+		rw := middleware.CustomResponseWriter(w)
+		authenticatedUser := rw.SessionUser
 		id := mux.Vars(r)["id"]
 		isIDValidUUID := helpers.IsValidUUID(id)
 		if !isIDValidUUID {
-			logger.Logger.Error("ProviderAccountsController.GetById: Invalid provider account ID", err)
+			log_pa.Error("Invalid provider account ID")
 			rw.Error("Invalid provider account ID provided", http.StatusUnprocessableEntity)
 			return
 		}
@@ -141,13 +126,13 @@ func (c *ProviderAccountsController) GetById(db *database.DB) http.HandlerFunc {
 			ProviderAccountID: providerAccountId,
 		})
 		if verificationErr != nil {
-			logger.Logger.Error("ProviderAccountsController.GetById: Project verification failed", verificationErr)
+			log_pa.Error("Project verification failed", verificationErr)
 			rw.Error(verificationErr.Error(), http.StatusForbidden)
 			return
 		}
 		result, err := provider_models.GetById(db, providerAccountId)
 		if err != nil {
-			logger.Logger.Error("ProviderAccountsController.GetById: ERROR", err)
+			log_pa.Error("ERROR", err)
 			rw.Error("Unable to fetch accounts details", http.StatusInternalServerError)
 			return
 		}
@@ -165,18 +150,10 @@ func (c *ProviderAccountsController) GetById(db *database.DB) http.HandlerFunc {
 	For example: Permissions to view only 1 type of provider account (AWS, GCP)
 */
 func (c *ProviderAccountsController) GetByProject(db *database.DB) http.HandlerFunc {
+	log_pa.SetName(c.Name() + ".GetByProject")
 	return func(w http.ResponseWriter, r *http.Request) {
-		rw := middleware.RegisterResponses(w)
-		authenticatedUser, err := rw.User(db, r)
-		if err != nil {
-			logger.Logger.Error("ProviderAccountsController.GetByProject: ERROR", err)
-			if errors.Is(err, custom_errors.NoDataFound) {
-				rw.Unauthorized()
-				return
-			}
-			rw.Forbidden()
-			return
-		}
+		rw := middleware.CustomResponseWriter(w)
+		authenticatedUser := rw.SessionUser
 		projectId := r.URL.Query().Get("projectId")
 		if projectId == "" {
 			rw.Error("Invalid project ID", http.StatusBadRequest)
@@ -190,14 +167,14 @@ func (c *ProviderAccountsController) GetByProject(db *database.DB) http.HandlerF
 			ProjectID: projectId,
 		})
 		if err != nil {
-			logger.Logger.Error("ProviderAccountsController.GetByProject: invalid project uuid provided", err)
+			log_pa.Error("invalid project uuid provided", err)
 			rw.Error(err.Error(), http.StatusBadRequest)
 			return
 		}
-		logger.Logger.Log("ProviderAccountsController.GetByProject: fetching data for projectId:", project.ProjectAccessDetails.Projects.ID)
+		log_pa.Log("fetching data for projectId:", project.ProjectAccessDetails.Projects.ID)
 		result, err := provider_models.GetByProjectId(db, project.ProjectAccessDetails.Projects.ID)
 		if err != nil {
-			logger.Logger.Error("ProviderAccountsController.GetByProject: ERROR", err)
+			log_pa.Error("ERROR", err)
 			rw.Error("Unable to fetch provider accounts", http.StatusInternalServerError)
 			return
 		}
@@ -207,22 +184,14 @@ func (c *ProviderAccountsController) GetByProject(db *database.DB) http.HandlerF
 }
 
 func (c *ProviderAccountsController) UpdateProviderAccount(db *database.DB) http.HandlerFunc {
+	log_pa.SetName(c.Name() + ".UpdateProviderAccount")
 	return func(w http.ResponseWriter, r *http.Request) {
-		rw := middleware.RegisterResponses(w)
-		authenticatedUser, err := rw.User(db, r)
-		if err != nil {
-			logger.Logger.Error("ProviderAccountsController.UpdateProviderAccount: ERROR", err)
-			if errors.Is(err, custom_errors.NoDataFound) {
-				rw.Unauthorized()
-				return
-			}
-			rw.Forbidden()
-			return
-		}
+		rw := middleware.CustomResponseWriter(w)
+		authenticatedUser := rw.SessionUser
 		id := mux.Vars(r)["id"]
 		isIDValidUUID := helpers.IsValidUUID(id)
 		if !isIDValidUUID {
-			logger.Logger.Error("ProviderAccountsController.UpdateProviderAccount: Invalid provider account ID", err)
+			log_pa.Error("Invalid provider account ID")
 			rw.Error("Invalid provider account ID provided", http.StatusUnprocessableEntity)
 			return
 		}
@@ -234,7 +203,7 @@ func (c *ProviderAccountsController) UpdateProviderAccount(db *database.DB) http
 		body, err := io.ReadAll(r.Body)
 		defer r.Body.Close()
 		if err != nil {
-			logger.Logger.Error("ProviderAccountsController.UpdateProviderAccount: Error reading request body:", err)
+			log_pa.Error("Error reading request body:", err)
 			rw.Error("Bad request", http.StatusBadRequest)
 			return
 		}
@@ -246,7 +215,7 @@ func (c *ProviderAccountsController) UpdateProviderAccount(db *database.DB) http
 		*/
 		var request models.ProviderAccounts
 		if err := json.Unmarshal(body, &request); err != nil {
-			logger.Logger.Error("ProviderAccountsController.UpdateProviderAccount: Error parsing request body:", err)
+			log_pa.Error("Error parsing request body:", err)
 			rw.Error(custom_errors.UnknownError.Error(), http.StatusUnprocessableEntity)
 			return
 		}
@@ -254,7 +223,7 @@ func (c *ProviderAccountsController) UpdateProviderAccount(db *database.DB) http
 			ProviderAccountID: providerAccountId,
 		})
 		if err != nil {
-			logger.Logger.Error("ProviderAccountsController.UpdateProviderAccount: Project verification failed", err)
+			log_pa.Error("Project verification failed", err)
 			rw.Error(err.Error(), http.StatusForbidden)
 			return
 		}
@@ -266,7 +235,7 @@ func (c *ProviderAccountsController) UpdateProviderAccount(db *database.DB) http
 		before allowing them to create provider account.
 		*/
 		if *verifiedData.ProjectAccessDetails.OwnerID != authenticatedUser.ID {
-			logger.Logger.Error("ProviderAccountsController.UpdateProviderAccount: ERROR project owner mismatch, Owner:", verifiedData.ProjectAccessDetails.OwnerID, "AuthUser:", authenticatedUser.ID)
+			log_pa.Error("ERROR project owner mismatch, Owner:", verifiedData.ProjectAccessDetails.OwnerID, "AuthUser:", authenticatedUser.ID)
 			rw.Error("Please contact your project owner to edit provider account details.", http.StatusForbidden)
 			return
 		}

@@ -41,6 +41,7 @@ func reportMetrics(info sysinfo.SysInfo, usage ...Usage) {
 
 	jsonData, err := json.Marshal(data)
 	if err != nil {
+		fmt.Println("json.Marshal: error:", jsonData)
 		return
 	}
 

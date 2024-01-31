@@ -32,8 +32,11 @@ user := model.Users{
 }
 */
 
+var logu = logger.NewLogger()
+
 // For testing
 func (c *UsersController) CreateUser(db *database.DB) http.HandlerFunc {
+	logu.SetName(c.Name() + ".CreateUser")
 	return func(w http.ResponseWriter, r *http.Request) {
 		rw := middleware.RegisterResponses(w)
 		var (
@@ -44,14 +47,14 @@ func (c *UsersController) CreateUser(db *database.DB) http.HandlerFunc {
 			Username: username,
 			Email:    email,
 		}
-		logger.Logger.Log("Creating new user: ", user)
+		logu.Log("Creating new user: ", user)
 		result, err := users_model.Create(db, user)
 		if err != nil {
 			if errors.Is(err, custom_errors.UniqueConstraintViolation) {
 				rw.Error("Email already in use", http.StatusConflict)
 				return
 			}
-			logger.Logger.Error("UsersController.CreateUser: ERROR", err)
+			logu.Error("ERROR", err)
 			rw.Error(custom_errors.UnknownError.Error(), http.StatusBadRequest)
 			return
 		}
@@ -61,17 +64,18 @@ func (c *UsersController) CreateUser(db *database.DB) http.HandlerFunc {
 }
 
 func (c *UsersController) GetUserByEmail(db *database.DB) http.HandlerFunc {
+	logu.SetName(c.Name() + ".GetUserByEmail")
 	return func(w http.ResponseWriter, r *http.Request) {
 		rw := middleware.RegisterResponses(w)
 		email := "test@gmail.com"
-		logger.Logger.Log("Fetching user with email: ", email)
+		logu.Log("Fetching user with email: ", email)
 		result, err := users_model.GetByEmail(db, email)
 		if err != nil {
 			if errors.Is(err, custom_errors.NoDataFound) {
 				rw.Error(custom_errors.NoDataFound.Error(), http.StatusNotFound)
 				return
 			}
-			logger.Logger.Error("UsersController.GetUserByEmail: ERROR", err)
+			logu.Error("ERROR", err)
 			rw.Error(custom_errors.UnknownError.Error(), http.StatusBadRequest)
 			return
 		}

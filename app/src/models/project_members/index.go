@@ -19,7 +19,11 @@ func _create(db *database.DB, data models.ProjectMembers) (models.ProjectMembers
 		table.ProjectMembers.ProjectID,
 		table.ProjectMembers.UserID,
 		table.ProjectMembers.IsOwner,
-	).MODEL(data).RETURNING(table.ProjectMembers.AllColumns)
+		table.ProjectMembers.IsSystem,
+	).MODEL(data).RETURNING(table.ProjectMembers.ID, table.ProjectMembers.ProjectID,
+		table.ProjectMembers.UserID, table.ProjectMembers.IsOwner, table.ProjectMembers.IsActive,
+		table.ProjectMembers.Permissions, table.ProjectMembers.Metadata,
+		table.ProjectMembers.IsDeleted, table.ProjectMembers.CreatedAt, table.ProjectMembers.UpdatedAt)
 
 	queryString, args := stmt.Sql()
 	logger.Logger.Log("Inserting into Project Members table with data: ", queryString, args)
@@ -121,6 +125,7 @@ func _getMembersByProjectId(db *database.DB, projectId uuid.UUID) ([]models.Proj
 			table.ProjectMembers.UserID.EQ(table.Users.ID))).
 		WHERE(postgres.AND(
 			table.ProjectMembers.IsDeleted.EQ(postgres.Bool(false)),
+			table.ProjectMembers.IsSystem.EQ(postgres.Bool(false)),
 			table.ProjectMembers.ProjectID.EQ(postgres.UUID(projectId)),
 		)).ORDER_BY(table.ProjectMembers.CreatedAt.DESC())
 

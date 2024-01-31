@@ -1,6 +1,6 @@
 <script lang="ts">
   import { inviteProjectMember } from "$src/api/projectMembers";
-	import type { ProjectMemberApiProps } from "$src/customTypes/ProjectMembers";
+	import type { ProjectMemberApiProps } from "$src/customTypes/projectMembers";
   import AlertMessage from "../common/Alerts/AlertMessage.svelte";
   import Button from "../common/Button/Button.svelte";
   import Input from "../common/Input/Input.svelte";

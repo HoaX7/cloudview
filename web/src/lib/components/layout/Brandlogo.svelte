@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { FontSize } from "$src/customTypes/Typography";
+  import type { FontSize } from "$src/customTypes/typography";
     import Icon from "../common/Image/index.svelte";
   import Typography from "../common/Typography/Typography.svelte";
 

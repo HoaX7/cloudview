@@ -28,6 +28,7 @@ type projectMembersTable struct {
 	CreatedAt   postgres.ColumnTimestampz
 	UpdatedAt   postgres.ColumnTimestampz
 	DeletedAt   postgres.ColumnTimestampz
+	IsSystem    postgres.ColumnBool
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -79,8 +80,9 @@ func newProjectMembersTableImpl(schemaName, tableName, alias string) projectMemb
 		CreatedAtColumn   = postgres.TimestampzColumn("created_at")
 		UpdatedAtColumn   = postgres.TimestampzColumn("updated_at")
 		DeletedAtColumn   = postgres.TimestampzColumn("deleted_at")
-		allColumns        = postgres.ColumnList{IDColumn, ProjectIDColumn, UserIDColumn, IsOwnerColumn, IsActiveColumn, PermissionsColumn, MetadataColumn, IsDeletedColumn, CreatedAtColumn, UpdatedAtColumn, DeletedAtColumn}
-		mutableColumns    = postgres.ColumnList{ProjectIDColumn, UserIDColumn, IsOwnerColumn, IsActiveColumn, PermissionsColumn, MetadataColumn, IsDeletedColumn, CreatedAtColumn, UpdatedAtColumn, DeletedAtColumn}
+		IsSystemColumn    = postgres.BoolColumn("is_system")
+		allColumns        = postgres.ColumnList{IDColumn, ProjectIDColumn, UserIDColumn, IsOwnerColumn, IsActiveColumn, PermissionsColumn, MetadataColumn, IsDeletedColumn, CreatedAtColumn, UpdatedAtColumn, DeletedAtColumn, IsSystemColumn}
+		mutableColumns    = postgres.ColumnList{ProjectIDColumn, UserIDColumn, IsOwnerColumn, IsActiveColumn, PermissionsColumn, MetadataColumn, IsDeletedColumn, CreatedAtColumn, UpdatedAtColumn, DeletedAtColumn, IsSystemColumn}
 	)
 
 	return projectMembersTable{
@@ -98,6 +100,7 @@ func newProjectMembersTableImpl(schemaName, tableName, alias string) projectMemb
 		CreatedAt:   CreatedAtColumn,
 		UpdatedAt:   UpdatedAtColumn,
 		DeletedAt:   DeletedAtColumn,
+		IsSystem:    IsSystemColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,

@@ -5,6 +5,7 @@ package router
 
 import (
 	"cloudview/app/src/api/controllers"
+	"cloudview/app/src/api/middleware"
 	"cloudview/app/src/database"
 
 	"github.com/gorilla/mux"
@@ -18,6 +19,7 @@ func metricPanelsRouter(r *mux.Router, controller *controllers.MetricPanelsContr
 
 		If you want to serve both routes, need to duplicate urls
 	*/
-	subrouter.HandleFunc("", controller.CreateMetricPanel(db)).Methods("POST")
-	subrouter.HandleFunc("/{id}", controller.UpdateMetricPanel(db)).Methods("PATCH")
+	subrouter.HandleFunc("", middleware.Authenticate(controller.CreateMetricPanel(db), db)).Methods("POST")
+	subrouter.HandleFunc("/{id}", middleware.Authenticate(controller.UpdateMetricPanel(db), db)).Methods("PATCH")
+	subrouter.HandleFunc("", middleware.Authenticate(controller.GetPanels(db), db)).Methods("GET")
 }

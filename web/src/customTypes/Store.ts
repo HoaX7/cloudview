@@ -1,4 +1,4 @@
-import type { ConnectableNodeProps, TargetFromNodeProps } from "./Konva";
+import type { ConnectableNodeProps, TargetFromNodeProps } from "./konva";
 
 export type DatastoreProps = {
     selectedRegion: string;

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { SessionProps } from "$src/customTypes/User";
+	import type { SessionProps } from "$src/customTypes/user";
 	import Image from "$lib/components/common/Image/index.svelte";
 	import Typography from "../common/Typography/Typography.svelte";
 	import Button from "../common/Button/Button.svelte";
@@ -9,6 +9,7 @@
 	import Auth from "$src/store/auth";
 	import FullPageLoader from "../common/Loaders/FullPageLoader.svelte";
 	import Datastore from "$src/store/data";
+  import WindowEvents from "../common/Hooks/WindowEvents.svelte";
 
 	export let profile: SessionProps;
 	let showMenu = false;
@@ -18,12 +19,18 @@
 {#if saving}
 	<FullPageLoader />
 {/if}
+<!-- <WindowEvents callback={() => {
+	if (showMenu) showMenu = false;
+}} /> -->
 {#if profile?.id}
 	<div class="relative">
 		<Button
 			type="button"
 			classname="shadow flex items-center bg-white py-1 px-2 hover:bg-gray-200"
-			on:click={() => (showMenu = !showMenu)}
+			on:click={(e) => {
+				e.detail.stopPropagation();
+				showMenu = !showMenu;
+			}}
 		>
 			<Image class="rounded-full h-8 w-8" src={profile.avatarUrl} alt={profile.username} />
 			<Typography variant="span" weight="regular" font={16} classname="ml-3 truncate">

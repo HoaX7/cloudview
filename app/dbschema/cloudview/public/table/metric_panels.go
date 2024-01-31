@@ -26,6 +26,8 @@ type metricPanelsTable struct {
 	IsDeleted         postgres.ColumnBool
 	CreatedAt         postgres.ColumnTimestampz
 	UpdatedAt         postgres.ColumnTimestampz
+	HealthStatus      postgres.ColumnString
+	InstanceID        postgres.ColumnString
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -75,8 +77,10 @@ func newMetricPanelsTableImpl(schemaName, tableName, alias string) metricPanelsT
 		IsDeletedColumn         = postgres.BoolColumn("is_deleted")
 		CreatedAtColumn         = postgres.TimestampzColumn("created_at")
 		UpdatedAtColumn         = postgres.TimestampzColumn("updated_at")
-		allColumns              = postgres.ColumnList{IDColumn, NameColumn, DescriptionColumn, PanelsColumn, ProviderAccountIDColumn, MetadataColumn, IsDeletedColumn, CreatedAtColumn, UpdatedAtColumn}
-		mutableColumns          = postgres.ColumnList{NameColumn, DescriptionColumn, PanelsColumn, ProviderAccountIDColumn, MetadataColumn, IsDeletedColumn, CreatedAtColumn, UpdatedAtColumn}
+		HealthStatusColumn      = postgres.StringColumn("health_status")
+		InstanceIDColumn        = postgres.StringColumn("instance_id")
+		allColumns              = postgres.ColumnList{IDColumn, NameColumn, DescriptionColumn, PanelsColumn, ProviderAccountIDColumn, MetadataColumn, IsDeletedColumn, CreatedAtColumn, UpdatedAtColumn, HealthStatusColumn, InstanceIDColumn}
+		mutableColumns          = postgres.ColumnList{NameColumn, DescriptionColumn, PanelsColumn, ProviderAccountIDColumn, MetadataColumn, IsDeletedColumn, CreatedAtColumn, UpdatedAtColumn, HealthStatusColumn, InstanceIDColumn}
 	)
 
 	return metricPanelsTable{
@@ -92,6 +96,8 @@ func newMetricPanelsTableImpl(schemaName, tableName, alias string) metricPanelsT
 		IsDeleted:         IsDeletedColumn,
 		CreatedAt:         CreatedAtColumn,
 		UpdatedAt:         UpdatedAtColumn,
+		HealthStatus:      HealthStatusColumn,
+		InstanceID:        InstanceIDColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,

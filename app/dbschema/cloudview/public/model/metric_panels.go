@@ -22,4 +22,6 @@ type MetricPanels struct {
 	IsDeleted         *bool
 	CreatedAt         *time.Time
 	UpdatedAt         *time.Time
+	HealthStatus      *HealthStatus
+	InstanceID        string
 }

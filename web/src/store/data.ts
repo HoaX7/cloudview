@@ -3,7 +3,7 @@
  * and selected services information.
  */
 
-import type { DatastoreProps } from "$src/customTypes/Store";
+import type { DatastoreProps } from "$src/customTypes/store";
 import type { Writable } from "svelte/store";
 import storable from ".";
 

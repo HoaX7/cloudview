@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { LambdaFunctionProps } from "$src/customTypes/Services";
+  import type { LambdaFunctionProps } from "$src/customTypes/ervices;
   import { createEventDispatcher, onMount } from "svelte";
   import Datastore from "$src/store/data";
   import { delay } from "$src/helpers";
@@ -12,7 +12,7 @@
   import type Konva from "konva";
   import { COLOR_SCHEME } from "$src/colorConfig";
   import type { GroupConfig } from "konva/lib/Group";
-  import type { HighLightProps } from "$src/customTypes/Konva";
+  import type { HighLightProps } from "$src/customTypes/konva";
   import { getImageRect } from "../shapeCache";
   import ServiceGroupWithLabel from "../ServiceGroupWithLabel.svelte";
   import PreviewData from "../../views/previewData.svelte";

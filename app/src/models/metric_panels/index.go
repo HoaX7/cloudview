@@ -19,13 +19,17 @@ func _create(db *database.DB, data models.MetricPanels) (models.MetricPanels, er
 		table.MetricPanels.Name,
 		table.MetricPanels.Panels,
 		table.MetricPanels.ProviderAccountID,
+		table.MetricPanels.InstanceID,
 	}
 	if data.Description != nil {
 		columnList = append(columnList, table.MetricPanels.Description)
 	}
 
 	stmt := table.MetricPanels.INSERT(columnList).MODEL(data).
-		RETURNING(table.MetricPanels.AllColumns)
+		RETURNING(table.MetricPanels.ID, table.MetricPanels.Name, table.MetricPanels.Description,
+			table.MetricPanels.Panels, table.MetricPanels.ProviderAccountID,
+			table.MetricPanels.Metadata, table.MetricPanels.HealthStatus, table.MetricPanels.InstanceID,
+			table.MetricPanels.IsDeleted, table.MetricPanels.CreatedAt, table.MetricPanels.UpdatedAt)
 
 	queryString, args := stmt.Sql()
 	logger.Logger.Log("Inserting into Metric Panels table with data: ", queryString, args)
@@ -41,6 +45,7 @@ func _create(db *database.DB, data models.MetricPanels) (models.MetricPanels, er
 			&result.Name, &result.Description,
 			&result.Panels, &result.ProviderAccountID,
 			&result.Metadata,
+			&result.HealthStatus, &result.InstanceID,
 			&result.IsDeleted,
 			&result.CreatedAt,
 			&result.UpdatedAt); err != nil {

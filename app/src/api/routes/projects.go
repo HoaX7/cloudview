@@ -2,6 +2,7 @@ package router
 
 import (
 	"cloudview/app/src/api/controllers"
+	"cloudview/app/src/api/middleware"
 	"cloudview/app/src/database"
 
 	"github.com/gorilla/mux"
@@ -10,8 +11,8 @@ import (
 func projectsRouter(r *mux.Router, controller *controllers.ProjectsController, db *database.DB) {
 	subrouter := r.PathPrefix("/projects").Subrouter()
 
-	subrouter.HandleFunc("", controller.CreateProject(db)).Methods("POST")
-	subrouter.HandleFunc("", controller.GetProject(db)).Methods("GET")
-	subrouter.HandleFunc("/{id}", controller.GetProjectById(db)).Methods("GET")
-	subrouter.HandleFunc("/{id}", controller.Update(db)).Methods("PATCH")
+	subrouter.HandleFunc("", middleware.Authenticate(controller.CreateProject(db), db)).Methods("POST")
+	subrouter.HandleFunc("", middleware.Authenticate(controller.GetProject(db), db)).Methods("GET")
+	subrouter.HandleFunc("/{id}", middleware.Authenticate(controller.GetProjectById(db), db)).Methods("GET")
+	subrouter.HandleFunc("/{id}", middleware.Authenticate(controller.Update(db), db)).Methods("PATCH")
 }

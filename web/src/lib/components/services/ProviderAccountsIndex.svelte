@@ -5,7 +5,7 @@
   import Icon from "../common/Image/index.svelte";
   import PageNavButtons from "../common/Navigation/PageNavButtons.svelte";
   import EditService from "./CreateEditProviderAccount.svelte";
-  import type { ProjectProps } from "$src/customTypes/Projects";
+  import type { ProjectProps } from "$src/customTypes/projects";
   import auth from "$src/store/auth";
   import Datastore from "$src/store/data";
   import { DEFAULT_REGION } from "$src/helpers/constants";
@@ -16,7 +16,7 @@
   import DeleteProject from "./DeleteProject.svelte";
   import { clone } from "$src/helpers";
   import AlertMessage from "../common/Alerts/AlertMessage.svelte";
-  import type { ProviderAccountProps } from "$src/customTypes/ProviderAccounts";
+  import type { ProviderAccountProps } from "$src/customTypes/providerAccounts";
   import { editProviderAccount } from "$src/api/providerAccounts";
 
   export let project: ProjectProps;
@@ -145,7 +145,7 @@
               <Icon
                 src="/assets/images/view.svg"
                 alt="add"
-                width="18"
+                width="24"
                 class="inline-block mx-1"
               /> Manage Members
             </Button>
@@ -203,11 +203,11 @@
                 	state.showModal = true;
                 }}
               >
-                <Icon src="/assets/images/edit.svg" width="18" alt="edit" />
+                <Icon src="/assets/images/edit.svg" width="24" alt="edit" />
               </button>
             {/if}
             <a
-              class="ml-3"
+              class="ml-2"
               href={`/cloud/${(item.provider || "").toLowerCase()}?providerAccountId=${
               	item.id
               }&projectId=${project.id}&region=${$datastore.selectedRegion}`}
@@ -221,7 +221,7 @@
               	$datastore = res;
               }}
             >
-              <Icon src="/assets/images/view.svg" width="18" alt="view" />
+              <Icon src="/assets/images/view.svg" width="24" alt="view" />
             </a>
             {#if $user?.id === project.ownerId}
               <div class="ml-2 mt-2">

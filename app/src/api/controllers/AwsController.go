@@ -23,7 +23,7 @@ func GetAwsUsageData(db *database.DB) func(*http.Request, models.ProviderAccount
 		}
 		accessKeySecret, err := encryption.Decrypt(providerAccount.AccessKeySecret, providerAccount.RotationSecretKey)
 		if err != nil {
-			logger.Logger.Error("Invalid provider access-key-secret", err)
+			logger.Logger.Error("GetAwsUsageData: Invalid provider access-key-secret", err)
 			return nil, errors.New("Invalid provider secret")
 		}
 		client.Init(providerAccount.AccessKeyID, accessKeySecret, region)

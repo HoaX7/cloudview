@@ -1,4 +1,4 @@
-import type { MetricDataReturnType } from "$src/customTypes/Services";
+import type { ResourceDataReturnType } from "$src/customTypes/services";
 import KonvaStore from "$src/store/konva";
 import {
 	AWS_EXTERNAL_SERVICES,
@@ -7,7 +7,7 @@ import {
 } from "./constants";
 import { getProportions } from "./konva";
 
-export const precomputeBorder = (data: MetricDataReturnType) => {
+export const precomputeBorder = (data: ResourceDataReturnType) => {
 	const konvastore = KonvaStore;
 	const internalBoundingRect = computeDimensions(
 		data.filter((d: any) => AWS_INTERNAL_SERVICES.includes(d.name)),
@@ -44,7 +44,7 @@ export const precomputeBorder = (data: MetricDataReturnType) => {
 	});
 };
 const computeDimensions = (
-	data: MetricDataReturnType,
+	data: ResourceDataReturnType,
 	type: "internal" | "external"
 ) => {
 	const imageWidth = 100;

@@ -1,4 +1,4 @@
-import type { PathPoint, Points } from "$src/customTypes/Konva";
+import type { PathPoint, Points } from "$src/customTypes/konva";
 import { NODE_POSITIONS } from "../constants";
 
 const DEFAULT_CONTROL_POINTS = {

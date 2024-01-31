@@ -3,7 +3,7 @@
  * bounding rectangle backgrounds for services.
  */
 
-import type { SettingStoreProps } from "$src/customTypes/Store";
+import type { SettingStoreProps } from "$src/customTypes/store";
 import type { Writable } from "svelte/store";
 import storable from ".";
 

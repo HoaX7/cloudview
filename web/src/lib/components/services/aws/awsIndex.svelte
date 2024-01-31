@@ -9,8 +9,8 @@
   	ApiGatewayV2Props,
   	ApiGatewayWithIntegrationProps,
   	GroupedData,
-  	MetricDataReturnType,
-  } from "$src/customTypes/Services";
+  	ResourceDataReturnType,
+  } from "$src/customTypes/ervices;
   import { AWS_EXTERNAL_SERVICES, AWS_INTERNAL_SERVICES, AWS_SERVICES } from "$src/helpers/constants";
   import { createEventDispatcher } from "svelte";
   import ApigatewayV2 from "./apigateway/apigatewayV2.svelte";
@@ -24,15 +24,15 @@
   import Rds from "./rds/rds.svelte";
   import Route53 from "./route53/route53.svelte";
   import S3Bucket from "./s3/s3Bucket.svelte";
-  import type { HighLightProps, LegendProps, TargetFromNodeProps } from "$src/customTypes/Konva";
+  import type { HighLightProps, LegendProps, TargetFromNodeProps } from "$src/customTypes/konva";
   import GroupIndex from "../views/groupIndex.svelte";
   import { reorderAwsServices } from "$src/helpers";
-  import { getMetricData } from "$src/api/services";
+  import { getResourceData } from "$src/api/services";
   import { getApiGatewayIntegrations } from "$src/api/aws";
   import { stripIntegrationUriIp } from "$src/helpers/konva/index";
   import { precomputeBorder } from "$src/helpers/aws";
 
-  export let result: MetricDataReturnType;
+  export let result: ResourceDataReturnType;
   export let projectId: string;
   export let providerAccountId: string;
   export let region: string;
@@ -68,7 +68,7 @@
   	AWS_SERVICES.ELBV2,
   ] as string[];
 
-  const groupResult = (result: MetricDataReturnType) => {
+  const groupResult = (result: ResourceDataReturnType) => {
   	const data = result.reduce(
   		(acc, r) => {
   			if (externalServices.includes(r.name)) {
@@ -102,7 +102,7 @@
   	try {
   		setLoading(true);
   		remount = false;
-  		const resp = await getMetricData({
+  		const resp = await getResourceData({
   			projectId,
   			providerAccountId,
   			region,
@@ -154,7 +154,7 @@
   	remount = true;
   };
 
-  const _result = (item: MetricDataReturnType[0]) => item.result as any;
+  const _result = (item: ResourceDataReturnType[0]) => item.result as any;
 </script>
 
 {#if remount}

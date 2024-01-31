@@ -1,5 +1,3 @@
-import type { ServiceProps } from "./Services";
-
 export type ProjectProps = {
     id: string;
     name: string;
@@ -18,5 +16,4 @@ export type ProjectProps = {
 
 export type ProjectWithServiceProps = {
 	project: ProjectProps;
-	service: ServiceProps;
 };

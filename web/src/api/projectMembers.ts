@@ -1,4 +1,4 @@
-import type { ProjectMemberApiProps } from "$src/customTypes/ProjectMembers";
+import type { ProjectMemberApiProps } from "$src/customTypes/projectMembers";
 import {
 	requester,
 	type ApiResponsePromise,

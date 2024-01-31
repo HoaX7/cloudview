@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { MetricDataReturnType, } from "$src/customTypes/Services";
+  import type { ResourceDataReturnType, } from "$src/customTypes/ervices;
   import Datastore from "$src/store/data";
   import InfiniteCanvas from "../common/KonvaCanvas/Canvas.svelte";
   import { clone, debounce, uniqueArray } from "$src/helpers";
@@ -9,14 +9,14 @@
   	HighLightProps,
   	LegendProps,
   	TargetFromNodeProps,
-  } from "$src/customTypes/Konva";
+  } from "$src/customTypes/konva";
   import AwsIndex from "./aws/awsIndex.svelte";
   import type Konva from "konva";
   import UserConnection from "./views/userConnection.svelte";
   import PageNavButtons from "../common/Navigation/PageNavButtons.svelte";
 
   // Contains ec2, dynamodb etc objects.
-  export let result: MetricDataReturnType;
+  export let result: ResourceDataReturnType;
   export let projectId: string;
   export let providerAccountId: string;
   export let region: string;

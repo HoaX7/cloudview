@@ -1,4 +1,4 @@
-import type { SessionProps } from "$src/customTypes/User";
+import type { SessionProps } from "$src/customTypes/user";
 import storable from "./index";
 import type { Writable } from "svelte/store";
 

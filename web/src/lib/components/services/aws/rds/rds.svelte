@@ -9,7 +9,7 @@
   import { delay } from "$src/helpers";
   import { getProportions, truncateResourceLabel } from "$src/helpers/konva/index";
   import { COLOR_SCHEME } from "$src/colorConfig";
-  import type { HighLightProps, LegendProps } from "$src/customTypes/Konva";
+  import type { HighLightProps, LegendProps } from "$src/customTypes/konva";
   import { LEGEND_NAMES } from "$src/helpers/constants";
   import type { GroupConfig } from "konva/lib/Group";
   import { getImageRect } from "../shapeCache";

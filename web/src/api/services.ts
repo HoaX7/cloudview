@@ -1,15 +1,15 @@
-import type { MetricDataReturnType } from "$src/customTypes/Services";
+import type { ResourceDataReturnType } from "$src/customTypes/services";
 import {
 	requester,
 	type ApiResponsePromise,
 	type RequestHeaders,
 } from "$src/helpers/requester";
 
-export const getMetricData = async (params: {
+export const getResourceData = async (params: {
     providerAccountId: string;
     projectId: string;
     region: string;
-}, headers?: { cookie?: string }): ApiResponsePromise<MetricDataReturnType> => {
+}, headers?: { cookie?: string }): ApiResponsePromise<ResourceDataReturnType> => {
 	return requester({
 	    url: "/services/getData",
 	    data: params,

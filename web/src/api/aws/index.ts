@@ -1,4 +1,4 @@
-import type { ApiGatewayV2IntegrationProps, UsageProps } from "$src/customTypes/Services";
+import type { ApiGatewayV2IntegrationProps, UsageProps } from "$src/customTypes/services";
 import {
 	requester,
 	type ApiResponsePromise,

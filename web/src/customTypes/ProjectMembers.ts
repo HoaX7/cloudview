@@ -1,4 +1,4 @@
-import type { UserProps } from "./User";
+import type { UserProps } from "./user";
 
 export type ProjectMemberProps = {
     id: string;

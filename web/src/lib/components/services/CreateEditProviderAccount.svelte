@@ -9,7 +9,7 @@
   import clsx from "clsx";
   import FormButtons from "../common/Modal/formButtons.svelte";
   import { createProviderAccount, editProviderAccount } from "$src/api/providerAccounts";
-  import type { ProviderAccountProps } from "$src/customTypes/ProviderAccounts";
+  import type { ProviderAccountProps } from "$src/customTypes/providerAccounts";
 
   export let selectedService: ProviderAccountProps | null;
   export let isCreate = false;

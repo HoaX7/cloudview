@@ -26,6 +26,7 @@ type HttpResponseWriter interface {
 type HttpResponseWriterImpl struct {
 	http.ResponseWriter
 	ErrorMessage string
+	SessionUser  *types.SessionUser
 }
 
 func (rw HttpResponseWriterImpl) Success(data interface{}, status int) {
@@ -48,7 +49,7 @@ func (rw HttpResponseWriterImpl) Error(message string, status int) {
 	json.NewEncoder(rw).Encode(response)
 }
 
-func (rw HttpResponseWriterImpl) Forbidden() {
+func (rw *HttpResponseWriterImpl) Forbidden() {
 	msg := rw.ErrorMessage
 	if msg == "" {
 		msg = "You are not allowed to perform this action"
@@ -68,7 +69,7 @@ func (rw HttpResponseWriterImpl) NotFound() {
 /*
 Fetch user data from cookie
 */
-func (rw HttpResponseWriterImpl) User(db *database.DB, r *http.Request) (*types.SessionUser, error) {
+func (rw *HttpResponseWriterImpl) User(db *database.DB, r *http.Request) (*types.SessionUser, error) {
 	logger.Logger.Log("fetching user from jwt auth token")
 	token, err := authentication.GetAuthToken(r)
 	if err != nil {
@@ -91,12 +92,33 @@ func (rw HttpResponseWriterImpl) User(db *database.DB, r *http.Request) (*types.
 		}
 		return nil, err
 	}
+	rw.SessionUser = result
 	return result, nil
 }
 
+func Authenticate(next http.Handler, db *database.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		rw := RegisterResponses(w)
+		_, err := rw.User(db, r)
+		if err != nil {
+			if errors.Is(err, custom_errors.NoDataFound) {
+				rw.Unauthorized()
+				return
+			}
+			logger.Logger.Error("authentication.Authenticate: ERROR", err)
+			rw.Forbidden()
+			return
+		}
+		next.ServeHTTP(rw, r)
+	}
+}
+
 func RegisterResponses(w http.ResponseWriter) *HttpResponseWriterImpl {
-	resp := HttpResponseWriterImpl{w, ""}
-	return &resp
+	return &HttpResponseWriterImpl{w, "", nil}
+}
+
+func CustomResponseWriter(w http.ResponseWriter) *HttpResponseWriterImpl {
+	return w.(*HttpResponseWriterImpl)
 }
 
 func PanicOnError(err error) {

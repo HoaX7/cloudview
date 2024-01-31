@@ -6,10 +6,10 @@
   import Text from "../../../common/KonvaCanvas/Text.svelte";
   import Datastore from "$src/store/data";
   import Ec2Data from "./ec2Data.svelte";
-  import type { Ec2Props } from "$src/customTypes/Services";
+  import type { Ec2Props } from "$src/customTypes/ervices;
   import { getProportions } from "$src/helpers/konva/index";
   import { LEGEND_NAMES, STATUS_COLORS } from "$src/helpers/constants";
-  import type { HighLightProps, LegendProps } from "$src/customTypes/Konva";
+  import type { HighLightProps, LegendProps } from "$src/customTypes/konva";
   import { COLOR_SCHEME } from "$src/colorConfig";
   import type { GroupConfig } from "konva/lib/Group";
   import { getImageRect } from "../shapeCache";

@@ -1,5 +1,5 @@
 import { getProviderAccountsByProjectId } from "$src/api/providerAccounts";
-import type { ProviderAccountProps } from "$src/customTypes/ProviderAccounts";
+import type { ProviderAccountProps } from "$src/customTypes/providerAccounts";
 import { COOKIE_NAME } from "$src/helpers/constants";
 import type { PageServerLoad } from "./$types";
 

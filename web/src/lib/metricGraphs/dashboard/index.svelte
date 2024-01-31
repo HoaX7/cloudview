@@ -1,10 +1,15 @@
 <script lang="ts">
-  import type { MetricDataReturnType } from "$src/customTypes/Services";
+  import type { ResourceDataReturnType } from "$src/customTypes/services";
   import Icon from "$lib/components/common/Image/index.svelte";
 
 
-    export let resourceList: MetricDataReturnType = [];
+    export let resourceList: ResourceDataReturnType = [];
     export let data: any;
+
+    console.log({
+    	data,
+    	resourceList 
+    });
 </script>
 
 <div class="mt-5">

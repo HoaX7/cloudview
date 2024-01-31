@@ -2,7 +2,7 @@
   import { onMount, afterUpdate, onDestroy } from "svelte";
   import type { ChartType, DefaultDataPoint } from "chart.js";
   import { Chart as ChartJS, Legend } from "chart.js";
-  import type { ChartBaseProps } from "$src/customTypes/Chart";
+  import type { ChartBaseProps } from "$src/customTypes/chart";
 
   interface $$Props<
     TType extends ChartType = ChartType,

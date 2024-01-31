@@ -3,7 +3,7 @@ import isEqual from "lodash/isEqual";
 import uniqueWith from "lodash/uniqWith";
 import cloneDeep from "lodash/cloneDeep";
 import groupBy from "lodash/groupBy";
-import type { MetricDataReturnType } from "$src/customTypes/Services";
+import type { ResourceDataReturnType } from "$src/customTypes/services";
 
 export const isBrowser = () => typeof window !== "undefined";
 
@@ -55,10 +55,10 @@ export const reorderArray = <T>(array: T[], priorityOrder: any[]) => {
 };
 
 export const reorderAwsServices = (
-	array: MetricDataReturnType,
+	array: ResourceDataReturnType,
 	order: string[]
 ) => {
-	const temp = [] as MetricDataReturnType;
+	const temp = [] as ResourceDataReturnType;
 	order.forEach((name) => {
 		const idx = array.findIndex((it) => it.name === name);
 		if (idx >= 0) temp.push(array[idx]);

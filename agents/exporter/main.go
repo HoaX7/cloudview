@@ -28,15 +28,19 @@ func main() {
 				msg := fmt.Sprintf("Cpu Usage: %d%%", usage)
 				logging.Log(msg)
 
+				memUsage := memory.RefreshMemoryUsage()
+				msg = fmt.Sprintf("Memory Usage: %d%%", memUsage)
+				logging.Log(msg)
+
 				// send usage data to cloudview backend
 				if staticConfig.Reporting {
 					cpuUsage := &Usage{
 						Type:    "cpu",
-						Percent: int(cpu.GetCpuUsage()),
+						Percent: int(usage),
 					}
 					memUsage := &Usage{
 						Type:    "ram",
-						Percent: int(memory.RefreshMemoryUsage()),
+						Percent: memUsage,
 					}
 					sysinfo.Timestamp = tm
 					go reportMetrics(sysinfo, *cpuUsage, *memUsage)
