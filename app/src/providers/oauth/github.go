@@ -38,37 +38,6 @@ func (g Github) Login() (*types.ProviderUser, error) {
 	return user, nil
 }
 
-func (g Github) getAccessToken(clientId string, clientSecret string) (string, error) {
-	queryParams := "?client_id=" + clientId + "&client_secret=" + clientSecret + "&code=" + g.Code
-	headers := map[string]string{
-		"Accept": "application/json",
-	}
-
-	logger.Logger.Log("github.getAccessToken: fetch access_token starting")
-	// Data returned by github api is map[string]
-	var target map[string]interface{}
-	if err := requester.MakeRequest(accessTokenUrl+queryParams, "", "POST", &target, requester.WithHeaders(headers)); err != nil {
-		return "", err
-	}
-	/*
-		Manually handling error from github api.
-		This is required as the api does not return errors but 200 status code
-		even if there are errors with the code.
-
-		The issue is currently active on github
-		https://github.com/orgs/community/discussions/57068
-	*/
-	if _, err := target["error"]; err {
-		description := target["error_description"].(string)
-		return "", errors.New(description)
-	}
-
-	// Bearer token, use in Authorization headers to retrieve user data
-	accessToken := target["access_token"].(string)
-	logger.Logger.Log("github.getAccessToken: success", target)
-	return accessToken, nil
-}
-
 func (g Github) GetUserData(accessToken string) (*types.ProviderUser, error) {
 	var user types.GithubUser
 	headers := map[string]string{
@@ -111,6 +80,37 @@ func (g Github) GetUserData(accessToken string) (*types.ProviderUser, error) {
 	result.AccessToken = accessToken
 	logger.Logger.Log("github.getUserData: user authenticated:", result)
 	return &result, nil
+}
+
+func (g Github) getAccessToken(clientId string, clientSecret string) (string, error) {
+	queryParams := "?client_id=" + clientId + "&client_secret=" + clientSecret + "&code=" + g.Code
+	headers := map[string]string{
+		"Accept": "application/json",
+	}
+
+	logger.Logger.Log("github.getAccessToken: fetch access_token starting")
+	// Data returned by github api is map[string]
+	var target map[string]interface{}
+	if err := requester.MakeRequest(accessTokenUrl+queryParams, "", "POST", &target, requester.WithHeaders(headers)); err != nil {
+		return "", err
+	}
+	/*
+		Manually handling error from github api.
+		This is required as the api does not return errors but 200 status code
+		even if there are errors with the code.
+
+		The issue is currently active on github
+		https://github.com/orgs/community/discussions/57068
+	*/
+	if _, err := target["error"]; err {
+		description := target["error_description"].(string)
+		return "", errors.New(description)
+	}
+
+	// Bearer token, use in Authorization headers to retrieve user data
+	accessToken := target["access_token"].(string)
+	logger.Logger.Log("github.getAccessToken: success", target)
+	return accessToken, nil
 }
 
 /*

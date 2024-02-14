@@ -14,6 +14,24 @@ import (
 	"github.com/google/uuid"
 )
 
+func _bulkInsert(db *database.DB, data []models.ProjectMembers) error {
+	stmt := table.ProjectMembers.INSERT(
+		table.ProjectMembers.ProjectID,
+		table.ProjectMembers.UserID,
+		table.ProjectMembers.IsOwner,
+		table.ProjectMembers.IsSystem,
+	).MODEL(data)
+
+	queryString, args := stmt.Sql()
+	logger.Logger.Log("Bulk Inserting into Project Members table with data: ", queryString, args)
+	_, err := db.Postgres.Query(queryString, args...)
+	if err != nil {
+		logger.Logger.Error("models.project_members._bulkInsert: ERROR", err)
+		return custom_errors.DBErrors(err)
+	}
+	return nil
+}
+
 func _create(db *database.DB, data models.ProjectMembers) (models.ProjectMembers, error) {
 	stmt := table.ProjectMembers.INSERT(
 		table.ProjectMembers.ProjectID,
@@ -31,7 +49,7 @@ func _create(db *database.DB, data models.ProjectMembers) (models.ProjectMembers
 	result := models.ProjectMembers{}
 	rows, err := db.Postgres.Query(queryString, args...)
 	if err != nil {
-		logger.Logger.Error("models.project_members.Create: ERROR", err)
+		logger.Logger.Error("models.project_members._create: ERROR", err)
 		return result, custom_errors.DBErrors(err)
 	}
 	if rows.Next() {
@@ -43,7 +61,7 @@ func _create(db *database.DB, data models.ProjectMembers) (models.ProjectMembers
 			&result.CreatedAt,
 			&result.UpdatedAt); err != nil {
 
-			logger.Logger.Error("models.project_members.Create: ERROR", err)
+			logger.Logger.Error("models.project_members._create: ERROR", err)
 			return result, err
 		}
 	}
@@ -58,7 +76,7 @@ func _getByIdAndUserId(db *database.DB, id uuid.UUID, userId uuid.UUID) (models.
 			table.ProjectMembers.UserID.EQ(postgres.UUID(userId)),
 		))
 
-	logger.Logger.Log("models.project_members.GetByIdAndUserId", stmt.DebugSql())
+	logger.Logger.Log("models.project_members._getByIdAndUserId", stmt.DebugSql())
 	var result models.ProjectMembers
 	if err := stmt.Query(db.Postgres, &result); err != nil {
 		if errors.Is(err, qrm.ErrNoRows) {
@@ -78,7 +96,7 @@ func _getProjectsByUserId(db *database.DB, userId uuid.UUID) ([]models.Projects,
 			table.Projects.IsDeleted.EQ(postgres.Bool(false)),
 		))
 
-	logger.Logger.Log("models.project_members.GetProjectsByUserId", stmt.DebugSql())
+	logger.Logger.Log("models.project_members._getProjectsByUserId", stmt.DebugSql())
 	var result []models.Projects
 	if err := stmt.Query(db.Postgres, &result); err != nil {
 		if errors.Is(err, qrm.ErrNoRows) {
@@ -93,7 +111,7 @@ func _getProjectsByUserId(db *database.DB, userId uuid.UUID) ([]models.Projects,
 // This function is used to verify project members.
 func _getProjectByIdAndUserId(db *database.DB, id uuid.UUID, userId uuid.UUID) (models.ProjectAccessDetails, error) {
 	stmt := table.Projects.SELECT(table.Projects.ID, table.Projects.Name,
-		table.Projects.OwnerID, table.ProjectMembers.Permissions).
+		table.Projects.OwnerID, table.Projects.Email, table.ProjectMembers.Permissions).
 		FROM(table.Projects.LEFT_JOIN(table.ProjectMembers, table.ProjectMembers.ProjectID.EQ(table.Projects.ID))).
 		WHERE(postgres.AND(
 			table.ProjectMembers.UserID.EQ(postgres.UUID(userId)),
@@ -102,10 +120,10 @@ func _getProjectByIdAndUserId(db *database.DB, id uuid.UUID, userId uuid.UUID) (
 			table.ProjectMembers.ProjectID.EQ(postgres.UUID(id)),
 		))
 
-	logger.Logger.Log("models.project_members.GetProjectByIdAndUserId", stmt.DebugSql())
+	logger.Logger.Log("models.project_members._getProjectByIdAndUserId", stmt.DebugSql())
 	var result models.ProjectAccessDetails
 	if err := stmt.Query(db.Postgres, &result); err != nil {
-		logger.Logger.Error("models.project_members.GetProjectByIdAndUserId: ERROR", err)
+		logger.Logger.Error("models.project_members._getProjectByIdAndUserId: ERROR", err)
 		if errors.Is(err, qrm.ErrNoRows) {
 			return result, custom_errors.NoDataFound
 		}
@@ -129,10 +147,10 @@ func _getMembersByProjectId(db *database.DB, projectId uuid.UUID) ([]models.Proj
 			table.ProjectMembers.ProjectID.EQ(postgres.UUID(projectId)),
 		)).ORDER_BY(table.ProjectMembers.CreatedAt.DESC())
 
-	logger.Logger.Log("models.project_members.GetMembersByProjectId", stmt.DebugSql())
+	logger.Logger.Log("models.project_members._getMembersByProjectId", stmt.DebugSql())
 	var result []models.ProjectMembersWithUserInfo
 	if err := stmt.Query(db.Postgres, &result); err != nil {
-		logger.Logger.Error("models.project_members.GetMembersByProjectId: ERROR", err)
+		logger.Logger.Error("models.project_members._getMembersByProjectId: ERROR", err)
 		if errors.Is(err, qrm.ErrNoRows) {
 			return result, custom_errors.NoDataFound
 		}
@@ -153,16 +171,16 @@ func _update(db *database.DB, id uuid.UUID, data models.ProjectMembers) error {
 	}
 
 	if len(columnsList) <= 0 {
-		logger.Logger.Log("models.project_members.Update: nothing to update")
+		logger.Logger.Log("models.project_members._update: nothing to update")
 		return nil
 	}
 	stmt := table.ProjectMembers.UPDATE(columnsList).
 		MODEL(data).WHERE(table.ProjectMembers.ID.EQ(postgres.UUID(id)))
 
-	logger.Logger.Log("models.project_members.Update: updating", stmt.DebugSql())
+	logger.Logger.Log("models.project_members._update: updating", stmt.DebugSql())
 	_, err := stmt.Exec(db.Postgres)
 	if err != nil {
-		logger.Logger.Error("models.project_members.Update: ERROR", err)
+		logger.Logger.Error("models.project_members._update: ERROR", err)
 		return custom_errors.DBErrors(err)
 	}
 

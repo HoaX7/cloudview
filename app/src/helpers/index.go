@@ -7,13 +7,13 @@ import (
 	"github.com/google/uuid"
 )
 
-func IsValidUUID(u string) bool {
+func IsValidUUID(u string) (bool, *uuid.UUID) {
 	// Invalid uuid, this uuid is set by default if no value is sent
 	if u == "00000000-0000-0000-0000-000000000000" {
-		return false
+		return false, nil
 	}
-	_, err := uuid.Parse(u)
-	return err == nil
+	uuid, err := uuid.Parse(u)
+	return err == nil, &uuid
 }
 
 func IsDummyUUID(u uuid.UUID) bool {

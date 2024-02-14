@@ -16,6 +16,10 @@
   	error: "",
   };
 
+  /**
+   * NOTE: If the `project` object was already fetched in the previous component
+   * we can simply store the object in a `history` state.
+  */
   onMount(async () => {
   	if (project.id !== data.projectId) {
   		try {
@@ -23,6 +27,7 @@
   			const result = await getProjectById({ id: data.projectId });
   			if (result.error || !result.data) throw result;
   			project = result.data;
+  			history.replaceState(project, "");
   		} catch (err) {
   			console.error("Unable to fetch project", err);
   			state.error = "Unable to fetch project";

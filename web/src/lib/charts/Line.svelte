@@ -10,6 +10,7 @@
   	PointElement,
   	Filler,
   	Tooltip,
+  	TimeScale,
   } from "chart.js";
   import Chart from "./Chart.svelte";
   import type { ChartBaseProps } from "$src/customTypes/chart";
@@ -28,7 +29,8 @@
   	CategoryScale,
   	PointElement,
   	Filler,
-  	Tooltip
+  	Tooltip,
+  	TimeScale,
   );
 
   $: ChartJS.defaults.elements.point.radius = 0;

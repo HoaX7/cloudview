@@ -25,7 +25,7 @@ import (
 
 type APIServer struct {
 	listenAddr  string
-	controllers controllers.Controller
+	controllers *controllers.Controller
 	DB          *database.DB
 }
 
@@ -45,7 +45,7 @@ func NewAPIServer(listenAddr string) (*APIServer, error) {
 	}
 	return &APIServer{
 		listenAddr:  listenAddr,
-		controllers: controllers.Controller{},
+		controllers: controllers.InitControllers(),
 		DB:          db,
 	}, nil
 }
@@ -77,7 +77,7 @@ func (s *APIServer) Run() {
 	logger.Logger.Error(http.ListenAndServe(":"+s.listenAddr, handler))
 }
 
-func (s *APIServer) GetControllers() controllers.Controller {
+func (s *APIServer) GetControllers() *controllers.Controller {
 	return s.controllers
 }
 

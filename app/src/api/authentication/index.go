@@ -51,7 +51,6 @@ func SetSession(w http.ResponseWriter, s types.SessionUser) error {
 }
 
 func GetAuthToken(r *http.Request) (string, error) {
-	logger.Logger.SetName("authentication.GetAuthToken")
 	/*
 		`Authorization` header is not passed
 		since cookie is not available on the client-side.
@@ -126,17 +125,12 @@ func checkUUID(id interface{}, checkString string) (*uuid.UUID, error) {
 	errorStr := fmt.Sprintf("Invalid `%s` type. Expected uuid string, got ", checkString)
 	switch v := id.(type) {
 	case string:
-		isValid := helpers.IsValidUUID(id.(string))
+		isValid, uid := helpers.IsValidUUID(id.(string))
 		if !isValid {
 			logger.Logger.Error("authentication.checkUUID: ERROR", errorStr, v)
 			return nil, errors.New(errorStr + v)
 		}
-		uid, err := uuid.Parse(id.(string))
-		if err != nil {
-			logger.Logger.Error("authentication.checkUUID: ERROR Unable to parse uuid", err)
-			return nil, custom_errors.UnknownError
-		}
-		result = uid
+		result = *uid
 		break
 	case uuid.UUID:
 		result = id.(uuid.UUID)

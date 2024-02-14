@@ -10,7 +10,7 @@
   	ApiGatewayWithIntegrationProps,
   	GroupedData,
   	ResourceDataReturnType,
-  } from "$src/customTypes/ervices;
+  } from "$src/customTypes/services";
   import { AWS_EXTERNAL_SERVICES, AWS_INTERNAL_SERVICES, AWS_SERVICES } from "$src/helpers/constants";
   import { createEventDispatcher } from "svelte";
   import ApigatewayV2 from "./apigateway/apigatewayV2.svelte";

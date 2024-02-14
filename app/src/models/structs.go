@@ -65,6 +65,10 @@ type ProviderAccounts struct {
 	UpdatedAt               *time.Time       `json:"updatedAt,omitempty"`
 }
 
+type Panels struct {
+	Type string `json:"type"`
+	Name string `json:"name"`
+}
 type MetricPanels struct {
 	ID                uuid.UUID        `sql:"primary_key" json:"id,omitempty"`
 	Name              string           `json:"name,omitempty"`
@@ -77,6 +81,7 @@ type MetricPanels struct {
 	UpdatedAt         *time.Time       `json:"updatedAt,omitempty"`
 	InstanceID        string           `json:"instanceId,omitempty"`
 	HealthStatus      string           `json:"healthStatus,omitempty"`
+	AuthKey           string           `json:"authKey,omietmpy"`
 }
 
 type ProjectAccessDetails struct {

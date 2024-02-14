@@ -6,7 +6,7 @@ type Params = {
     limit: number;
     providerAccountId: string;
 }
-export const getMetricPanels = async (params: Params, cookie?: string) => {
+export const getMetricPanels = async (params: Params, cookie?: string): ApiResponsePromise<MetricPanelProps[]> => {
 	return requester({
 		method: "GET",
 		url: "/metricPanels",

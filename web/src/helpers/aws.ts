@@ -18,7 +18,7 @@ export const precomputeBorder = (data: ResourceDataReturnType) => {
 		"external"
 	);
 	const userConnectionWidth = 128;
-	const spacing = 200; // spacing between external - internal services;
+	const spacing = 200; // spacing between external - internal sservices";
 	const totalWidth =
     internalBoundingRect.width +
     spacing +

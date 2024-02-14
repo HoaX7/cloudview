@@ -16,8 +16,8 @@
 	<div class="flex flex-col items-center justify-center h-full">
 		<div class="w-80 flex flex-col justify-center text-center items-center">
 			<Brandlogo font={32} />
-			<Typography variant="p" weight="medium" font={16} classname="text-gray-500 mt-3">
-				Manage and Monitor your micro services deployed on AWS, GCP, Azure and more in one place
+			<Typography variant="p" weight="medium" font={16} classname="mt-3">
+				Visualize and Monitor your micro services deployed on AWS, GCP, Azure and more in one place
 			</Typography>
 			<Button
 				classname={clsx(

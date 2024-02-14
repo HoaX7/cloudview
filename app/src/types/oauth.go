@@ -3,6 +3,7 @@ package types
 type OauthProviders struct {
 	GOOGLE string
 	GITHUB string
+	LOCAL  string
 }
 
 // Common struct to be returned from both github/google oauth login

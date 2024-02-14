@@ -3,7 +3,6 @@ package controllers
 import (
 	"cloudview/app/src/api/authentication"
 	"cloudview/app/src/api/middleware"
-	logging "cloudview/app/src/api/middleware/logger"
 	"cloudview/app/src/database"
 	"cloudview/app/src/helpers"
 	"cloudview/app/src/helpers/constants"
@@ -18,21 +17,23 @@ import (
 
 type OauthBody struct {
 	Code string `json:"code"`
-}
 
-var log = logging.NewLogger()
+	// for local login - demo purpose only
+	Username *string `json:"username"`
+	Password *string `json:"password"`
+}
 
 /*
 This method allows github & google oauth logins
 */
 func (c *AuthController) OauthLogin(db *database.DB) http.HandlerFunc {
-	log.SetName(c.Name() + ".OauthLogin")
+	c.Logger.SetName(c.Name + ".OauthLogin")
 	return func(w http.ResponseWriter, r *http.Request) {
 		rw := middleware.RegisterResponses(w)
-		log.Log(r.Body)
+		c.Logger.Log(r.Body)
 		reqBody, err := io.ReadAll(r.Body)
 		if err != nil {
-			log.Error(err)
+			c.Logger.Error(err)
 			rw.Error("Unable to parse json body", http.StatusBadRequest)
 			return
 		}
@@ -47,7 +48,7 @@ func (c *AuthController) OauthLogin(db *database.DB) http.HandlerFunc {
 			rw.Error("Invalid code provided", http.StatusBadRequest)
 			return
 		}
-		log.Log("authenticating " + provider + " provider with code: " + body.Code)
+		c.Logger.Log("authenticating " + provider + " provider with code: " + body.Code)
 		switch strings.ToLower(provider) {
 		case constants.OAuth.GOOGLE:
 			// TODO - Unimplemented
@@ -55,6 +56,16 @@ func (c *AuthController) OauthLogin(db *database.DB) http.HandlerFunc {
 			rw.Success("Google login", http.StatusOK)
 		case constants.OAuth.GITHUB:
 			sessionUser, err := oauth.Login(oauth.Github{Code: body.Code}, db)
+			if err != nil {
+				rw.Error(err.Error(), http.StatusForbidden)
+				break
+			}
+			authentication.SetSession(w, sessionUser)
+			rw.Success(sessionUser, http.StatusOK)
+		case constants.OAuth.LOCAL:
+			sessionUser, err := oauth.Login(oauth.Local{Code: "",
+				Username: *body.Username,
+				Password: *body.Password}, db)
 			if err != nil {
 				rw.Error(err.Error(), http.StatusForbidden)
 				break

@@ -52,7 +52,7 @@ func (rw HttpResponseWriterImpl) Error(message string, status int) {
 func (rw *HttpResponseWriterImpl) Forbidden() {
 	msg := rw.ErrorMessage
 	if msg == "" {
-		msg = "You are not allowed to perform this action"
+		msg = "Access denied. You are not allowed to perform this action"
 	}
 	rw.ErrorMessage = ""
 	rw.Error(msg, http.StatusForbidden)

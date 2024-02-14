@@ -1,8 +1,13 @@
+export type PanelProps = {
+    type: string;
+    name: string;
+}
+
 export type MetricPanelProps = {
   id: string;
   name: string;
   description?: string;
-  panels: any;
+  panels: PanelProps[];
   providerAccountId: string;
   instanceId: string;
   healthStatus: "DISCONNECTED" | "ACTIVE";

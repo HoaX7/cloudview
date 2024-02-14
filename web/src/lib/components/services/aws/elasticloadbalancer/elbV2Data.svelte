@@ -1,6 +1,6 @@
 <script lang="ts">
   import { COLOR_SCHEME } from "$src/colorConfig";
-  import type { ELBV2Props } from "$src/customTypes/ervices;
+  import type { ELBV2Props } from "$src/customTypes/services";
   import { toLocaleDate } from "$src/helpers";
   import { getConnectorMappings } from "$src/helpers/konva/index";
   import Drawer from "$src/lib/components/common/Drawer/Drawer.svelte";

@@ -8,7 +8,7 @@ import (
 )
 
 type APIServerInterface interface {
-	GetControllers() controllers.Controller
+	GetControllers() *controllers.Controller
 	GetDB() *database.DB
 }
 
@@ -19,6 +19,7 @@ Importing all routes under `index.go` for clean code and readability.
 func RegisterRoutes(s APIServerInterface) *mux.Router {
 	controller := s.GetControllers()
 	db := s.GetDB()
+
 	router := mux.NewRouter()
 	// subrouter := router.PathPrefix("/v1").Subrouter()
 	homeRouter(router)
@@ -32,6 +33,7 @@ func RegisterRoutes(s APIServerInterface) *mux.Router {
 	projectMembersRouter(router, controller.ProjectMembersController, db)
 	servicesRouter(router, controller.ServicesController, db)
 	metricPanelsRouter(router, controller.MetricPanelsController, db)
+	timeSeriessRouter(router, controller.TimeSeriesController, db)
 
 	return router
 }

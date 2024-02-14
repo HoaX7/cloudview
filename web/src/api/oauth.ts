@@ -2,12 +2,18 @@ import type { SessionProps } from "$src/customTypes/user";
 import { requester, type ApiResponsePromise } from "$src/helpers/requester";
 
 export const Login = async (params: {
-	provider: "google" | "github";
+	provider: "google" | "github" | "local";
 	code: string;
+	username?: string;
+	password?: string;
 }): ApiResponsePromise<SessionProps> => {
 	return requester({
 		url: `/oauth/${params.provider}`,
-		data: { code: params.code },
+		data: {
+			code: params.code,
+			username: params.username,
+			password: params.password 
+		},
 		method: "POST"
 	});
 };

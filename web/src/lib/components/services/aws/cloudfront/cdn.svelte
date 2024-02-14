@@ -11,7 +11,7 @@
   import { createEventDispatcher, onMount, tick } from "svelte";
   import CdnData from "./cdnData.svelte";
   import { delay } from "$src/helpers";
-  import type { ApiGatewayV2IntegrationProps, ResourceDataReturnType } from "$src/customTypes/ervices;
+  import type { ApiGatewayV2IntegrationProps, ResourceDataReturnType } from "$src/customTypes/services";
   import { AWS_SERVICES } from "$src/helpers/constants";
   import { getProportions, truncateResourceLabel } from "$src/helpers/konva/index";
   import { COLOR_SCHEME } from "$src/colorConfig";

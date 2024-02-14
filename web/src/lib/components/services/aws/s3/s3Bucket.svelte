@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { S3Props } from "$src/customTypes/ervices;
+  import type { S3Props } from "$src/customTypes/services";
   import Group from "$src/lib/components/common/KonvaCanvas/Group.svelte";
   import Image from "$src/lib/components/common/KonvaCanvas/Image.svelte";
   import Text from "$src/lib/components/common/KonvaCanvas/Text.svelte";

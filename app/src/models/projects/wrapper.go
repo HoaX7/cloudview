@@ -28,5 +28,7 @@ func GetByIdAndUserId(db *database.DB, id uuid.UUID, userId uuid.UUID) (models.P
 }
 
 func Update(db *database.DB, id uuid.UUID, ownerId uuid.UUID, data models.Projects) error {
+	key := fmt.Sprintf("%s_%s", cache_keys.PROJECT, id)
+	cache.Del(key)
 	return _update(db, id, ownerId, data)
 }

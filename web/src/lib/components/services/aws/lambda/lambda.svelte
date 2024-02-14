@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { LambdaFunctionProps } from "$src/customTypes/ervices;
+  import type { LambdaFunctionProps } from "$src/customTypes/services";
   import { createEventDispatcher, onMount } from "svelte";
   import Datastore from "$src/store/data";
   import { delay } from "$src/helpers";

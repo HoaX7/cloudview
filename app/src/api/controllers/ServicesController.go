@@ -5,7 +5,6 @@ import (
 	"cloudview/app/src/api/encryption"
 	custom_errors "cloudview/app/src/api/errors"
 	"cloudview/app/src/api/middleware"
-	"cloudview/app/src/api/middleware/logger"
 	"cloudview/app/src/cache"
 	"cloudview/app/src/database"
 	models "cloudview/app/src/models/provider_accounts"
@@ -20,8 +19,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-var log_services = logger.NewLogger()
-
 /*
 *
 
@@ -29,7 +26,7 @@ var log_services = logger.NewLogger()
 	show metrics and other data on `client-side`
 */
 func (c *ServicesController) GetServiceData(db *database.DB) http.HandlerFunc {
-	log_services.SetName(c.Name() + ".GetServiceData")
+	c.Logger.SetName(c.Name + ".GetServiceData")
 	return func(w http.ResponseWriter, r *http.Request) {
 		rw := middleware.CustomResponseWriter(w)
 		/*
@@ -37,7 +34,7 @@ func (c *ServicesController) GetServiceData(db *database.DB) http.HandlerFunc {
 		*/
 		authenticatedUser, err := rw.User(db, r)
 		if err != nil {
-			log_services.Error("ERROR", err)
+			c.Logger.Error("ERROR", err)
 			if errors.Is(err, custom_errors.NoDataFound) {
 				rw.Unauthorized()
 				return
@@ -48,7 +45,7 @@ func (c *ServicesController) GetServiceData(db *database.DB) http.HandlerFunc {
 		providerAccountId := r.URL.Query().Get("providerAccountId")
 		region := r.URL.Query().Get("region")
 		if providerAccountId == "" {
-			log_services.Error("ERROR", err)
+			c.Logger.Error("ERROR", err)
 			rw.Error("Invalid `providerAccountId` provided", http.StatusBadRequest)
 			return
 		}
@@ -61,13 +58,13 @@ func (c *ServicesController) GetServiceData(db *database.DB) http.HandlerFunc {
 			ProviderAccountID: providerAccountId,
 		})
 		if err != nil {
-			log_services.Error("ERROR, project verification failed", err)
+			c.Logger.Error("ERROR, project verification failed", err)
 			rw.Error(err.Error(), http.StatusForbidden)
 			return
 		}
 		providerAccount, err := models.GetByIdForSDK(db, verifiedData.ProviderAccount.ID)
 		if err != nil {
-			log_services.Error("ERROR", err)
+			c.Logger.Error("ERROR", err)
 			rw.Error("Unable to fetch service data", http.StatusInternalServerError)
 			return
 		}
@@ -79,7 +76,7 @@ func (c *ServicesController) GetServiceData(db *database.DB) http.HandlerFunc {
 		if cache.Fetch(cacheKey, 0, &result, func() (interface{}, error) {
 			accessKeySecret, err := encryption.Decrypt(providerAccount.AccessKeySecret, providerAccount.RotationSecretKey)
 			if err != nil {
-				log_services.Error("Invalid provider access-key-secret", err)
+				c.Logger.Error("Invalid provider access-key-secret", err)
 				return nil, errors.New("Invalid provider secret")
 			}
 			return service.GetData(&aws.AWS{
@@ -87,7 +84,7 @@ func (c *ServicesController) GetServiceData(db *database.DB) http.HandlerFunc {
 				ProviderAccountID: providerAccount.ID,
 			}, providerAccount.AccessKeyID, accessKeySecret, region)
 		}); err != nil {
-			log_services.Error("ERROR fetching metrics", err)
+			c.Logger.Error("ERROR fetching metrics", err)
 			rw.Error("Unknown error occured", http.StatusInternalServerError)
 			return
 		}
@@ -100,7 +97,7 @@ func (c *ServicesController) GetServiceData(db *database.DB) http.HandlerFunc {
 AWS - fetch integrations for apigateway route.
 */
 func (c *ServicesController) GetApiGatewayV2Integrations(db *database.DB) http.HandlerFunc {
-	log_services.SetName(c.Name() + ".GetApiGatewayV2Integrations")
+	c.Logger.SetName(c.Name + ".GetApiGatewayV2Integrations")
 	return func(w http.ResponseWriter, r *http.Request) {
 		rw := middleware.CustomResponseWriter(w)
 		authenticatedUser := rw.SessionUser
@@ -124,14 +121,14 @@ func (c *ServicesController) GetApiGatewayV2Integrations(db *database.DB) http.H
 			ProviderAccountID: providerAccountId,
 		})
 		if err != nil {
-			log_services.Error("ERROR, project verification failed", err)
+			c.Logger.Error("ERROR, project verification failed", err)
 			rw.Error(err.Error(), http.StatusForbidden)
 			return
 		}
-		log_services.Log("Project access verified", verifiedData.ProjectAccessDetails.Projects.ID)
+		c.Logger.Log("Project access verified", verifiedData.ProjectAccessDetails.Projects.ID)
 		providerAccount, err := models.GetByIdForSDK(db, verifiedData.ProviderAccount.ID)
 		if err != nil {
-			log_services.Error("ERROR", err)
+			c.Logger.Error("ERROR", err)
 			rw.Error("Unable to fetch service data", http.StatusInternalServerError)
 			return
 		}
@@ -144,7 +141,7 @@ func (c *ServicesController) GetApiGatewayV2Integrations(db *database.DB) http.H
 				Region:            region,
 			}
 			if err := awsClient.Init(providerAccount.AccessKeyID, providerAccount.AccessKeySecret, region); err != nil {
-				log_services.Error("ERROR unable to initialize aws client", err)
+				c.Logger.Error("ERROR unable to initialize aws client", err)
 				return nil, custom_errors.UnknownError
 			}
 			return awsClient.GetApiGatewayV2Integrations(apiId)
@@ -158,7 +155,7 @@ func (c *ServicesController) GetApiGatewayV2Integrations(db *database.DB) http.H
 }
 
 func (c *ServicesController) GetUsage(db *database.DB) http.HandlerFunc {
-	log_services.SetName(c.Name() + ".GetUsage")
+	c.Logger.SetName(c.Name + ".GetUsage")
 	return func(w http.ResponseWriter, r *http.Request) {
 		rw := middleware.CustomResponseWriter(w)
 		authenticatedUser := rw.SessionUser
@@ -185,13 +182,13 @@ func (c *ServicesController) GetUsage(db *database.DB) http.HandlerFunc {
 			ProviderAccountID: providerAccountId,
 		})
 		if err != nil {
-			log_services.Error("ERROR, project verification failed", err)
+			c.Logger.Error("ERROR, project verification failed", err)
 			rw.Error(err.Error(), http.StatusForbidden)
 			return
 		}
 		providerAccount, err := models.GetByIdForSDK(db, verifiedData.ProviderAccount.ID)
 		if err != nil {
-			log_services.Error("ERROR", err)
+			c.Logger.Error("ERROR", err)
 			rw.Error("Unable to fetch service data", http.StatusInternalServerError)
 			return
 		}
@@ -203,7 +200,7 @@ func (c *ServicesController) GetUsage(db *database.DB) http.HandlerFunc {
 			if cache.Fetch(cacheKey, 0, &result, func() (interface{}, error) {
 				return GetAwsUsageData(db)(r, providerAccount, region, strings.ToLower(instance), instanceId)
 			}); err != nil {
-				log_services.Error("ERROR", err)
+				c.Logger.Error("ERROR", err)
 				rw.Error(err.Error(), http.StatusBadRequest)
 				return
 			}

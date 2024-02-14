@@ -1,6 +1,6 @@
 <script lang="ts">
   import { COLOR_SCHEME } from "$src/colorConfig";
-  import type { DynamoDBProps } from "$src/customTypes/ervices;
+  import type { DynamoDBProps } from "$src/customTypes/services";
   import { bytesToMegaBytes, toLocaleDate } from "$src/helpers";
   import Drawer from "$src/lib/components/common/Drawer/Drawer.svelte";
   import Typography from "$src/lib/components/common/Typography/Typography.svelte";

@@ -91,7 +91,12 @@ func _update(db *database.DB, id uuid.UUID, data models.MetricPanels) error {
 }
 
 func _getById(db *database.DB, id uuid.UUID) (models.MetricPanels, error) {
-	stmt := table.MetricPanels.SELECT(table.MetricPanels.AllColumns).
+	stmt := table.MetricPanels.SELECT(table.MetricPanels.ID, table.MetricPanels.Name,
+		table.MetricPanels.Description, table.MetricPanels.Panels,
+		table.MetricPanels.ProviderAccountID,
+		table.MetricPanels.Metadata, table.MetricPanels.IsDeleted,
+		table.MetricPanels.CreatedAt, table.MetricPanels.UpdatedAt,
+		table.MetricPanels.HealthStatus, table.MetricPanels.InstanceID).
 		WHERE(postgres.AND(
 			table.MetricPanels.ID.EQ(postgres.UUID(id)),
 			table.MetricPanels.IsDeleted.EQ(postgres.Bool(false)),
@@ -109,18 +114,39 @@ func _getById(db *database.DB, id uuid.UUID) (models.MetricPanels, error) {
 }
 
 func _getByProviderAccount(db *database.DB, providerAccount uuid.UUID) ([]models.MetricPanels, error) {
-	stmt := table.MetricPanels.SELECT(table.MetricPanels.AllColumns).
+	stmt := table.MetricPanels.SELECT(table.MetricPanels.ID, table.MetricPanels.Name,
+		table.MetricPanels.Description, table.MetricPanels.Panels,
+		table.MetricPanels.ProviderAccountID,
+		table.MetricPanels.Metadata, table.MetricPanels.IsDeleted,
+		table.MetricPanels.CreatedAt, table.MetricPanels.UpdatedAt,
+		table.MetricPanels.HealthStatus, table.MetricPanels.InstanceID).
 		WHERE(postgres.AND(
 			table.MetricPanels.ProviderAccountID.EQ(postgres.UUID(providerAccount)),
 			table.MetricPanels.IsDeleted.EQ(postgres.Bool(false)),
 		))
 
+	logger.Logger.Log("metric_panels._getByProviderAccount:", stmt.DebugSql())
 	var result []models.MetricPanels
-	if err := stmt.Query(db.Postgres, &result); err != nil {
+	query, args := stmt.Sql()
+	rows, err := db.Postgres.Query(query, args...)
+	if err != nil {
+		logger.Logger.Error("metric_panels._getByProviderAccount: error fetching data", err)
 		if errors.Is(err, qrm.ErrNoRows) {
 			return result, custom_errors.NoDataFound
 		}
 		return result, err
+	}
+	defer rows.Close()
+	// jet returns strigified version of `jsonb` columns
+	// Unless it is intended to return stringified data which
+	// later can be parsed on client side, you can use `stmt.query`
+	for rows.Next() {
+		var item models.MetricPanels
+		if err := rows.Scan(&item.ID, &item.Name, &item.Description, &item.Panels, &item.ProviderAccountID,
+			&item.Metadata, &item.IsDeleted, &item.CreatedAt, &item.UpdatedAt, &item.HealthStatus, &item.InstanceID); err != nil {
+			logger.Logger.Error("Unable to scan rows", err)
+		}
+		result = append(result, item)
 	}
 
 	return result, nil

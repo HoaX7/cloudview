@@ -9,86 +9,86 @@
   const datastore = Datastore.getDatastore();
 
   const awsRegions: any = {
-  	"US East": [
-  		{
-  			name: "N. Virginia",
-  			key: "us-east-1",
-  		},
-  		{
-  			name: "Ohio",
-  			key: "us-east-2",
-  		},
-  	],
+  	// "US East": [
+  	// 	{
+  	// 		name: "N. Virginia",
+  	// 		key: "us-east-1",
+  	// 	},
+  	// 	{
+  	// 		name: "Ohio",
+  	// 		key: "us-east-2",
+  	// 	},
+  	// ],
   	"US West": [
-  		{
-  			name: "N. California",
-  			key: "us-west-1",
-  		},
+  		// {
+  		// 	name: "N. California",
+  		// 	key: "us-west-1",
+  		// },
   		{
   			name: "Oregon",
   			key: "us-west-2",
   		},
   	],
-  	"Asia Pacific": [
-  		{
-  			name: "Mumbai",
-  			key: "ap-south-1",
-  		},
-  		{
-  			name: "Osaka",
-  			key: "ap-northeast-3",
-  		},
-  		{
-  			name: "Seoul",
-  			key: "ap-northeast-2",
-  		},
-  		{
-  			name: "Singapore",
-  			key: "ap-southeast-1",
-  		},
-  		{
-  			name: "Sydney",
-  			key: "ap-southeast-2",
-  		},
-  		{
-  			name: "Tokyo",
-  			key: "ap-northeast-1",
-  		},
-  	],
-  	Canada: [
-  		{
-  			name: "Central",
-  			key: "ca-central-1",
-  		},
-  	],
-  	Europe: [
-  		{
-  			name: "Frankfurt",
-  			key: "eu-central-1",
-  		},
-  		{
-  			name: "Ireland",
-  			key: "eu-west-1",
-  		},
-  		{
-  			name: "London",
-  			key: "eu-west-2",
-  		},
-  		{
-  			name: "Paris",
-  			key: "eu-west-3",
-  		},
-  		{
-  			name: "Stockholm",
-  			key: "eu-north-1",
-  		},
-  	],
-  	"South America": [
-  		{
-  			name: "São Paulo",
-  			key: "sa-east-1",
-  		},
-  	],
+  	// "Asia Pacific": [
+  	// 	{
+  	// 		name: "Mumbai",
+  	// 		key: "ap-south-1",
+  	// 	},
+  	// 	{
+  	// 		name: "Osaka",
+  	// 		key: "ap-northeast-3",
+  	// 	},
+  	// 	{
+  	// 		name: "Seoul",
+  	// 		key: "ap-northeast-2",
+  	// 	},
+  	// 	{
+  	// 		name: "Singapore",
+  	// 		key: "ap-southeast-1",
+  	// 	},
+  	// 	{
+  	// 		name: "Sydney",
+  	// 		key: "ap-southeast-2",
+  	// 	},
+  	// 	{
+  	// 		name: "Tokyo",
+  	// 		key: "ap-northeast-1",
+  	// 	},
+  	// ],
+  	// Canada: [
+  	// 	{
+  	// 		name: "Central",
+  	// 		key: "ca-central-1",
+  	// 	},
+  	// ],
+  	// Europe: [
+  	// 	{
+  	// 		name: "Frankfurt",
+  	// 		key: "eu-central-1",
+  	// 	},
+  	// 	{
+  	// 		name: "Ireland",
+  	// 		key: "eu-west-1",
+  	// 	},
+  	// 	{
+  	// 		name: "London",
+  	// 		key: "eu-west-2",
+  	// 	},
+  	// 	{
+  	// 		name: "Paris",
+  	// 		key: "eu-west-3",
+  	// 	},
+  	// 	{
+  	// 		name: "Stockholm",
+  	// 		key: "eu-north-1",
+  	// 	},
+  	// ],
+  	// "South America": [
+  	// 	{
+  	// 		name: "São Paulo",
+  	// 		key: "sa-east-1",
+  	// 	},
+  	// ],
   };
 
   let showDD = false;

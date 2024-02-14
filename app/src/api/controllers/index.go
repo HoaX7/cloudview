@@ -1,5 +1,7 @@
 package controllers
 
+import "cloudview/app/src/api/middleware/logger"
+
 /*
 Responsible for defining all the controller methods available.
 Make sure to add all the controller pointers to the `Controller` struct.
@@ -9,13 +11,38 @@ By doing this, it allows us to access these controllers from
 ## All functions/methods used in routes or another file that want to
 ## use DB MUST use controller methods and MUST NOT directly access models.
 */
-type AuthController struct{}
-type UsersController struct{}
-type ProjectsController struct{}
-type ProviderAccountsController struct{}
-type ProjectMembersController struct{}
-type ServicesController struct{}
-type MetricPanelsController struct{}
+type AuthController struct {
+	Name   string
+	Logger *logger.LoggerStruct
+}
+type UsersController struct {
+	Name   string
+	Logger *logger.LoggerStruct
+}
+type ProjectsController struct {
+	Name   string
+	Logger *logger.LoggerStruct
+}
+type ProviderAccountsController struct {
+	Name   string
+	Logger *logger.LoggerStruct
+}
+type ProjectMembersController struct {
+	Name   string
+	Logger *logger.LoggerStruct
+}
+type ServicesController struct {
+	Name   string
+	Logger *logger.LoggerStruct
+}
+type MetricPanelsController struct {
+	Name   string
+	Logger *logger.LoggerStruct
+}
+type TimeSeriesController struct {
+	Name   string
+	Logger *logger.LoggerStruct
+}
 
 type Controller struct {
 	*AuthController
@@ -25,26 +52,42 @@ type Controller struct {
 	*ProjectMembersController
 	*ServicesController
 	*MetricPanelsController
+	*TimeSeriesController
 }
 
-func (m *AuthController) Name() string {
-	return "AuthController"
-}
-func (m *UsersController) Name() string {
-	return "UsersController"
-}
-func (m *ProjectsController) Name() string {
-	return "ProjectsController"
-}
-func (m *ProviderAccountsController) Name() string {
-	return "ProviderAccountsController"
-}
-func (m *ProjectMembersController) Name() string {
-	return "ProjectMembersController"
-}
-func (m *ServicesController) Name() string {
-	return "ServicesController"
-}
-func (m *MetricPanelsController) Name() string {
-	return "MetricPanelsController"
+func InitControllers() *Controller {
+	return &Controller{
+		AuthController: &AuthController{
+			Name:   "AuthController",
+			Logger: logger.NewLogger(),
+		},
+		UsersController: &UsersController{
+			Name:   "UsersController",
+			Logger: logger.NewLogger(),
+		},
+		ProjectsController: &ProjectsController{
+			Name:   "ProjectsController",
+			Logger: logger.NewLogger(),
+		},
+		ProviderAccountsController: &ProviderAccountsController{
+			Name:   "ProviderAccountsController",
+			Logger: logger.NewLogger(),
+		},
+		ProjectMembersController: &ProjectMembersController{
+			Name:   "ProjectMembersController",
+			Logger: logger.NewLogger(),
+		},
+		ServicesController: &ServicesController{
+			Name:   "ServicesController",
+			Logger: logger.NewLogger(),
+		},
+		MetricPanelsController: &MetricPanelsController{
+			Name:   "MetricPanelsController",
+			Logger: logger.NewLogger(),
+		},
+		TimeSeriesController: &TimeSeriesController{
+			Name:   "TimeSeriesController",
+			Logger: logger.NewLogger(),
+		},
+	}
 }

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { COLOR_SCHEME } from "$src/colorConfig";
   import type { HighLightProps } from "$src/customTypes/konva";
-  import type { DynamoDBProps } from "$src/customTypes/ervices;
+  import type { DynamoDBProps } from "$src/customTypes/services";
   import { getProportions, truncateResourceLabel } from "$src/helpers/konva";
   import Group from "$src/lib/components/common/KonvaCanvas/Group.svelte";
   import Rect from "$src/lib/components/common/KonvaCanvas/Rect.svelte";

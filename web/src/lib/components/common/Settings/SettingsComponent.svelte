@@ -2,6 +2,7 @@
   import { onDestroy, onMount } from "svelte";
     import Icon from "../Image/index.svelte";
   import WindowEvents from "../Hooks/WindowEvents.svelte";
+  import clsx from "clsx";
 
     export let showMenu = false;
 
@@ -15,7 +16,9 @@
 
 <WindowEvents callback={closeModal} />
 <div class="relative">
-    <button class="hover:bg-gray-100 rounded-full"
+    <button class={clsx("hover:bg-gray-100 rounded-full help-text",
+    	"hover:before:content-['settings'] hover:before:-bottom-8",
+    	"hover:before:w-[60px]")}
     on:click={(e) => {
     	e.stopPropagation();
     	showMenu = !showMenu;

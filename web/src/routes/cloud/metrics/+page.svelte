@@ -1,11 +1,14 @@
 <script lang="ts">
-  import PageNavButtons from "$lib/components/common/Navigation/PageNavButtons.svelte";
   import DashboardIndex from "$lib/metricGraphs/dashboard/index.svelte";
   import Typography from "$src/lib/components/common/Typography/Typography.svelte";
   import Icon from "$lib/components/common/Image/index.svelte";
   import clsx from "clsx";
   import { copyText } from "$src/utils/index.js";
+  import { clone } from "$src/helpers/index.js";
+  import Datastore from "$src/store/data.js";
   export let data;
+
+  const datastore = Datastore.getDatastore();
 </script>
 
 {#if data}
@@ -22,6 +25,15 @@
       href={`/cloud/aws?providerAccountId=${data.providerAccountId}` +
       `&projectId=${data.projectId}&region=${data.region}`}
       class="hover:underline"
+      on:click={() => {
+      	// Reset datastore nodes
+      	// to avoid unnecessary side-effects of arrows
+      	// being drawn to unknown positions
+      	const res = clone($datastore);
+      	res.konvaConnectableNodes = [];
+      	res.konvaTargetFromNodes = [];
+      	$datastore = res;
+      }}
     >
       {data.providerAcc?.name || "-"}
     </a>
@@ -36,7 +48,7 @@
   </button>
   </div>
   <Typography classname="mt-5" font={16} weight="regular" variant="p">
-    Customize and Monitor your resource usage in one single place, in real-time.
+    Customize and Monitor your resource CPU, RAM & DISK usage in one single place, in real-time.
   </Typography>
-  <DashboardIndex resourceList={data.metricData} data={data.providerAcc?.metadata || {}} />
+  <DashboardIndex resourceList={data.metricData} data={data.panels || []} />
 {/if}

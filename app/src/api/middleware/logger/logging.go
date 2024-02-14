@@ -22,7 +22,7 @@ func prepareLog(v ...any) string {
 }
 func (l *LoggerStruct) SetName(name string) *LoggerStruct {
 	l.Name = name
-	return &LoggerStruct{Name: name}
+	return l
 }
 
 func (l *LoggerStruct) Log(v ...any) {
@@ -38,5 +38,5 @@ func (l *LoggerStruct) Error(v ...any) {
 var Logger = LoggerStruct{Name: "[log]"}
 
 func NewLogger() *LoggerStruct {
-	return &LoggerStruct{Name: "[log]"}
+	return new(LoggerStruct)
 }

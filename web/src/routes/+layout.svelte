@@ -15,6 +15,7 @@
   import { page } from "$app/stores";
   import MainLayout from "$src/lib/components/layout/MainLayout.svelte";
   import { SEO } from "$src/helpers/seo";
+  import DemoLogin from "$src/lib/components/layout/DemoLogin.svelte";
 
   export let data;
   // Initialize auth store
@@ -104,6 +105,7 @@
       </div>
     {/if}
   {:else}
-    <Login />
+  <DemoLogin />
+    <!-- <Login /> -->
   {/if}
 </MainLayout>

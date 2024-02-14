@@ -19,5 +19,6 @@ func UseSchema(schema string) {
 	Projects = Projects.FromSchema(schema)
 	ProviderAccounts = ProviderAccounts.FromSchema(schema)
 	SubscriptionPlans = SubscriptionPlans.FromSchema(schema)
+	TimeSeries = TimeSeries.FromSchema(schema)
 	Users = Users.FromSchema(schema)
 }

@@ -9,19 +9,24 @@ import (
 )
 
 type permissionMap struct {
+	// project feature permissions
 	VISUALIZATION_AND_METRICS bool
 	ALERTING                  bool
 	SMART_DEBUGGING           bool
-	MODIFY_RESOURCE_STATE     bool
-	MANAGE_METRICS_PANEL      bool
+
+	// Project Member permissions
+	MEMBER_MODIFY_RESOURCE_STATE bool
+	MEMBER_MANAGE_METRICS_PANEL  bool
+	MEMBER_REPORT_METRICS        bool
 }
 
 type permissionConstant struct {
-	VISUALIZATION_AND_METRICS int
-	ALERTING                  int
-	SMART_DEBUGGING           int
-	MODIFY_RESOURCE_STATE     int
-	MANAGE_METRICS_PANEL      int
+	VISUALIZATION_AND_METRICS    int
+	ALERTING                     int
+	SMART_DEBUGGING              int
+	MEMBER_MODIFY_RESOURCE_STATE int
+	MEMBER_MANAGE_METRICS_PANEL  int
+	MEMBER_REPORT_METRICS        int
 }
 
 /*
@@ -31,11 +36,12 @@ They can upgrade / downgrade features anytime based on their
 requirements and will be billed accordingly.
 */
 var (
-	VISUALIZATION_AND_METRICS = "VISUALIZATION_AND_METRICS"
-	ALERTING                  = "ALERTING"
-	SMART_DEBUGGING           = "SMART_DEBUGGING"
-	MODIFY_RESOURCE_STATE     = "MODIFY_RESOURCE_STATE"
-	MANAGE_METRICS_PANEL      = "MANAGE_METRICS_PANEL"
+	VISUALIZATION_AND_METRICS    = "VISUALIZATION_AND_METRICS"
+	ALERTING                     = "ALERTING"
+	SMART_DEBUGGING              = "SMART_DEBUGGING"
+	MEMBER_MODIFY_RESOURCE_STATE = "MEMBER_MODIFY_RESOURCE_STATE"
+	MEMBER_MANAGE_METRICS_PANEL  = "MEMBER_MANAGE_METRICS_PANEL"
+	MEMBER_REPORT_METRICS        = "MEMBER_REPORT_METRICS"
 	/*
 		We are using bitwise system assigned to each feature.
 		All the features used by the user are then stored in DB,
@@ -43,11 +49,12 @@ var (
 		features he has access to.
 	*/
 	permissionConstants = permissionConstant{
-		VISUALIZATION_AND_METRICS: 1 << 0,
-		ALERTING:                  1 << 1,
-		SMART_DEBUGGING:           1 << 2,
-		MODIFY_RESOURCE_STATE:     1 << 3,
-		MANAGE_METRICS_PANEL:      1 << 4,
+		VISUALIZATION_AND_METRICS:    1 << 0,
+		ALERTING:                     1 << 1,
+		SMART_DEBUGGING:              1 << 2,
+		MEMBER_MODIFY_RESOURCE_STATE: 1 << 3,
+		MEMBER_MANAGE_METRICS_PANEL:  1 << 4,
+		MEMBER_REPORT_METRICS:        1 << 5,
 	}
 )
 

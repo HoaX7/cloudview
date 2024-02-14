@@ -30,3 +30,7 @@ func GetProjectsByUserId(db *database.DB, userId uuid.UUID) ([]models.Projects, 
 func GetByIdAndUserId(db *database.DB, id uuid.UUID, userId uuid.UUID) (models.ProjectMembers, error) {
 	return _getByIdAndUserId(db, id, userId)
 }
+
+func BulkInsert(db *database.DB, data []models.ProjectMembers) error {
+	return _bulkInsert(db, data)
+}

@@ -5,8 +5,10 @@ import "cloudview/app/src/types"
 var OAuth = types.OauthProviders{
 	GOOGLE: "google",
 	GITHUB: "github",
+	LOCAL:  "local",
 }
 
+// The same cookie name is set on the client side.
 var COOKIE_NAME = "cv-token"
 
 // Make sure to match the values in webapp

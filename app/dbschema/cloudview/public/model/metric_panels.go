@@ -24,4 +24,5 @@ type MetricPanels struct {
 	UpdatedAt         *time.Time
 	HealthStatus      *HealthStatus
 	InstanceID        string
+	AuthKey           *string
 }

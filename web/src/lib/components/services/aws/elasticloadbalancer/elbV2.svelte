@@ -3,7 +3,7 @@
   	ApiGatewayV2IntegrationProps,
   	ELBV2Props,
   	ResourceDataReturnType,
-  } from "$src/customTypes/ervices;
+  } from "$src/customTypes/services";
   import Group from "$src/lib/components/common/KonvaCanvas/Group.svelte";
   import Image from "$src/lib/components/common/KonvaCanvas/Image.svelte";
   import Text from "$src/lib/components/common/KonvaCanvas/Text.svelte";

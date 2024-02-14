@@ -10,6 +10,15 @@ export const load = (async ({ url, params, cookies }) => {
 	let accounts: ProviderAccountProps[] = [];
 	let error = "";
 	try {
+		if (!cookie) {
+			console.error("No cookie found. re-login required.");
+			return {
+				projectId,
+				accounts,
+				providerAccountId,
+				error
+			};
+		}
 		const result = await getProviderAccountsByProjectId(params.id, { cookie });
 		if (result.data) accounts = result.data;
 	} catch (err) {

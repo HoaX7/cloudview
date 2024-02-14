@@ -1,6 +1,6 @@
 <script lang="ts">
   import { COLOR_SCHEME } from "$src/colorConfig";
-  import type { ApiGatewayWithIntegrationProps } from "$src/customTypes/ervices;
+  import type { ApiGatewayWithIntegrationProps } from "$src/customTypes/services";
   import { getConnectorMappings } from "$src/helpers/konva/index";
   import Drawer from "$src/lib/components/common/Drawer/Drawer.svelte";
   import Table from "$src/lib/components/common/Table/Table.svelte";

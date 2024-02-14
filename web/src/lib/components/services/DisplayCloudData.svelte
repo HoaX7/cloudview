@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { ResourceDataReturnType, } from "$src/customTypes/ervices;
+  import type { ResourceDataReturnType, } from "$src/customTypes/services";
   import Datastore from "$src/store/data";
   import InfiniteCanvas from "../common/KonvaCanvas/Canvas.svelte";
   import { clone, debounce, uniqueArray } from "$src/helpers";

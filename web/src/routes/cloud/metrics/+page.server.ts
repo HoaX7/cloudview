@@ -1,3 +1,4 @@
+import { getMetricPanels } from "$src/api/metricPanels";
 import { getProviderAccountDetails } from "$src/api/providerAccounts";
 import { getResourceData } from "$src/api/services";
 import type { ProviderAccountWithProjectProps } from "$src/customTypes/providerAccounts";
@@ -15,26 +16,37 @@ export const load = (async ({ url, cookies, params }) => {
 	const cookie = cookies.get(COOKIE_NAME);
 	let res: ResourceDataReturnType = [];
 	let error = "";
-	let providerAcc;
-	try {
-		const [ result, providerAccDetails ] = await Promise.all([
-			getResourceData(
-				{
-					projectId,
+	let panels, providerAcc;
+	if (cookie) {
+		try {
+			const [ result, metricPanels, accountDetails ] = await Promise.all([
+				getResourceData(
+					{
+						projectId,
+						providerAccountId,
+						region,
+					},
+					{ cookie }
+				),
+				getMetricPanels({
 					providerAccountId,
-					region,
-				},
-				{ cookie }
-			),
-			getProviderAccountDetails(providerAccountId, projectId, cookie)
-		]);
-		if (result.error || !result.data) throw result;
-		if (providerAccDetails.error || !providerAccDetails.data) throw providerAccDetails;
-		res = result.data;
-		providerAcc = providerAccDetails.data;
-	} catch (err) {
-		console.error("Unable to fetch metrics:", err);
-		error = "Unable to fetch data";
+					page: 1,
+					limit: 10
+				}, cookie),
+				getProviderAccountDetails(providerAccountId, projectId, cookie)
+			]);
+			if (result.error || !result.data) throw result;
+			if (metricPanels.error || !metricPanels.data) throw metricPanels;
+			if (accountDetails.error || !accountDetails.data) throw accountDetails;
+			res = result.data;
+			panels = metricPanels.data;
+			providerAcc = accountDetails.data;
+		} catch (err) {
+			console.error("Unable to fetch metrics:", err);
+			error = "Unable to fetch data";
+		}
+	} else {
+		console.error("cookie not found. re-login required.");
 	}
 	return {
 		projectId,
@@ -43,6 +55,7 @@ export const load = (async ({ url, cookies, params }) => {
 		metricData: res,
 		error,
 		showRegionDD: true,
+		panels,
 		providerAcc
 	};
 }) satisfies PageServerLoad;

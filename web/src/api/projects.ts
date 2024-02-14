@@ -10,7 +10,7 @@ export const getProjects = (params: { cookie?: string; }): ApiResponsePromise<Pr
 	});
 };
 
-export const getProjectById = async (params: { id: string; }) => {
+export const getProjectById = async (params: { id: string; }): ApiResponsePromise<ProjectProps> => {
 	return requester({
 		url: `/projects/${params.id}`,
 		data: {},

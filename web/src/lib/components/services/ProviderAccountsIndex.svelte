@@ -145,8 +145,8 @@
               <Icon
                 src="/assets/images/view.svg"
                 alt="add"
-                width="24"
-                class="inline-block mx-1"
+                width="20"
+                class="inline-block mr-1"
               /> Manage Members
             </Button>
           </div>
@@ -180,7 +180,7 @@
     {:else}
       <Typography variant="div" weight="regular" font={16} classname="mt-3">
         <span class="bg-yellow-200"
-          >Contact your Admin to connect to your cloud provider account.</span
+          >Contact your Administrator to connect to your cloud provider account.</span
         >
       </Typography>
     {/if}
@@ -196,18 +196,9 @@
         </svelte:fragment>
         <svelte:fragment slot="extra-row-td" let:item>
           <td class="p-3 flex items-center">
-            {#if $user?.id === project.ownerId}
-              <button
-                on:click={(e) => {
-                	state.selectedService = item;
-                	state.showModal = true;
-                }}
-              >
-                <Icon src="/assets/images/edit.svg" width="24" alt="edit" />
-              </button>
-            {/if}
             <a
-              class="ml-2"
+              class={clsx("ml-2 help-text hover:before:content-['view']",
+              	"hover:before:-bottom-8 hover:before:w-[40px]")}
               href={`/cloud/${(item.provider || "").toLowerCase()}?providerAccountId=${
               	item.id
               }&projectId=${project.id}&region=${$datastore.selectedRegion}`}
@@ -223,18 +214,37 @@
             >
               <Icon src="/assets/images/view.svg" width="24" alt="view" />
             </a>
+            <a
+              class={clsx("ml-2 help-text hover:before:content-['dashboard']",
+              	"hover:before:-bottom-8 hover:before:w-[80px]")}
+              href={`/cloud/metrics?providerAccountId=${
+              	item.id
+              }&projectId=${project.id}&region=${$datastore.selectedRegion}`}
+            >
+              <Icon src="/assets/images/dashboard.svg" width="24" alt="dashboard" />
+            </a>
             {#if $user?.id === project.ownerId}
               <div class="ml-2 mt-2">
                 <SettingsComponent width={22}>
                   <Button
+                    on:click={(e) => {
+                    	state.selectedService = item;
+                    	state.showModal = true;
+                    }}
+                    classname={clsx("!p-3 !rounded-t-md !rounded-b-none hover:bg-gray-100",
+                    	"!font-medium w-full text-start flex items-center gap-2")}
+                  >
+                    <Icon src="/assets/images/edit.svg" width="24" alt="edit" /> Edit
+                  </Button>
+                  <Button
                     classname={clsx(
                     	"!p-3 !rounded-b-md text-red-500 hover:bg-red-500",
                     	"hover:text-white w-full text-start",
-                    	"!rounded-t-none !font-medium disabled:opacity-25"
+                    	"!rounded-t-none !font-medium disabled:opacity-25",
+                    	"border-t"
                     )}
                     disabled={deleting}
                     on:click={(e) => {
-                    	e.stopPropagation();
                     	const ask = window.confirm(`Are you sure you want to delete "${item.name}" service?`);
                     	if (!ask) return;
                     	handleDeleteService(item.id);
