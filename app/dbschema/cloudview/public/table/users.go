@@ -29,6 +29,7 @@ type usersTable struct {
 	CreatedAt            postgres.ColumnTimestampz
 	UpdatedAt            postgres.ColumnTimestampz
 	SubscriptionPlanID   postgres.ColumnInteger
+	Permissions          postgres.ColumnString
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -81,8 +82,9 @@ func newUsersTableImpl(schemaName, tableName, alias string) usersTable {
 		CreatedAtColumn            = postgres.TimestampzColumn("created_at")
 		UpdatedAtColumn            = postgres.TimestampzColumn("updated_at")
 		SubscriptionPlanIDColumn   = postgres.IntegerColumn("subscription_plan_id")
-		allColumns                 = postgres.ColumnList{IDColumn, UsernameColumn, EmailColumn, AvatarURLColumn, SubscribedSinceColumn, SubscriptionDaysLeftColumn, LastLoginAtColumn, MetadataColumn, IsDeletedColumn, CreatedAtColumn, UpdatedAtColumn, SubscriptionPlanIDColumn}
-		mutableColumns             = postgres.ColumnList{UsernameColumn, EmailColumn, AvatarURLColumn, SubscribedSinceColumn, SubscriptionDaysLeftColumn, LastLoginAtColumn, MetadataColumn, IsDeletedColumn, CreatedAtColumn, UpdatedAtColumn, SubscriptionPlanIDColumn}
+		PermissionsColumn          = postgres.StringColumn("permissions")
+		allColumns                 = postgres.ColumnList{IDColumn, UsernameColumn, EmailColumn, AvatarURLColumn, SubscribedSinceColumn, SubscriptionDaysLeftColumn, LastLoginAtColumn, MetadataColumn, IsDeletedColumn, CreatedAtColumn, UpdatedAtColumn, SubscriptionPlanIDColumn, PermissionsColumn}
+		mutableColumns             = postgres.ColumnList{UsernameColumn, EmailColumn, AvatarURLColumn, SubscribedSinceColumn, SubscriptionDaysLeftColumn, LastLoginAtColumn, MetadataColumn, IsDeletedColumn, CreatedAtColumn, UpdatedAtColumn, SubscriptionPlanIDColumn, PermissionsColumn}
 	)
 
 	return usersTable{
@@ -101,6 +103,7 @@ func newUsersTableImpl(schemaName, tableName, alias string) usersTable {
 		CreatedAt:            CreatedAtColumn,
 		UpdatedAt:            UpdatedAtColumn,
 		SubscriptionPlanID:   SubscriptionPlanIDColumn,
+		Permissions:          PermissionsColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,

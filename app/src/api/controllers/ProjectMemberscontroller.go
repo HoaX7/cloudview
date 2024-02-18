@@ -157,6 +157,8 @@ func (c *ProjectMembersController) CreateMember(db *database.DB) http.HandlerFun
 			ProjectID: request.ProjectID,
 			UserID:    user.ID,
 			IsOwner:   false,
+			// TODO - send appropriate permissions from frontend to assign users
+			// Permissions: permissions.SetPermissions([]string{}),
 		})
 		if err != nil {
 			c.Logger.Error("Unable to invite member", err)

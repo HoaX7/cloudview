@@ -178,10 +178,12 @@
         }}>Link Account</Button
       >
     {:else}
-      <Typography variant="div" weight="regular" font={16} classname="mt-3">
-        <span class="bg-yellow-200"
-          >Contact your Administrator to connect to your cloud provider account.</span
-        >
+      <Typography variant="div" weight="semi-bold" font={16} 
+      classname="mt-6 text-sm">
+        <span class="bg-blue-200 border-2 border-blue-300 p-3 rounded-md">
+          <Icon src="/assets/images/info.svg" alt="info" width="24" class="inline mb-1 mr-1" />
+          Contact your Administrator to connect to your cloud provider account.
+        </span>
       </Typography>
     {/if}
     <div class="mt-10 border-t border-black pt-10">

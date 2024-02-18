@@ -21,7 +21,8 @@ import (
 )
 
 func SetSession(w http.ResponseWriter, s types.SessionUser) error {
-	ENV := helpers.GoDotEnvVariable("ENV")
+	ENV := helpers.GoDotEnvVariable("GO_ENV")
+	DOMAIN := helpers.GoDotEnvVariable("EXTERNAL_DOMAIN")
 	token, err := jwtAuth.GenerateToken(&s)
 	if err != nil {
 		return errors.New("Error generating JWT token")
@@ -40,7 +41,7 @@ func SetSession(w http.ResponseWriter, s types.SessionUser) error {
 		Expires:  expiration,
 	}
 	if strings.ToLower(ENV) == "production" {
-		cookie.Domain = "" // Add domain
+		cookie.Domain = "." + DOMAIN // Add domain
 		cookie.Secure = true
 	}
 	http.SetCookie(w, &cookie)

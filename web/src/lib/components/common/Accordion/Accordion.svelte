@@ -41,7 +41,7 @@
     >
       <span>{title}</span>
       <img src="/assets/images/right-arrow.svg" width="6" alt="dd"
-        class={showDD ? "rotate-90" : ""}
+        class={clsx(showDD ? reverseDD ? "-rotate-90" : "rotate-90" : "", "ml-2")}
       />
     </Button>
   </div>

@@ -21,7 +21,7 @@
 
   const columns = [
   	{
-  		name: "Email",
+  		name: "Owner",
   		key: "email",
   	},
   	// {
@@ -40,18 +40,26 @@
   	},
   ];
 
+  const ownedProjects = projects.filter((p) => p.ownerId === userId);
+  const memberProjects = projects.filter((p) => p.ownerId !== userId);
+
+  if (ownedProjects.length <= 0 && memberProjects.length > 0) {
+  	state.tab = "member";
+  	state.projects = memberProjects;
+  }
+
   const tabs = [
   	{
   		name: "You own",
   		key: "you-own",
   		filter: () =>
-  			(state.projects = projects.filter((p) => p.ownerId === userId)),
+  			(state.projects = ownedProjects),
   	},
   	{
   		name: "You're a member",
   		key: "member",
   		filter: () =>
-  			(state.projects = projects.filter((p) => p.ownerId !== userId)),
+  			(state.projects = memberProjects),
   	},
   ];
 </script>

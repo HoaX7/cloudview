@@ -8,3 +8,7 @@ https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths
 
 - Helpful article:
 https://colinwren.is/blog/create-an-editable-svg-path-with-konva
+
+# Build Notes
+- We need to use `sveltekit node adapter` to make it work in production.
+- This creates `.svelte-kit` and `dist` dir for production.

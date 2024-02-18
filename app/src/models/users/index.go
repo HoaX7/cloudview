@@ -37,6 +37,7 @@ type Users struct {
 	IsDeleted            *bool            `json:"isDeleted,omitempty"`
 	CreatedAt            *time.Time       `json:"createdAt,omitempty"`
 	UpdatedAt            *time.Time       `json:"updatedAt,omitempty"`
+	Permissions          *string          `json:"permissions,omitempty"`
 }
 
 func Create(db *database.DB, data Users) (Users, error) {
@@ -45,7 +46,8 @@ func Create(db *database.DB, data Users) (Users, error) {
 	// Need to pass both for query to execute properly.
 	//
 	stmt := table.Users.INSERT(table.Users.Username,
-		table.Users.Email, table.Users.AvatarURL, table.Users.Metadata).
+		table.Users.Email, table.Users.AvatarURL,
+		table.Users.Metadata, table.Users.Permissions).
 		MODEL(data).
 		RETURNING(table.Users.AllColumns)
 
@@ -78,7 +80,8 @@ func Create(db *database.DB, data Users) (Users, error) {
 			&result.Metadata, &result.IsDeleted,
 			&result.CreatedAt,
 			&result.UpdatedAt,
-			&result.SubscriptionPlanID); err != nil {
+			&result.SubscriptionPlanID,
+			&result.Permissions); err != nil {
 			logger.Logger.Error("model.users.Create: ERROR", err)
 			return result, custom_errors.UnknownError
 		}

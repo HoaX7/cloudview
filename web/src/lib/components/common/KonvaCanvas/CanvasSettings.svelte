@@ -19,7 +19,9 @@
     <div class="absolute bottom-8 rounded p-3 right-0 bg-white shadow">
       <div class="flex items-center">
         <label for="animate" class="mr-2"> Animate </label>
-        <input name="animate" type="checkbox" bind:checked={checked} />
+        <input name="animate" type="checkbox" bind:checked={checked} on:click={(e) => {
+        	e.stopPropagation();
+        }} />
       </div>
     </div>
   {/if}

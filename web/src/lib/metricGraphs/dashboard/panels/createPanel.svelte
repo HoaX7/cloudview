@@ -25,7 +25,7 @@
     variant="p"
     font={16}
     weight="semi-bold"
-    classname={clsx("flex items-center gap-1 bg-yellow-200 p-3 rounded-md")}
+    classname={clsx("flex items-center gap-1 bg-blue-200 border-2 border-blue-300 p-3 rounded-md")}
   >
     <Icon src="/assets/images/info.svg" alt="info" width="24" /> To enable real-time
     monitoring, follow the instructions below:

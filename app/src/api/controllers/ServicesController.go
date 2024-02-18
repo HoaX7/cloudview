@@ -140,7 +140,12 @@ func (c *ServicesController) GetApiGatewayV2Integrations(db *database.DB) http.H
 				ProviderAccountID: providerAccount.ID,
 				Region:            region,
 			}
-			if err := awsClient.Init(providerAccount.AccessKeyID, providerAccount.AccessKeySecret, region); err != nil {
+			accessKeySecret, err := encryption.Decrypt(providerAccount.AccessKeySecret, providerAccount.RotationSecretKey)
+			if err != nil {
+				c.Logger.Error("Invalid provider access-key-secret", err)
+				return nil, errors.New("invalid provider secret")
+			}
+			if err := awsClient.Init(providerAccount.AccessKeyID, accessKeySecret, region); err != nil {
 				c.Logger.Error("ERROR unable to initialize aws client", err)
 				return nil, custom_errors.UnknownError
 			}

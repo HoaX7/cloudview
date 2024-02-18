@@ -18,6 +18,10 @@ type permissionMap struct {
 	MEMBER_MODIFY_RESOURCE_STATE bool
 	MEMBER_MANAGE_METRICS_PANEL  bool
 	MEMBER_REPORT_METRICS        bool
+
+	// User permissions
+	USER_MODIFY_PROJECT          bool
+	USER_MODIFY_PROVIDER_ACCOUNT bool
 }
 
 type permissionConstant struct {
@@ -27,6 +31,8 @@ type permissionConstant struct {
 	MEMBER_MODIFY_RESOURCE_STATE int
 	MEMBER_MANAGE_METRICS_PANEL  int
 	MEMBER_REPORT_METRICS        int
+	USER_MODIFY_PROJECT          int
+	USER_MODIFY_PROVIDER_ACCOUNT int
 }
 
 /*
@@ -42,6 +48,8 @@ var (
 	MEMBER_MODIFY_RESOURCE_STATE = "MEMBER_MODIFY_RESOURCE_STATE"
 	MEMBER_MANAGE_METRICS_PANEL  = "MEMBER_MANAGE_METRICS_PANEL"
 	MEMBER_REPORT_METRICS        = "MEMBER_REPORT_METRICS"
+	USER_MODIFY_PROJECT          = "USER_MODIFY_PROJECT"
+	USER_MODIFY_PROVIDER_ACCOUNT = "USER_MODIFY_PROVIDER_ACCOUNT"
 	/*
 		We are using bitwise system assigned to each feature.
 		All the features used by the user are then stored in DB,
@@ -55,6 +63,25 @@ var (
 		MEMBER_MODIFY_RESOURCE_STATE: 1 << 3,
 		MEMBER_MANAGE_METRICS_PANEL:  1 << 4,
 		MEMBER_REPORT_METRICS:        1 << 5,
+		USER_MODIFY_PROJECT:          1 << 6,
+		USER_MODIFY_PROVIDER_ACCOUNT: 1 << 7,
+	}
+
+	AllProjectPermissions = []string{
+		VISUALIZATION_AND_METRICS,
+		ALERTING,
+		SMART_DEBUGGING,
+	}
+
+	AllProjectMemberPermissions = []string{
+		MEMBER_MODIFY_RESOURCE_STATE,
+		MEMBER_MANAGE_METRICS_PANEL,
+		MEMBER_REPORT_METRICS,
+	}
+
+	AllUserPermissions = []string{
+		USER_MODIFY_PROJECT,
+		USER_MODIFY_PROVIDER_ACCOUNT,
 	}
 )
 
@@ -62,6 +89,10 @@ var (
 Verifies if user has all permissions in the list.
 */
 func VerifyPermissions(perms []string, hex string) bool {
+	if hex == "" {
+		logger.Logger.Log("No permission set, hex value is 0.")
+		return false
+	}
 	permissions, err := GetPermissions(hex)
 	flag := false
 	if err != nil {

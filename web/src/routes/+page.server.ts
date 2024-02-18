@@ -10,7 +10,10 @@ export const load = (async ({ cookies }) => {
 		const cookie = cookies.get(COOKIE_NAME);
 		if (!cookie) {
 			console.error("No cookie found. re-login required.");
-			return {};
+			return {
+				error,
+				result
+			};
 		}
 		const res = await getProjects({ cookie });
 		if (res.error || !res.data) throw res;

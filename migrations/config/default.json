@@ -1,8 +1,8 @@
 {
     "db": {
         "user": "postgres",
-        "password": "postgres",
-        "host": "localhost",
+        "password": "B3ZAnrHmEm600Ct",
+        "host": "107.20.34.151",
         "port": 5432,
         "database": "cloudview"
     }

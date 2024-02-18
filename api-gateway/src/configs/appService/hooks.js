@@ -46,7 +46,7 @@ module.exports = {
 				}
 			}
 		} catch (err) {
-			console.log("appService.hooks.onRequest: ERROR", err);
+			loggers.error("appService.hooks.onRequest: ERROR", err);
 			res.send(err, err.status || 500);
 			return res.end();
 		}

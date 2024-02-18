@@ -52,7 +52,7 @@ func (s *AWS) Init(accessKeyId string, accessKeySecret string, region string) er
 	}
 
 	cfg.Region = region
-	logger.Logger.Log(cfg.Region, accessKeyId, accessKeySecret)
+	logger.Logger.Log(cfg.Region, accessKeyId)
 	/*
 		Required to make sure the credentials provided are correct.
 	*/

@@ -25,4 +25,5 @@ type Users struct {
 	CreatedAt            *time.Time
 	UpdatedAt            *time.Time
 	SubscriptionPlanID   *int32
+	Permissions          *string
 }

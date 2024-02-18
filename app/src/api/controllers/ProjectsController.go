@@ -8,8 +8,8 @@ import (
 	"cloudview/app/src/models"
 	project_members_model "cloudview/app/src/models/project_members"
 	projects_model "cloudview/app/src/models/projects"
+	"cloudview/app/src/permissions"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -17,10 +17,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-/*
-TODO - Decide the `member_limit` prop value based on the user
-subscription plan. Default value is 1
-*/
 func (c *ProjectsController) CreateProject(db *database.DB) http.HandlerFunc {
 	c.Logger.SetName(c.Name + ".CreateProject")
 	/*
@@ -34,13 +30,17 @@ func (c *ProjectsController) CreateProject(db *database.DB) http.HandlerFunc {
 	*/
 	return func(w http.ResponseWriter, r *http.Request) {
 		rw := middleware.CustomResponseWriter(w)
-		authenticatedUser, err := rw.User(db, r)
-		if err != nil {
-			c.Logger.Error(err)
-			if errors.Is(err, custom_errors.NoDataFound) {
-				rw.Unauthorized()
-				return
-			}
+		authenticatedUser := rw.SessionUser
+		perms := authenticatedUser.Permissions
+		canContinue := false
+		if perms != nil {
+			canContinue = permissions.VerifyPermissions([]string{
+				permissions.USER_MODIFY_PROJECT,
+			}, *perms)
+			canContinue = false
+		}
+		if !canContinue {
+			rw.ErrorMessage = "Your account does not have the right permissions, please contact us at vivekrajsr.96@gmail.com to resolve the issue."
 			rw.Forbidden()
 			return
 		}
@@ -67,9 +67,6 @@ func (c *ProjectsController) CreateProject(db *database.DB) http.HandlerFunc {
 		}
 		request.OwnerID = &authenticatedUser.ID
 		request.Email = authenticatedUser.Email
-		if request.MemberLimit <= 0 {
-			request.MemberLimit = 1
-		}
 		c.Logger.Log("creating new project for owner: ", request.OwnerID)
 		result, err := projects_model.Create(db, request)
 		if err != nil {
@@ -77,11 +74,13 @@ func (c *ProjectsController) CreateProject(db *database.DB) http.HandlerFunc {
 			rw.Error("Something went wrong, Please try again", http.StatusUnprocessableEntity)
 			return
 		}
+		memberPerms := permissions.SetPermissions(permissions.AllProjectMemberPermissions)
 		// create project members
 		project_members_model.Create(db, models.ProjectMembers{
-			ProjectID: result.ID,
-			UserID:    authenticatedUser.ID,
-			IsOwner:   true,
+			ProjectID:   result.ID,
+			UserID:      authenticatedUser.ID,
+			IsOwner:     true,
+			Permissions: memberPerms,
 		})
 		rw.Success(result, http.StatusOK)
 		return
@@ -189,6 +188,18 @@ func (c *ProjectsController) Update(db *database.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		rw := middleware.CustomResponseWriter(w)
 		authenticatedUser := rw.SessionUser
+		perms := authenticatedUser.Permissions
+		canContinue := false
+		if perms != nil {
+			canContinue = permissions.VerifyPermissions([]string{
+				permissions.USER_MODIFY_PROJECT,
+			}, *perms)
+		}
+		if !canContinue {
+			rw.ErrorMessage = "Your account does not have the right permissions, please contact us at vivekrajsr.96@gmail.com to resolve the issue."
+			rw.Forbidden()
+			return
+		}
 		id := mux.Vars(r)["id"]
 		isUUIDValid, uuid := helpers.IsValidUUID(id)
 		if !isUUIDValid {

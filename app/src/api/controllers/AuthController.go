@@ -92,7 +92,8 @@ https://thinkingeek.com/2018/05/31/setting-and-deleting-cookies-in-go/
 */
 func (c *AuthController) Logout(w http.ResponseWriter, r *http.Request) {
 	rw := middleware.RegisterResponses(w)
-	ENV := helpers.GoDotEnvVariable("ENV")
+	ENV := helpers.GoDotEnvVariable("GO_ENV")
+	DOMAIN := helpers.GoDotEnvVariable("EXTERNAL_DOMAIN")
 	cookie := http.Cookie{
 		Name:     constants.COOKIE_NAME,
 		Value:    "",
@@ -104,7 +105,7 @@ func (c *AuthController) Logout(w http.ResponseWriter, r *http.Request) {
 		MaxAge:   -1,
 	}
 	if strings.ToLower(ENV) == "production" {
-		cookie.Domain = "" // Add domain
+		cookie.Domain = "." + DOMAIN // Add domain
 		cookie.Secure = true
 	}
 	http.SetCookie(w, &cookie)

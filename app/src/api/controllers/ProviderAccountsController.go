@@ -10,6 +10,7 @@ import (
 	"cloudview/app/src/models"
 	projects_model "cloudview/app/src/models/projects"
 	provider_models "cloudview/app/src/models/provider_accounts"
+	"cloudview/app/src/permissions"
 	"cloudview/app/src/types"
 	"encoding/json"
 	"io"
@@ -31,6 +32,18 @@ func (c *ProviderAccountsController) StoreAccessKey(db *database.DB) http.Handle
 	return func(w http.ResponseWriter, r *http.Request) {
 		rw := middleware.CustomResponseWriter(w)
 		authenticatedUser := rw.SessionUser
+		perms := authenticatedUser.Permissions
+		canContinue := false
+		if perms != nil {
+			canContinue = permissions.VerifyPermissions([]string{
+				permissions.USER_MODIFY_PROVIDER_ACCOUNT,
+			}, *perms)
+		}
+		if !canContinue {
+			rw.ErrorMessage = "Your account does not have the right permissions, please contact us at vivekrajsr.96@gmail.com to resolve the issue."
+			rw.Forbidden()
+			return
+		}
 		body, err := io.ReadAll(r.Body)
 		defer r.Body.Close()
 		if err != nil {
@@ -180,6 +193,18 @@ func (c *ProviderAccountsController) UpdateProviderAccount(db *database.DB) http
 	return func(w http.ResponseWriter, r *http.Request) {
 		rw := middleware.CustomResponseWriter(w)
 		authenticatedUser := rw.SessionUser
+		perms := authenticatedUser.Permissions
+		canContinue := false
+		if perms != nil {
+			canContinue = permissions.VerifyPermissions([]string{
+				permissions.USER_MODIFY_PROVIDER_ACCOUNT,
+			}, *perms)
+		}
+		if !canContinue {
+			rw.ErrorMessage = "Your account does not have the right permissions, please contact us at vivekrajsr.96@gmail.com to resolve the issue."
+			rw.Forbidden()
+			return
+		}
 		id := mux.Vars(r)["id"]
 		isIDValidUUID, uid := helpers.IsValidUUID(id)
 		if !isIDValidUUID {

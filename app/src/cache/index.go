@@ -6,7 +6,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"strconv"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -18,7 +17,7 @@ var rdb *redis.Client
 func Init() {
 	var (
 		REDIS_HOST     = helpers.GoDotEnvVariable("REDIS_HOST")
-		REDIS_PORT     = 6379
+		REDIS_PORT     = helpers.GoDotEnvVariable("REDIS_PORT")
 		REDIS_PASSWORD = helpers.GoDotEnvVariable("REDIS_PASSWORD")
 	)
 	if REDIS_HOST == "" {
@@ -27,15 +26,16 @@ func Init() {
 	}
 	rdb = redis.NewClient(&redis.Options{
 		Password: REDIS_PASSWORD,
-		Addr:     REDIS_HOST + ":" + strconv.Itoa(REDIS_PORT),
+		Addr:     REDIS_HOST + ":" + REDIS_PORT,
 		DB:       0, // use default db
 	})
 	err := rdb.Ping(ctx).Err()
 	if err != nil {
+		logger.Logger.Error("cache.Init: Error connecting to redis:", err)
 		rdb = nil
+		return
 	}
 	logger.Logger.Log("cache.Init: Redis cache connected")
-	return
 }
 
 /*
@@ -88,12 +88,12 @@ Make sure to pass the address of the result var `&result` to get data returned f
 @Usage Fetch(key, duration, &target, cb)
 */
 func Fetch(key string, duration time.Duration, target any, callback func() (interface{}, error)) error {
-	data, err := Get(key)
+	data, _ := Get(key)
 	if data != "" {
 		logger.Logger.Log("cache.Fetch: Cache hit for:", key)
 		if err := json.Unmarshal([]byte(data), target); err != nil {
 			logger.Logger.Log("cache.Fetch: Fatal ERROR", err)
-			return errors.New("Unable to fetch data from cache")
+			return errors.New("unable to fetch data from cache")
 		}
 		return nil
 	}
@@ -109,6 +109,6 @@ func Fetch(key string, duration time.Duration, target any, callback func() (inte
 	} else {
 		Set(key, string(jsonData), duration)
 	}
-	target = &result
+	json.Unmarshal(jsonData, target)
 	return nil
 }

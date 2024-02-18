@@ -70,6 +70,7 @@ export const load = (async ({ url, cookies, params }) => {
 						});
 					})
 				);
+				console.log("fetched api-gateway integrations", JSON.stringify(apiGatewayWithIntegrations, null, 2));
 				res[idex].result =
 			apiGatewayWithIntegrations as ApiGatewayWithIntegrationProps[];
 			}

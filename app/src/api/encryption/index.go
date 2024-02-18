@@ -10,6 +10,12 @@ import (
 	"io"
 )
 
+/*
+To encrypt data correctly it is recommended to use a
+16 byte secret key.
+
+The encryption will fail otherwise.
+*/
 func Encrypt(text string, secret string) (string, error) {
 	logger.Logger.Log("Encrypting string")
 	block, err := aes.NewCipher([]byte(secret))

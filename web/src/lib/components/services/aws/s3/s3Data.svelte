@@ -116,7 +116,7 @@
       Access Control List
     </Typography>
     {#if isPublicWrite || bucket?.isPublic}
-      <div class="bg-yellow-200 text-sm font-medium p-3 mt-3 rounded">
+      <div class="bg-yellow-200 border--yellow-300 border-2 text-sm font-medium p-3 mt-3 rounded">
         <strong>{bucket?.Name || "-"}</strong> S3 Bucket has
         <strong>Public Write</strong> Access. If this was not intended change
         this setting immediately from

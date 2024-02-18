@@ -36,7 +36,7 @@
 <Modal
   title="Are you ABSOLUTELY sure?"
   description="Unexpected bad things will happen if you don't read this!"
-  descriptionclass="bg-yellow-200 font-medium p-3"
+  descriptionclass="bg-yellow-200 border-2 border-yellow-300 font-bold p-3"
   closeModal={onClose}
   showButtons={true}
   isForm={true}

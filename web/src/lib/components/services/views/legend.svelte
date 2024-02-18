@@ -18,7 +18,7 @@ title="Legend"
 buttonClass="flex items-center bg-gray-100 py-2 shadow px-5 hover:bg-gray-200"
 disableDefaultBtnClass={true}
 reverseDD={true}
-showDD={false}
+showDD={true}
 >
 <div class="shadow bg-gray-100 p-3 mb-2">
   {#each Object.keys(legendGroup) as key, index (index)}

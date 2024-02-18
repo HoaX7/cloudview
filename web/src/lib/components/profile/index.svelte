@@ -92,7 +92,7 @@
               		await logout();
               		Auth.logout();
               		Datastore.clear();
-              		window.location.reload();
+              		window.location.assign("/");
               	} catch (err) {
               		console.log("Unable to logout", err);
               	}
