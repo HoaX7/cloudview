@@ -35,7 +35,7 @@
       }}
     >
       <Image
-        class="rounded-full h-8 w-8 bg-purple-300"
+        class="rounded-full h-8 w-8 bg-gray-300"
         src={profile.avatarUrl || placeholder}
         alt={profile.username}
       />
@@ -66,7 +66,7 @@
         >
         <div class="flex items-start mt-5">
           <Image
-            class="rounded-full border-2 md:block hidden mr-3 bg-purple-300"
+            class="rounded-full border-2 md:block hidden mr-3 bg-gray-300"
             width={80}
             height={80}
             src={profile.avatarUrl || placeholder}

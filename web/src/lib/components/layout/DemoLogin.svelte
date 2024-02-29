@@ -7,21 +7,24 @@
   import { Login } from "$src/api/oauth";
   import AlertMessage from "../common/Alerts/AlertMessage.svelte";
   import { PUBLIC_WEBAPP_SERVICE } from "$env/static/public";
+  import { onMount } from "svelte";
 
   let isLoading = false;
 
   let state = {
-  	username: "",
-  	password: "",
+  	username: "demo@gmail.com",
+  	password: "demo123",
   };
 
   let alertRef: any;
   // eslint-disable-next-line max-len
-  const demoUrl = `${PUBLIC_WEBAPP_SERVICE}/cloud/metrics?providerAccountId=9f16f1f2-27fd-44bb-a33d-5c1b489b9e37&projectId=14f2c455-b4f4-4e43-93c8-30d7146088d4&region=us-west-2`;
+  const demoUrl = `${PUBLIC_WEBAPP_SERVICE}/cloud/aws?providerAccountId=9f16f1f2-27fd-44bb-a33d-5c1b489b9e37&projectId=14f2c455-b4f4-4e43-93c8-30d7146088d4&region=us-west-2`;
 
   const handleSubmit = async (e: SubmitEvent) => {
   	try {
-  		e.preventDefault();
+  		if (typeof e.preventDefault === "function") {
+  		  e.preventDefault();
+  		}
   		isLoading = true;
   		const res = await Login({
   			provider: "local",
@@ -52,7 +55,7 @@
     <div class="w-80 flex flex-col justify-center text-center items-center">
       <Brandlogo font={32} />
       <Typography variant="p" weight="medium" font={16} classname="mt-3">
-        Visualize and Monitor your resources deployed on AWS, GCP, Azure
+        Visualize, Interact and Monitor your resources deployed on AWS, GCP, Azure
         and more in one place
       </Typography>
       <form class="mt-3 w-full" on:submit={handleSubmit}>
@@ -63,6 +66,8 @@
           on:input={(e) => {
           	state.username = e.detail;
           }}
+          disable={true}
+          value={state.username}
         />
         <Input
           id="password"
@@ -72,6 +77,8 @@
           on:input={(e) => {
           	state.password = e.detail;
           }}
+          disable={true}
+          value={state.password}
         />
         <Button
           type="submit"
