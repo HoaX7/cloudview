@@ -50,7 +50,7 @@ import Mainlayout from "../layouts/MainLayout.astro";
 	</section>
 	<Footer />
 </Mainlayout>
-<script>import { requestDemoApi } from "../api";
+<script type="javascript">import { requestDemoApi } from "../api";
 
 	const urlSearchParams = new URLSearchParams(window.location.search);
 	const params = Object.fromEntries(urlSearchParams.entries());

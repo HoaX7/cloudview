@@ -11,8 +11,10 @@ import Modal from "../commons/Modal.astro";
 <Modal title="Contact Us" />
 
 <script>
+    console.log("script loaded here------");
     const body = document.getElementsByTagName("body")[0];
     const btn = document.getElementById("show-modal");
+    console.log("btn", btn);
     const modal = document.getElementById("default-modal");
     btn.addEventListener("click", () => {
     	modal.style.display = "flex";

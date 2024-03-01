@@ -77,52 +77,58 @@ const { title } = Astro.props;
             </div>
         </div>
 	</div>
-
-	<script>
-        import { requestDemoApi } from "../../api/index";
-
-        const modal = document.getElementById("default-modal");
-        const closeBtn = document.getElementById("close-modal");
-        const body = document.getElementsByTagName("body")[0];
-        const form = document.getElementById("contact-form");
-        const submitBtn = document.getElementById("submit");
-        const nameEl = document.getElementById("name");
-        const emailEl = document.getElementById("email");
-        const notesEl = document.getElementById("notes");
-
-        const close = () => {
-        	modal.style.display = "none";
-        	body.style.overflow = "auto";
-        };
-
-        form.onsubmit = async (e) => {
-        	e.preventDefault();
-        	const name = nameEl.value;
-        	const email = emailEl.value;
-        	const notes = notesEl.value || "";
-        	try {
-        		submitBtn.innerHTML = "Saving...";
-        		submitBtn.disabled = true;
-        		const res = await requestDemoApi({
-        			name,
-        			email,
-        			callScheduledAt: new Date(),
-        			notes
-        		});
-        		if (res.error) throw res;
-        		form.reset();
-        		alert("Thank you for submitting. We will contact you shortly.");
-        		close();
-        	} catch (err) {
-        		console.error("unable to submit:", err);
-        		alert("unable to submit your request");
-        	}
-        	submitBtn.innerHTML = "Submit";
-        	submitBtn.disabled = false;
-        };
-
-        if (closeBtn) {
-        	closeBtn.addEventListener("click", close);
-        }
-	</script>
 </div>
+
+<script>
+    import { requestDemoApi } from "../../api/index";
+
+    console.log("script loaded");
+
+    const modal = document.getElementById("default-modal");
+    const closeBtn = document.getElementById("close-modal");
+    const body = document.getElementsByTagName("body")[0];
+    const form = document.getElementById("contact-form");
+    const submitBtn = document.getElementById("submit");
+    const nameEl = document.getElementById("name");
+    const emailEl = document.getElementById("email");
+    const notesEl = document.getElementById("notes");
+
+    if (!form) {
+    	console.log("contact form not found...");
+    }
+
+    const close = () => {
+    	modal.style.display = "none";
+    	body.style.overflow = "auto";
+    };
+
+    form.onsubmit = async (e) => {
+    	e.preventDefault();
+    	const name = nameEl.value;
+    	const email = emailEl.value;
+    	const notes = notesEl.value || "";
+    	try {
+    		submitBtn.innerHTML = "Saving...";
+    		submitBtn.disabled = true;
+    		const res = await requestDemoApi({
+    			name,
+    			email,
+    			callScheduledAt: new Date(),
+    			notes
+    		});
+    		if (res.error) throw res;
+    		form.reset();
+    		alert("Thank you for submitting. We will contact you shortly.");
+    		close();
+    	} catch (err) {
+    		console.error("unable to submit:", err);
+    		alert("unable to submit your request");
+    	}
+    	submitBtn.innerHTML = "Submit";
+    	submitBtn.disabled = false;
+    };
+
+    if (closeBtn) {
+    	closeBtn.addEventListener("click", close);
+    }
+</script>
