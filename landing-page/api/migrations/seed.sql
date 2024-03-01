@@ -1,7 +1,8 @@
 CREATE TABLE IF NOT EXISTS registrations (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
-	name TEXT,
+	name varchar(255),
 	email_address TEXT NOT NULL UNIQUE,
+	notes text,
 	is_demo_completed boolean default false,
 	is_onboarded boolean default false,
 	call_scheduled_at timestamptz,

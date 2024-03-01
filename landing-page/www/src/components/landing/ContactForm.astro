@@ -1,0 +1,22 @@
+---
+import Modal from "../commons/Modal.astro";
+---
+
+<button
+	class="bg-site-gradient text-white font-semibold text-sm px-4 py-3 rounded-full"
+	id="show-modal"
+>
+    Get Started
+</button>
+<Modal title="Contact Us" />
+
+<script>
+    const body = document.getElementsByTagName("body")[0];
+    const btn = document.getElementById("show-modal");
+    const modal = document.getElementById("default-modal");
+    btn.addEventListener("click", () => {
+    	modal.style.display = "flex";
+    	body.style.overflow = "hidden";
+    });
+    
+</script>
