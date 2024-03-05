@@ -1,5 +1,6 @@
 ---
 import { requestDemoApi } from "../api";
+import ContactForm from "../components/landing/ContactForm.astro";
 import Features from "../components/landing/Features.astro";
 import HeroSection from "../components/landing/HeroSection.astro";
 import HowItWorks from "../components/landing/howItWorks/HowItWorks.astro";
@@ -39,13 +40,25 @@ import Mainlayout from "../layouts/MainLayout.astro";
 		</section>
 	</div>
 	<section id="features" class="mt-10 pb-10 slate-gradient">
-		<h2 class="text-center text-3xl font-bold pt-10">Features</h2>
+		<h2 class="text-center text-3xl font-bold pt-10">What We Offer</h2>
 		<Features />
 	</section>
 	<section id="how-it-works" class="mt-10 pb-10">
 		<h2 class="text-center text-3xl font-bold pt-10">How it works</h2>
 		<div class="lg:mx-48 md:mx-20 p-4 mt-5">
 			<HowItWorks />
+		</div>
+	</section>
+	<section id="get-started" class="mt-10 pb-10 slate-gradient text-center">
+		<h2 class="text-3xl font-bold pt-10">Elevate Your Infrastructure Efficiency</h2>
+		<p class="font-semibold text-gray-600 mt-3">Use Cloud Friendly today</p>
+		<div class="mt-5">
+			<button
+				class="bg-site-gradient text-white font-semibold text-sm px-4 py-3 rounded-full"
+				id="show-modal2"
+			>
+				Request access
+			</button>
 		</div>
 	</section>
 	<Footer />
@@ -72,4 +85,15 @@ import Mainlayout from "../layouts/MainLayout.astro";
 			}
 		})();
 	}
+</script>
+
+<script>
+    const body = document.getElementsByTagName("body")[0];
+    const btn = document.getElementById("show-modal2");
+    const modal = document.getElementById("default-modal");
+    btn?.addEventListener("click", () => {
+    	modal!.style.display = "flex";
+    	body.style.overflow = "hidden";
+    });
+    
 </script>

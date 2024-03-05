@@ -53,16 +53,18 @@ const ogImage = Astro.props.image || defaultOgImage;
 		<meta property="og:image" content={ogImage} />
 		<meta property="image" content={ogImage} />
 		<title>{Astro.props.title}</title>
+		<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin aria-disabled="true">
 		<link
 			rel="stylesheet"
-			href="https://fonts.googleapis.com/css?family=Plus Jakarta Sans:r,b"
+			href="https://fonts.googleapis.com/css?family=Plus Jakarta Sans:r,b&display=swap"
+			aria-disabled="true"
 		/>
         <!-- Google tag (gtag.js) -->
         <script
-        	async
         	src="https://www.googletagmanager.com/gtag/js?id=G-TZE0QWCKY8"
+        	defer
         ></script>
-        <script lang="ts">
+        <script lang="ts" defer>
             window.dataLayer = window.dataLayer || [];
             function gtag() {
             	// eslint-disable-next-line no-undef

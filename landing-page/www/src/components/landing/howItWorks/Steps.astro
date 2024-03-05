@@ -34,18 +34,20 @@ const { index = 0 } = Astro.props;
 			<div class="p-5">
 				<div class="">
 					<div class="mt-5">
-						<label class="font-semibold text-base">Name:</label>
+						<label for="name" class="font-semibold text-base">Name:</label>
 						<input
+							id="name"
 							value="US Client Project 1"
 							readonly
 							class="mt-3 w-full rounded-md p-3 bg-ceam border-sky-400 border-2 text-sm font-medium"
 						/>
 					</div>
 					<div class="mt-5">
-						<label for="" class="font-semibold text-base">
+						<label for="provider" class="font-semibold text-base">
                             Cloud Provider:
 						</label>
 						<select
+							id="provider"
 							class={clsx(
 								"bg-ceam w-full mt-3 p-3 border-sky-400 border-2 rounded-md",
 								"text-sm font-medium",
@@ -75,7 +77,7 @@ const { index = 0 } = Astro.props;
                 You must have AdministratorAccess (recommended) or be the root
                 user (not recommended). If you need help, see{" "}
 					<a
-						class="underline text-blue-500"
+						class="underline text-blue-800"
 						target="_blank"
 						href="https://docs.aws.amazon.com/IAM/latest/UserGuide/getting-set-up.html#create-an-admin"
 					>
@@ -83,9 +85,10 @@ const { index = 0 } = Astro.props;
 					</a>
 				</p>
 				<div class="mt-3 text-sm pb-3">
-					<label>AWS Account Name</label>
+					<label for="aws-name">AWS Account Name</label>
 					<div class="w-full">
 						<input
+							id="aws-name"
 							placeholder="Start typing..."
 							class="mt-2 border-gray-100 rounded-md p-2 border-2 w-full"
 						/>
@@ -93,7 +96,7 @@ const { index = 0 } = Astro.props;
 				</div>
 				<div class="mt-3 grid grid-cols-2 gap-4">
 					<div class="col-span-2">
-						<button class="text-sm bg-[#ff9900] text-white px-4 py-3 rounded-full font-semibold">
+						<button class="text-sm bg-[#ff9900] px-4 py-3 rounded-full font-semibold">
                         Link AWS Account
 						</button>
 					</div>
