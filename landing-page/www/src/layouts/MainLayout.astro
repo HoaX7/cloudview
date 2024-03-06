@@ -53,11 +53,24 @@ const ogImage = Astro.props.image || defaultOgImage;
 		<meta property="og:image" content={ogImage} />
 		<meta property="image" content={ogImage} />
 		<title>{Astro.props.title}</title>
-		<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin aria-disabled="true">
+		<!--
+			Webfonts take some time to load. The default behavior is 'font-display: swap'
+			which means it swaps out with the web font whenever it is loaded.
+			This causes layout shifts. 
+			To avoid such issues we can use 'font-display: optional'
+			which only swaps the fonts on initial page load if the webfont has already loaded, 
+			else it fallsback to default build-in fonts.
+
+			The layout shift can be seen in mobile devices.
+
+			for more info see: https://simonhearne.com/2021/layout-shifts-webfonts/
+		 -->
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 		<link
-			rel="stylesheet"
-			href="https://fonts.googleapis.com/css?family=Plus Jakarta Sans:r,b&display=swap"
-			aria-disabled="true"
+			href="https://fonts.googleapis.com/css?family=Plus Jakarta Sans:r,b&display=optional"
+			media="screen"
+			rel="preload" as="style" onload="this.rel='stylesheet'"
 		/>
         <!-- Google tag (gtag.js) -->
         <script
