@@ -74,7 +74,8 @@ const items = [
 									)}
 								>
 									<div>
-										<div class="border-gray-100 border-2 shadow-lg p-3 rounded-md w-11/12">
+										<div class={clsx("border-gray-100 border-2 shadow-lg p-3",
+											"rounded-lg w-11/12 2xl:w-4/5")}>
 											<img
 												src="/assets/images/diagnose.webp"
 												alt="debug-cloud"
@@ -88,9 +89,9 @@ const items = [
 									<div class="flex justify-end">
 										<div
 											class={clsx(
-												"shadow-lg rounded-md p-3",
+												"shadow-lg rounded-lg p-3",
 												"border-gray-100 border-2 z-20 bg-white",
-												"relative -mt-10 w-4/5"
+												"relative -mt-10 w-4/5 2xl:w-3/5 2xl:-mt-32"
 											)}
 										>
 											<img

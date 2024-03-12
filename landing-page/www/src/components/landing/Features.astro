@@ -5,7 +5,7 @@ const features = [
 	{
 		name: "Interactive Infrastructure",
 		description:
-            "Deploy and monitor your cloud resources in real-time with log analysis.",
+            "Deploy and monitor your cloud resources in real-time with log analysis and smart debugging.",
 		icon: "/assets/images/cloud.svg",
 		// image: "/assets/images/cloud-view.webp"
 	},
@@ -35,7 +35,7 @@ const features = [
 		description: "Seamlessly replicate or migrate your infrastructure across different " +
 		"cloud providers such as AWS, GCP & Azure.",
 		icon: "/assets/images/migrate.svg",
-		comingSoon: true,
+		// comingSoon: true,
 		// image: "/assets/images/diagnose.webp"
 	},
 	{
@@ -43,7 +43,7 @@ const features = [
 		description: "Quickly find failing requests and resources using our " +
 		"log analysis, helping you identify and trace issues faster.",
 		icon: "/assets/images/diagnose.svg",
-		comingSoon: true,
+		comingSoon: false,
 	},
 ];
 ---
@@ -55,7 +55,7 @@ const features = [
 				return (
 					<div
 						class={clsx(
-							"shadow-lg rounded-2xl p-8 md:p-10 bg-white col-span-2 text-base",
+							"shadow-lg rounded-lg p-8 md:p-10 bg-white col-span-2 text-base",
 							"md:col-span-1 col-span-2 relative overflow-hidden",
 						)}
 					>
@@ -64,7 +64,7 @@ const features = [
                                 Coming Soon
 							</div>
 						)}
-						<div class="bg-black rounded-md p-2 w-10 h-10">
+						<div class="bg-black rounded-lg p-2 w-10 h-10">
 							<img width="40px" height="40px" src={item.icon} alt={item.name + "_icon"} />
 						</div>
 						<div class="mt-3 font-semibold">{item.name}</div>
