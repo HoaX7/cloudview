@@ -9,11 +9,12 @@ const width = Astro.props.width || "24";
 
 <a
 	class={clsx(
-		"flex items-center font-bold text-[#478af5]",
+		"flex items-center font-bold",
 		Astro.props.size === "2xl" ? "text-2xl" : Astro.props.size === "3xl" ? "text-3xl" : "text-xl",
 	)}
 	id="logo"
 	href="/"
+	style="color: #478af5;"
 >
 	<img
 		src="/assets/images/cloudfriendly-logo.svg"
