@@ -3,3 +3,4 @@ node_modules/*
 dist/*
 lib/*
 .env.prod
+*service-account.json
